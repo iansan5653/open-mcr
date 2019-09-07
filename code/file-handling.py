@@ -24,21 +24,18 @@ def list_file_paths(directory: str) -> typing.List[str]:
   return only_files
 
 
-def list_files_with_extensions(directory: str, extensions: typing.List[str]
-                               ) -> typing.List[str]:
+def filter_by_extensions(files: typing.List[str],
+                         extensions: typing.List[str]) -> typing.List[str]:
   """Returns a list of full paths to all the files that have the extensions
   given.
 
   Does not include files in subdirectories.
 
   Params:
-    directory: The full path to the directory to get the files from.
+    files: A list of all the files in the directory.
     extensions: List of file extensions, with leading dots (ie, `[".txt"]`).
   
   Returns:
     List of full paths to the files found.
   """
-  all_files = list_file_paths(directory)
-  return [
-      path for path in all_files if os.path.splitext(path)[1] in extensions
-  ]
+  return [path for path in files if os.path.splitext(path)[1] in extensions]
