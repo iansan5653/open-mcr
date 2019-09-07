@@ -4,7 +4,7 @@ import typing
 import os
 
 
-def list_file_paths(directory: str) -> typing.List[str]:
+def list_file_paths(directory: os.PathLike) -> typing.List[os.PathLike]:
   """Returns a list of full paths to all the files that are direct children.
 
   Does not include directories or files in subdirectories.
@@ -16,11 +16,8 @@ def list_file_paths(directory: str) -> typing.List[str]:
     List of full paths to the files found.
   """
   all_items = os.listdir(directory)
-  full_paths = [os.path.join(directory, name) for name in all_items]
-  only_files = [
-      name for (full_path, name) in zip(full_paths, all_items)
-      if os.path.isfile(full_path)
-  ]
+  full_paths = [directory / name for name in all_items]
+  only_files = [path for path in full_paths if os.path.isfile(path)]
   return only_files
 
 
