@@ -1,10 +1,10 @@
 """Functions and utilities related to importing and exporting files."""
 
 import typing
-import os
+from pathlib import Path, PurePath
 
 
-def list_file_paths(directory: os.PathLike) -> typing.List[os.PathLike]:
+def list_file_paths(directory: Path) -> typing.List[Path]:
   """Returns a list of full paths to all the files that are direct children.
 
   Does not include directories or files in subdirectories.
@@ -13,26 +13,22 @@ def list_file_paths(directory: os.PathLike) -> typing.List[os.PathLike]:
     directory: The full path to the directory to look for files in.
 
   Returns:
-    List of full paths to the files found.
+    List of paths to the files found.
   """
-  all_items = os.listdir(directory)
-  full_paths = [directory / name for name in all_items]
-  only_files = [path for path in full_paths if os.path.isfile(path)]
-  return only_files
+  return [item for item in directory.iterdir() if item.is_file()]
 
 
-def filter_by_extensions(files: typing.List[str],
-                         extensions: typing.List[str]) -> typing.List[str]:
-  """Returns a list of full paths to all the files that have the extensions
-  given.
-
-  Does not include files in subdirectories.
+def filter_by_extensions(files: typing.List[PurePath],
+                         extensions: typing.List[str]) -> typing.List[PurePath]:
+  """Filter a list of Paths by a list of extensions.
 
   Params:
-    files: A list of all the files in the directory.
-    extensions: List of file extensions, with leading dots (ie, `[".txt"]`).
+    files: A list of Path objects.
+    extensions: List of file extensions, with leading dots (ie, `[".txt",
+      ".tar.gz"]`).
   
   Returns:
-    List of full paths to the files found.
+    A filtered list of the same path objects, *not* copies of the original
+      objects.
   """
-  return [path for path in files if os.path.splitext(path)[1] in extensions]
+  return [file for file in files if "".join(file.suffixes) in extensions]

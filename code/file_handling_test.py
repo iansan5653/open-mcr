@@ -1,7 +1,7 @@
 """Tests for file-handling.py methods."""
 
 import file_handling
-from pathlib import Path
+from pathlib import Path, PurePath
 
 
 class TestListFilePaths:
@@ -14,24 +14,32 @@ class TestListFilePaths:
 
 class TestFilterByExtensions:
   def test_single_extension(self):
-    files = ["test.py", "test2.py", "test.txt", "test3.jpg"]
+    file_names = ["test.py", "test2.py", "test.txt", "test3.jpg"]
+    files = [PurePath(name) for name in file_names]
     extensions = [".py"]
-    expected = ["test.py", "test2.py"]
+    expected = [files[0], files[1]]
     assert file_handling.filter_by_extensions(files, extensions) == expected
 
   def test_multiple_extensions(self):
-    files = ["test.py", "test2.py", "test.txt", "test3.jpg"]
+    file_names = ["test.py", "test2.py", "test.txt", "test3.jpg"]
+    files = [PurePath(name) for name in file_names]
     extensions = [".py", ".jpg"]
-    expected = ["test.py", "test2.py", "test3.jpg"]
+    expected = [files[0], files[1], files[3]]
     assert file_handling.filter_by_extensions(files, extensions) == expected
 
   def test_full_paths(self):
-    files = [
+    file_paths = [
         "c:/documents/example/test.py", "d:/sample/test2.py", "f:/test.txt",
         "c:/users/joe/test3.jpg"
     ]
+    files = [PurePath(path) for path in file_paths]
     extensions = [".py", ".txt"]
-    expected = [
-        "c:/documents/example/test.py", "d:/sample/test2.py", "f:/test.txt"
-    ]
+    expected = [files[0], files[1], files[2]]
+    assert file_handling.filter_by_extensions(files, extensions) == expected
+
+  def test_combo_extension(self):
+    file_names = ["test.py", "test2.tar.gz", "test.txt", "test3.jpg"]
+    files = [PurePath(name) for name in file_names]
+    extensions = [".tar.gz"]
+    expected = [files[1]]
     assert file_handling.filter_by_extensions(files, extensions) == expected
