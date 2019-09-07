@@ -26,7 +26,8 @@ def list_file_paths(directory: str) -> typing.List[str]:
 
 def list_files_with_extensions(directory: str, extensions: typing.List[str]
                                ) -> typing.List[str]:
-  """Returns a list of full paths to all the files that have the extensions given.
+  """Returns a list of full paths to all the files that have the extensions
+  given.
 
   Does not include files in subdirectories.
 
