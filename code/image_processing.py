@@ -120,8 +120,47 @@ def is_adjacent_indices(index_a, index_b, items):
           or abs(index_a - index_b) == 1)
 
 
-def find_top_left_corner_marks(polygons):
-  potential_corner_marks = []
+def find_point_section(point, dimensions, long_sections, short_sections):
+  """Given a point, find out which section it is in.
+
+  NOTE: Not intended for use with small dimensions or high numbers of sections
+  due to use of integer mathematics and not floats.
+
+  Args:
+    point: A tuple or list in (x, y) form.
+    dimensions: A tuple or list in (width, height) form.
+    long_sections: The number of sections to divide the long side into.
+    short_sections: The number of sections to divide the short side into.
+  
+  Returns:
+    A tuple representing the section that contains the point, in
+    (x_section_index, y_section_index) form.
+    A tuple representing the number of sections in the x-direction and the
+    number of sections in the y-direction.
+  
+  Example:
+    Calling with long_sections = 3, short_sections = 2:
+    |--------|    |--------|
+    |        |    |  |  |  |
+    |        | -> |--------| -> (0, 1)
+    | *      |    | *|  |  |
+    |--------|    |--------|
+  """
+  wh_num_sections = (long_sections, short_sections) if (
+      max(dimensions) == dimensions[0]) else (short_sections, long_sections)
+  sections = [
+      list(range(0, side, side // num_sections))
+      for side, num_sections in zip(dimensions, wh_num_sections)
+  ]
+  result_section = [-1, -1]
+  for side_index, side_sections in enumerate(sections):
+    for section_index, section_start in enumerate(side_sections):
+      if point[side_index] > section_start:
+        result_section[side_index] = section_index
+  return result_section, wh_num_sections
+
+
+def find_top_left_corner_marks(polygons, image_dimensions):
   # Looking for a six point polygon with two edges that are twice as long as
   # the other edges and with all almost right angles.
   # Perform this search in one loop to maintain O(N) complexity.
@@ -157,16 +196,56 @@ def find_top_left_corner_marks(polygons):
     if not all(approx_correct):
       continue
 
-    potential_corner_marks.append(polygon)
-  return potential_corner_marks
+    section, xy_sections = find_point_section(flat_polygon[0],
+                                              image_dimensions, 4, 3)
+    # Check that the contour is in a corner of the image
+    if not ((section[0] == 0 or section[0] == xy_sections[0] - 1) and
+            (section[1] == 0 or section[1] == xy_sections[1] - 1)):
+      continue
+
+    # Returns the first viable polygon found
+    # TODO: Consider all found polygons and choose the most likely
+    return polygon
+
+
+def get_dimensions(image: np.array) -> typing.Tuple[int, int]:
+  height, width, _ = image.shape
+  return width, height
+
+
+def find_squares(contours):
+  squares = []
+  for contour in contours:
+    if len(contour) != 4:
+      continue
+
+    flat_contour = [e[0] for e in contour]
+
+    side_lengths = calc_side_lengths(flat_contour)
+    mean = sum(side_lengths) / len(side_lengths)
+    sides_equal = [is_approx_equal(side, mean) for side in side_lengths]
+    if not all(sides_equal):
+      continue
+
+    angles = calc_corner_angles(flat_contour)
+    approx_right = [is_approx_equal(theta, math.pi / 2) for theta in angles]
+    if not all(approx_right):
+      continue
+
+    squares.append(contour)
+  return squares
 
 
 sample_img_location = Path(
     __file__).parent.parent / "examples" / "left_corner_marks" / "11.png"
 sample_image = get_image(sample_img_location)
 all_polygons = find_polygons(sample_image)
-top_left_marks = find_top_left_corner_marks(all_polygons)
+top_left_mark = find_top_left_corner_marks(all_polygons,
+                                           get_dimensions(sample_image))
 red = (0, 0, 255)
-cv2.drawContours(sample_image, top_left_marks, -1, red, 1)
+cv2.drawContours(sample_image, [top_left_mark], -1, red, 1)
+all_squares = find_squares(all_polygons)
+blue = (255, 0, 0)
+cv2.drawContours(sample_image, all_squares, -1, blue, 1)
 cv2.imshow("image", sample_image)
 cv2.waitKey(0)
