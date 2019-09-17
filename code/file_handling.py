@@ -26,7 +26,7 @@ def filter_by_extensions(files: typing.List[PurePath],
     files: A list of Path objects.
     extensions: List of file extensions, with leading dots (ie, `[".txt",
       ".tar.gz"]`).
-  
+
   Returns:
     A filtered list of the same path objects, *not* copies of the original
       objects.
