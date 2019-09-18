@@ -77,6 +77,19 @@ def is_approx_equal(value_a: typing.Union[int, float],
   return abs(value_a - value_b) <= (tolerance * min(value_a, value_b))
 
 
+def all_approx_equal(values: typing.List[typing.Union[int, float]], target: typing.Union[int, float, None] = None, tolerance: float = 0.1):
+  """Returns `True` if every element in `values` is within `tolerance` of `target`.
+  
+  Args:
+    values: List of numeric values to check for equality.
+    target: Target value. If not provided, uses the mean to check if all list
+      are approximately equal to themselves.
+    tolerance: The tolerance for equality. 0.1 is 10% of the smaller value.
+  """
+  target_ = target if target is not None else mean(values)
+  return all([is_approx_equal(value, target_, tolerance) for value in values])
+
+
 def get_image(path: PurePath) -> np.array:
   """Returns the cv2 image located at the given path."""
   return cv2.imread(str(path))
@@ -120,116 +133,75 @@ def is_adjacent_indices(index_a, index_b, items):
           or abs(index_a - index_b) == 1)
 
 
-def find_point_section(point, dimensions, long_sections, short_sections):
-  """Given a point, find out which section it is in.
-
-  NOTE: Not intended for use with small dimensions or high numbers of sections
-  due to use of integer mathematics and not floats.
-
-  Args:
-    point: A tuple or list in (x, y) form.
-    dimensions: A tuple or list in (width, height) form.
-    long_sections: The number of sections to divide the long side into.
-    short_sections: The number of sections to divide the short side into.
-  
-  Returns:
-    A tuple representing the section that contains the point, in
-    (x_section_index, y_section_index) form.
-    A tuple representing the number of sections in the x-direction and the
-    number of sections in the y-direction.
-  
-  Example:
-    Calling with long_sections = 3, short_sections = 2:
-    |--------|    |--------|
-    |        |    |  |  |  |
-    |        | -> |--------| -> (0, 1)
-    | *      |    | *|  |  |
-    |--------|    |--------|
-  """
-  wh_num_sections = (long_sections, short_sections) if (
-      max(dimensions) == dimensions[0]) else (short_sections, long_sections)
-  sections = [
-      list(range(0, side, side // num_sections))
-      for side, num_sections in zip(dimensions, wh_num_sections)
-  ]
-  result_section = [-1, -1]
-  for side_index, side_sections in enumerate(sections):
-    for section_index, section_start in enumerate(side_sections):
-      if point[side_index] > section_start:
-        result_section[side_index] = section_index
-  return result_section, wh_num_sections
+def all_approx_square(contour):
+  """Returns true if every angle in `contour` is approximately right (90deg)."""
+  angles = calc_corner_angles(contour)
+  return all_approx_equal(angles, math.pi / 2)
 
 
-def find_top_left_corner_marks(polygons, image_dimensions):
-  # Looking for a six point polygon with two edges that are twice as long as
-  # the other edges and with all almost right angles.
+def unnest(nested):
+  """Flatten a list in the form `[[[a,b]], [[c,d]], [[e,f]]]` to `[[a,b], [c,d], [e,f]]`."""
+  return [e[0] for e in nested]
+
+
+def mean(values):
+  """Returns the average of the list of numeric values."""
+  return sum(values) / len(values)
+
+def divide_some(values, indices, divisor):
+  """Returns a copy of `values` where items at `indices` are divided by `divisor`."""
+  return [x if i not in indices else x / divisor for x, i in enumerate(values)]
+
+
+def find_top_left_corner_mark(unflat_contours):
+  """Given a list of contours, find the top left corner mark."""
   # Perform this search in one loop to maintain O(N) complexity.
   # For speed, perform fastest calculations first to call `continue` asap.
-  for polygon in polygons:
-    # Check that the polygon has six vertices
-    if len(polygon) != 6:
+  for contour in unflat_contours:
+    if len(contour) != 6:
       continue
 
-    flat_polygon = [e[0] for e in polygon]
-
-    angles = calc_corner_angles(flat_polygon)
-    approx_right = [is_approx_equal(theta, math.pi / 2) for theta in angles]
-    # Check that the angles are all right
-    if not all(approx_right):
+    flat_contour = unnest(contour)
+    if not all_approx_square(flat_contour):
       continue
 
-    side_lengths = calc_side_lengths(flat_polygon)
+    side_lengths = calc_side_lengths(flat_contour)
     longest_sides_indices = find_greatest_two(side_lengths)
 
-    # Check that the two longest sides are next to each other
     if not is_adjacent_indices(*longest_sides_indices, side_lengths):
       continue
 
-    # Divide the longest two sides in half to check length equality
-    unit_lengths = [
-        x if i not in longest_sides_indices else x / 2
-        for i, x in enumerate(side_lengths)
-    ]
-    unit = sum(unit_lengths) / len(unit_lengths)
-    approx_correct = [is_approx_equal(length, unit) for length in unit_lengths]
-    # Check that the side lengths are all correct
-    if not all(approx_correct):
-      continue
-
-    section, xy_sections = find_point_section(flat_polygon[0],
-                                              image_dimensions, 4, 3)
-    # Check that the contour is in a corner of the image
-    if not ((section[0] == 0 or section[0] == xy_sections[0] - 1) and
-            (section[1] == 0 or section[1] == xy_sections[1] - 1)):
+    # The longest sides should be about twice the length of the other sides
+    unit_lengths = divide_some(side_lengths, longest_sides_indices, 2)
+    if not all_approx_equal(unit_lengths):
       continue
 
     # Returns the first viable polygon found
     # TODO: Consider all found polygons and choose the most likely
-    return polygon
+    return contour
 
 
 def get_dimensions(image: np.array) -> typing.Tuple[int, int]:
+  """Returns the dimensions of the image in `(width, height)` form."""
   height, width, _ = image.shape
   return width, height
 
 
-def find_squares(contours):
+def find_squares(unflat_contours):
+  """Given a list of contours, return the ones which are squares."""
   squares = []
-  for contour in contours:
+  for contour in unflat_contours:
     if len(contour) != 4:
       continue
 
-    flat_contour = [e[0] for e in contour]
+    flat_contour = unnest(contour)
 
     side_lengths = calc_side_lengths(flat_contour)
-    mean = sum(side_lengths) / len(side_lengths)
-    sides_equal = [is_approx_equal(side, mean) for side in side_lengths]
-    if not all(sides_equal):
+    if not all_approx_equal(side_lengths):
       continue
 
     angles = calc_corner_angles(flat_contour)
-    approx_right = [is_approx_equal(theta, math.pi / 2) for theta in angles]
-    if not all(approx_right):
+    if not all_approx_square(angles):
       continue
 
     squares.append(contour)
@@ -240,8 +212,7 @@ sample_img_location = Path(
     __file__).parent.parent / "examples" / "left_corner_marks" / "11.png"
 sample_image = get_image(sample_img_location)
 all_polygons = find_polygons(sample_image)
-top_left_mark = find_top_left_corner_marks(all_polygons,
-                                           get_dimensions(sample_image))
+top_left_mark = find_top_left_corner_mark(all_polygons)
 red = (0, 0, 255)
 cv2.drawContours(sample_image, [top_left_mark], -1, red, 1)
 all_squares = find_squares(all_polygons)
