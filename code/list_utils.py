@@ -30,11 +30,11 @@ def find_max_value_index(values):
     return max_index
 
 
-def is_adjacent_indices(items, index_a, index_b):
+def is_adjacent_indexes(items, index_a, index_b):
     """Check that the given indices are next to each other or are the first and
   last indices in the list. Order of a and b do not matter."""
-    return next_index(index_a, items) == index_b or prev_index(
-        index_a, items) == index_b
+    return next_index(items, index_a) == index_b or prev_index(
+        items, index_a) == index_b
 
 
 def unnest(nested):
@@ -55,7 +55,7 @@ def next_index(items, index):
 
 def prev_index(items, index):
     """Return the previous index up in the list, looping back to the end if needed."""
-    return index - 1 if index - 1 > 0 else len(items) - 1
+    return index - 1 if index - 1 >= 0 else len(items) - 1
 
 
 def continue_index(items, index_a, index_b):

@@ -1,14 +1,14 @@
 """General mathematics utilities."""
 
-from . import list_utils
+import list_utils
 import typing
 
 
 def is_approx_equal(value_a: typing.Union[int, float],
                     value_b: typing.Union[int, float],
                     tolerance: float = 0.1) -> bool:
-    """Returns true if the difference of `a` and `b` is within tolerance of the smaller."""
-    return abs(value_a - value_b) <= (tolerance * min(value_a, value_b))
+    """Returns true if the difference of `a` and `b` is within tolerance * value_b."""
+    return abs(value_a - value_b) <= (tolerance * value_b)
 
 
 def all_approx_equal(values: typing.List[typing.Union[int, float]],

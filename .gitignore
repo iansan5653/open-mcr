@@ -125,3 +125,6 @@ dmypy.json
 
 # VSCode
 /.vscode
+
+# Virtual Environment
+scantron-reader

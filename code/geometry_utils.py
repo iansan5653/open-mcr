@@ -2,14 +2,14 @@
 
 import cv2
 import math
-from . import math_utils
-from . import list_utils
+import math_utils
+import list_utils
 
 
 def approx_poly(contour):
     """Approximate the simple polygon for the contour."""
     perimeter = cv2.arcLength(contour, True)
-    return cv2.approxPolyDP(contour, 0.1 * perimeter, True)
+    return cv2.approxPolyDP(contour, 0.05 * perimeter, True)
 
 
 def calc_2d_dist(point_a, point_b):
@@ -23,8 +23,8 @@ def calc_angle(end_a, shared, end_b):
     mag_a = calc_2d_dist(shared, end_a)
     mag_b = calc_2d_dist(shared, end_b)
     dist_ab = calc_2d_dist(end_a, end_b)
-    cosine = (mag_a**2 + mag_b**2 - dist_ab**2) / (2 * mag_a * mag_b)
-    angle = abs(math.acos(cosine))
+    cosine = (mag_a ** 2 + mag_b ** 2 - dist_ab ** 2) / (2 * mag_a * mag_b)
+    angle = abs(math.acos(round(cosine, 4)))
     return angle if angle <= 180 else angle - 180
 
 
@@ -111,12 +111,13 @@ def is_in_box(point, lines):
     return is_between_lines(point, lines[0], lines[2]) and is_between_lines(
         point, lines[1], lines[3])
 
+
 def most_horizontal_line_index(lines):
     """Returns the index of the most horizontal line."""
     lowest_slope = math.inf
     lowest_index = -1
     for i, line in enumerate(lines):
-        slope = abs(line[1])
+        slope = abs(line[0])
         if slope < lowest_slope:
             lowest_slope = slope
             lowest_index = i
