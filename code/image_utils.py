@@ -52,3 +52,24 @@ def get_dimensions(image: np.array) -> typing.Tuple[int, int]:
     """Returns the dimensions of the image in `(width, height)` form."""
     height, width, _ = image.shape
     return width, height
+
+
+def convert_to_bw(image: np.array) -> np.ndarray:
+    """Convert an image to B&W."""
+    gray_image = convert_to_grayscale(image)
+    _, image = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    return image
+
+
+def get_fill_percent(image: np.array, polygon: geometry_utils.Polygon):
+    """Get the percent of the pixels in the polygon that are not white."""
+    contours = [geometry_utils.polygon_to_contour(polygon).astype(int)]
+    cimg = np.zeros_like(image)
+    cv2.drawContours(cimg, contours, -1, color=255, thickness=-1)
+    pts = np.where(cimg == 255)
+    intensities = image[pts[0], pts[1]]
+    try:
+        return (255 - (sum(intensities) / len(intensities))) / 255
+    except ZeroDivisionError:
+        return 0
+

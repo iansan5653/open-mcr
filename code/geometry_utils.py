@@ -43,7 +43,7 @@ def contour_to_polygon(contour: np.array) -> Polygon:
 
 def polygon_to_contour(polygon: Polygon) -> np.array:
     """Convert polygon (list of points) to an OpenCV contour (numpy array)."""
-    return np.array([[(point.x, point.y)] for point in polygon])
+    return np.array([[[point.x, point.y]] for point in polygon])
 
 
 def approx_poly(contour: np.array) -> Polygon:
@@ -123,7 +123,7 @@ def rotate_line(line: Line, theta: float,
                 point: typing.Optional[Point] = None) -> Line:
     """Given a slope and a point, return the line with slope rotated `theta`
     radians CCW and passing through `point`.
-    
+
     NOTE: If `point` is not on `line`, the line will be move so that it is. This
     is NOT a rotation about `point` unless `point` already falls on `line`.
 
@@ -191,7 +191,7 @@ def create_change_of_basis(
     """Returns functions that will convert points from the current coordinate
     system to a new one where the origin is translated to `new_origin` and the
     axis are rotated `theta` radians CCW.
-    
+
     Returns:
         A tuple where the first element is a function that converts
             points to the new system, and the second is a function that converts
