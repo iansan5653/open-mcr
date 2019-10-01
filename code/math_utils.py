@@ -1,19 +1,36 @@
 """General mathematics utilities."""
 
-import list_utils
+import .list_utils
 import typing
+import enum
 
 
-def is_approx_equal(value_a: typing.Union[int, float],
-                    value_b: typing.Union[int, float],
+class InequalityTypes(enum.Enum):
+    """Represents all the possible inequality types.
+
+    Members:
+        GTE: Greater than or equal to (`>=`).
+        LTE: Less than or equal to (`<=`).
+        GT: Greater than (`>`).
+        LT: Less than (`<`).
+        NE: Not equal (`!=`).
+    """
+    GTE: enum.auto()
+    LTE: enum.auto()
+    GT: enum.auto()
+    LT: enum.auto()
+    NE: enum.auto()
+
+
+def is_approx_equal(value_a: float, value_b: float,
                     tolerance: float = 0.1) -> bool:
     """Returns true if the difference of `a` and `b` is within tolerance * value_b."""
     return abs(value_a - value_b) <= (tolerance * value_b)
 
 
-def all_approx_equal(values: typing.List[typing.Union[int, float]],
-                     target: typing.Union[int, float, None] = None,
-                     tolerance: float = 0.1):
+def all_approx_equal(values: typing.List[float],
+                     target: typing.Union[float, None] = None,
+                     tolerance: float = 0.1) -> bool:
     """Returns `True` if every element in `values` is within `tolerance` of `target`.
 
     Args:
@@ -27,11 +44,12 @@ def all_approx_equal(values: typing.List[typing.Union[int, float]],
         [is_approx_equal(value, target_, tolerance) for value in values])
 
 
-def mean(values):
+def mean(values: typing.List[float]) -> float:
     """Returns the average of the list of numeric values."""
     return sum(values) / len(values)
 
 
-def divide_some(values, indexes, divisor):
+def divide_some(values: typing.List[float], indexes: typing.List[int],
+                divisor: float) -> typing.List[float]:
     """Returns a copy of `values` where items at `indices` are divided by `divisor`."""
     return list_utils.call_on_some(values, indexes, lambda x: x / divisor)

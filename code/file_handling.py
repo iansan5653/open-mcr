@@ -1,10 +1,10 @@
 """Functions and utilities related to importing and exporting files."""
 
 import typing
-from pathlib import Path, PurePath
+import pathlib
 
 
-def list_file_paths(directory: Path) -> typing.List[Path]:
+def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:
     """Returns a list of full paths to all the files that are direct children.
 
     Does not include directories or files in subdirectories.
@@ -18,9 +18,9 @@ def list_file_paths(directory: Path) -> typing.List[Path]:
     return [item for item in directory.iterdir() if item.is_file()]
 
 
-def filter_by_extensions(files: typing.List[PurePath],
+def filter_by_extensions(files: typing.List[pathlib.PurePath],
                          extensions: typing.List[str]
-                         ) -> typing.List[PurePath]:
+                         ) -> typing.List[pathlib.PurePath]:
     """Filter a list of Paths by a list of extensions.
 
     Params:
