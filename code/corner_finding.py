@@ -49,7 +49,7 @@ class LMark():
                 "Longest sides are not twice the length of the other sides.")
 
         self.polygon = list_utils.arrange_index_to_first(
-            clockwise_polygon, max(longest_sides_indexes))
+            clockwise_polygon, list_utils.determine_which_is_next(polygon, *longest_sides_indexes))
         self.unit_length = math_utils.mean(unit_lengths)
 
 

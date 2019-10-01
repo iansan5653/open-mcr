@@ -5,25 +5,37 @@ import cv2
 import grid_reading
 import geometry_utils
 
-sample_img_location = pathlib.Path(
-    "C:\\Users\\Ian Sanders\\Git Repositories\\scantron-reading\\examples\\one.png"
-)
-sample_image = image_utils.get_image(sample_img_location)
-points = corner_finding.find_corner_marks(sample_image)
-sample_image_bw = image_utils.convert_to_bw(sample_image)
+images = [
+    "SMITH", "SANDERS", "KAW", "ABCDEFGHIJ", "UNRELIABLE"
+]
 
-grid = grid_reading.Grid(points, 36, 51)
-grid_centers = grid.get_all_centers()
-grid_shapes = grid.get_all_shapes()
-for center, shape in zip(grid_centers, grid_shapes):
-    fill_pct = image_utils.get_fill_percent(sample_image_bw, shape)
-    x = int(center.x)
-    y = int(center.y)
-    print(fill_pct)
-    if fill_pct < 0.25:
+folder = pathlib.Path("C:\\Users\\Ian Sanders\\Git Repositories\\scantron-reading\\examples\\")
+for image_name in images:
+    image_path = folder / (image_name + ".jpg")
+    image = image_utils.get_image(image_path)
+    try:
+        corners = corner_finding.find_corner_marks(image)
+    except RuntimeError:
+        print(f"{image_name}: Can't find corners.")
         continue
-    cv2.circle(sample_image, (x, y), 15, (0, int(255 * fill_pct), int(255 * (1 - fill_pct))), -1)
+    image_bw = image_utils.convert_to_bw(image)
+    grid = grid_reading.Grid(corners, 36, 51, image_bw)
+    last_name = grid_reading.make_alphabet_group(grid, 1, 3, 12)
+    values = [letter.read_value() for letter in last_name]
+    print(f"{image_name}: {values}")
 
-cv2.imshow("", sample_image)
-cv2.waitKey()
+
+
+
+#for point in lmarks:
+#    #fill_pct = image_utils.get_fill_percent(sample_image_bw, shape)
+#    x = int(point.x)
+#    y = int(point.y)
+#    #print(fill_pct)
+#    #if fill_pct < 0.25:
+#    #    continue
+#    cv2.circle(sample_image, (x, y), 5, (0, 255, 255), -1)
+#
+##cv2.imshow("", sample_image)
+##cv2.waitKey()
 #cv2.imwrite(str(sample_img_location.parent / "out.png"), sample_image)

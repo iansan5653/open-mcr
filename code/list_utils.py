@@ -66,7 +66,10 @@ def continue_index(items: list, index_a: int, index_b: int) -> int:
         return next_index(items, index_b)
     return prev_index(items, index_b)
 
+
 Pair = typing.Tuple[int, int]
+
+
 def arrange_like_rays(pair_a: Pair, pair_b: Pair) -> tuple:
     """Given two pairs of numbers, arrange them such that the common value in
     the pairs is the second item in the first pair and the first item in the
@@ -91,3 +94,9 @@ def arrange_index_to_first(items: list, index: int) -> list:
         result.append(items[i])
         i = next_index(items, i)
     return result
+
+
+def determine_which_is_next(items, index_a, index_b):
+    if next_index(items, index_a) == index_b:
+        return index_b
+    return index_a
