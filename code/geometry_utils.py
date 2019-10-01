@@ -2,16 +2,16 @@
 
 import cv2
 import math
-import .math_utils
-import .list_utils
+import math_utils
+import list_utils
 import typing
 import numpy as np
+import enum
 
 
 class Point:
     x: float
     y: float
-
     """Represents a point on a 2d plane in x, y form."""
     def __init__(self, x: float, y: float):
         """Create a new Point."""
@@ -25,7 +25,6 @@ Polygon = typing.List[Point]
 class Line:
     slope: float
     point: Point
-
     """Represents a line on a 2d plane in point-slope form."""
     def __init__(self, slope: float, point: Point):
         """Create a new Line."""
@@ -58,7 +57,7 @@ def approx_poly(contour: np.array) -> Polygon:
 
 def polygon_to_clockwise(polygon: Polygon) -> Polygon:
     """Returns the given polygon in clockwise direction."""
-    clockwise = cv2.contourArea(polygon_to_contour(polygon)) <= 0
+    clockwise = cv2.contourArea(polygon_to_contour(polygon), True) >= 0
     if clockwise:
         return polygon
     else:
@@ -114,12 +113,14 @@ def line_from_points(point_a: Point, point_b: Point) -> Line:
     return Line(slope, point_a)
 
 
-def get_perpendicular_line(line: Line, point: typing.Optional[Point] = None) -> Line:
+def get_perpendicular_line(line: Line,
+                           point: typing.Optional[Point] = None) -> Line:
     """Given a slope and a point, returns a line passing through the point with a perpendicular slope."""
     return rotate_line(line, math.pi / 2, point)
 
 
-def rotate_line(line: Line, theta: float, point: typing.Optional[Point] = None) -> Line:
+def rotate_line(line: Line, theta: float,
+                point: typing.Optional[Point] = None) -> Line:
     """Given a slope and a point, return the line with slope rotated `theta`
     radians CCW and passing through `point`.
     
@@ -133,15 +134,18 @@ def rotate_line(line: Line, theta: float, point: typing.Optional[Point] = None) 
     return Line(new_slope, point if point is not None else line.point)
 
 
-def calc_angle_between(line_a: Line,
-                       line_b: Line) -> float:
-    """Given two lines or slopes, calculate the CCW positive angle between them."""
+def calc_angle_between(line_a: Line, line_b: Line) -> float:
+    """Given two lines, calculate the CCW positive angle between them."""
     angle_a = math.atan(line_a.slope)
     angle_b = math.atan(line_b.slope)
     return abs(angle_a - angle_b)
 
+
 InequalityLine = typing.Tuple[Line, math_utils.InequalityTypes]
-def is_in_inequalities(point: Point, inequalities: typing.List[InequalityLine]) -> bool:
+
+
+def is_in_inequalities(point: Point,
+                       inequalities: typing.List[InequalityLine]) -> bool:
     """For a all provided inequality comparisons defined by lines, checks if
     the given point satisfies all of them."""
     for inequality in inequalities:
@@ -162,7 +166,8 @@ def is_in_inequalities(point: Point, inequalities: typing.List[InequalityLine]) 
 
 
 def create_range_check_fn(*inequalities: InequalityLine):
-    return lambda point: is_in_inequalities(point, inequalities) # type: ignore
+    return lambda point: is_in_inequalities(point, inequalities
+                                            )  # type: ignore
 
 
 def offset_line(line: Line, offset_point: Point) -> Line:
@@ -179,3 +184,66 @@ def extend_ray(a: Point, b: Point, distance: float):
     return Point(b.x + dx, b.y + dy)
 
 
+def create_change_of_basis(
+        new_origin: Point,
+        theta: float) -> typing.Tuple[typing.Callable[[Point], Point], typing.
+                                      Callable[[Point], Point]]:
+    """Returns functions that will convert points from the current coordinate
+    system to a new one where the origin is translated to `new_origin` and the
+    axis are rotated `theta` radians CCW.
+    
+    Returns:
+        A tuple where the first element is a function that converts
+            points to the new system, and the second is a function that converts
+            them back.    
+    """
+    origin = Point(0, 0)
+
+    def to_basis(point: Point) -> Point:
+        translated = Point(point.x - new_origin.x, point.y - new_origin.y)
+        r = calc_2d_dist(origin, translated)
+        phi = math.atan2(translated.y, translated.x)
+        to_phi = phi - theta
+        return Point(r * math.cos(to_phi), r * math.sin(to_phi))
+
+    def from_basis(point: Point) -> Point:
+        r = calc_2d_dist(origin, point)
+        phi = math.atan2(point.y, point.x)
+        to_phi = phi + theta
+        rotated = Point(r * math.cos(to_phi), r * math.sin(to_phi))
+        return Point(rotated.x + new_origin.x, rotated.y + new_origin.y)
+
+    return to_basis, from_basis
+
+
+def guess_centroid(quadrilateral: Polygon) -> Point:
+    """Guesses an approximate centroid. Works well for squares."""
+    xs = [p.x for p in quadrilateral]
+    ys = [p.y for p in quadrilateral]
+    return Point(math_utils.mean([max(xs), min(xs)]),
+                 math_utils.mean([max(ys), min(ys)]))
+
+
+class Corner(enum.Enum):
+    TL = (1, 0)
+    TR = (1, 1)
+    BR = (0, 1)
+    BL = (0, 0)
+
+
+def get_corner(square: Polygon, corner: Corner) -> Point:
+    """Gets the point representing the given corner of the square. Square should
+    be pretty close to vertical - horizontal. """
+    xs = [p.x for p in square]
+    highest_xs = list_utils.find_greatest_value_indexes(xs, 2)
+    side_points = [
+        p for i, p in enumerate(square)
+        if (corner.value[0] == 1 and i in highest_xs) or (
+            corner.value[0] == 0 and i not in highest_xs)
+    ]
+    side_ys = [p.y for p in side_points]
+    [highest_y] = list_utils.find_greatest_value_indexes(side_ys, 1)
+    corner = side_points[highest_y] if (
+        corner.value[1] == 1) else side_points[list_utils.next_index(
+            side_points, highest_y)]
+    return corner

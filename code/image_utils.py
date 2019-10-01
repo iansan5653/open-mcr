@@ -6,7 +6,7 @@ import typing
 import cv2
 import numpy as np
 
-import .geometry_utils
+import geometry_utils
 
 
 def convert_to_grayscale(image: np.array) -> np.ndarray:
