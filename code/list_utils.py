@@ -4,7 +4,8 @@ import math
 import typing
 
 
-def find_greatest_value_indexes(values: typing.List[float], n: int) -> typing.List[int]:
+def find_greatest_value_indexes(values: typing.List[float],
+                                n: int) -> typing.List[int]:
     """Find the indices of the greatest `n` numbers in `items`.
 
     Returns:
@@ -43,7 +44,8 @@ def unnest(nested: typing.List[typing.List[list]]):
     return [e[0] for e in nested]
 
 
-def call_on_some(items: list, indexes: typing.List[int], fn: typing.Callable[[typing.Any], typing.Any]) -> list:
+def call_on_some(items: list, indexes: typing.List[int],
+                 fn: typing.Callable[[typing.Any], typing.Any]) -> list:
     """Return a copy of the list with the results of `fn` called on the items in
     `items` with the indexes in `indexes`. Other items remain the same."""
     return [el if i not in indexes else fn(el) for i, el in enumerate(items)]
@@ -96,7 +98,7 @@ def arrange_index_to_first(items: list, index: int) -> list:
     return result
 
 
-def determine_which_is_next(items, index_a, index_b):
+def determine_which_is_next(items: list, index_a: int, index_b: int) -> int:
     if next_index(items, index_a) == index_b:
         return index_b
     return index_a

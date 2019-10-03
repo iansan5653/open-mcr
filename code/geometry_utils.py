@@ -165,7 +165,7 @@ def is_in_inequalities(point: Point,
     return True
 
 
-def create_range_check_fn(*inequalities: InequalityLine):
+def create_range_check_fn(*inequalities: typing.List[InequalityLine]):
     return lambda point: is_in_inequalities(point, inequalities
                                             )  # type: ignore
 
@@ -195,7 +195,7 @@ def create_change_of_basis(
     Returns:
         A tuple where the first element is a function that converts
             points to the new system, and the second is a function that converts
-            them back.    
+            them back.
     """
     origin = Point(0, 0)
 
@@ -243,7 +243,7 @@ def get_corner(square: Polygon, corner: Corner) -> Point:
     ]
     side_ys = [p.y for p in side_points]
     [highest_y] = list_utils.find_greatest_value_indexes(side_ys, 1)
-    corner = side_points[highest_y] if (
+    corner_point = side_points[highest_y] if (
         corner.value[1] == 1) else side_points[list_utils.next_index(
             side_points, highest_y)]
-    return corner
+    return corner_point

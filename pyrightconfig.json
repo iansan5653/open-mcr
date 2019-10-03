@@ -30,5 +30,10 @@
   "reportUnknownMemberType": true,
   "reportCallInDefaultInitializer": true,
   "reportUnnecessaryIsInstance": true,
-  "reportUnnecessaryCast": true
+  "reportUnnecessaryCast": true,
+  "executionEnvironments": [
+    {
+        "root": "code"
+    }
+  ]
 }

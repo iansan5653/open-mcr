@@ -18,7 +18,8 @@ class Grid:
                                       Point]
     image: np.ndarray
 
-    def __init__(self, corners, horizontal_cells: int, vertical_cells: int, image):
+    def __init__(self, corners: geometry_utils.Polygon, horizontal_cells: int,
+                 vertical_cells: int, image: np.ndarray):
         """Initiate a new Grid. Corners should be clockwise starting from the
         top left - if not, the grid will have unexpected behavior. """
         self.corners = corners
@@ -93,7 +94,8 @@ class GridRange:
             y = self.vertical_start if not self.is_vertical else self.vertical_start + i
 
             square = self.grid.get_cell_shape(x, y)
-            is_filled = image_utils.get_fill_percent(self.grid.image, square) > 0.2
+            is_filled = image_utils.get_fill_percent(self.grid.image,
+                                                     square) > 0.2
             if is_filled:
                 filled.append(i)
 
@@ -121,14 +123,15 @@ class AnswerGridRange(GridRange):
 
 class FormCodeGridRange(GridRange):
     def __init__(self, grid: Grid, horizontal_start: int, vertical_start: int):
-        super.__init__(grid, horizontal_start, vertical_start, False, 6)
+        super().__init__(grid, horizontal_start, vertical_start, False, 6)
 
 
 GridGroup = typing.List[GridRange]
+AlphabetGridGroup = typing.List[AlphabetGridRange]
 
 
 def make_alphabet_group(grid: Grid, horizontal_start: int, vertical_start: int,
-                        field_length) -> GridGroup:
+                        field_length: int) -> AlphabetGridGroup:
     return [
         AlphabetGridRange(grid, horizontal_start + i, vertical_start)
         for i in range(field_length)
