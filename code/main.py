@@ -3,10 +3,13 @@ import image_utils
 import corner_finding
 import grid_reading
 
+import time
+
 images = [
-    "SMITH", "SANDERS", "KAW", "ABCDEFGHIJ", "UNRELIABLE"
+    "SMITH"#, "SANDERS", "KAW", "ABCDEFGHIJ", "UNRELIABLE"
 ]
 
+start = time.time()
 folder = pathlib.Path("C:\\Users\\Ian Sanders\\Git Repositories\\scantron-reading\\examples\\")
 for image_name in images:
     image_path = folder / (image_name + ".jpg")
@@ -21,3 +24,4 @@ for image_name in images:
     last_name = grid_reading.make_alphabet_group(grid, 1, 3, 12)
     values = [letter.read_value() for letter in last_name]
     print(f"{image_name}: {values}")
+print(time.time() - start)

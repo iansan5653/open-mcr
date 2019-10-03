@@ -5,7 +5,10 @@ import math
 import typing
 import image_utils
 import numpy as np
+import alphabet
 from alphabet import letters
+""" Percent fill past which a grid cell is considered filled."""
+GRID_CELL_FILL_THRESHOLD = 0.2
 
 
 class Grid:
@@ -40,6 +43,8 @@ class Grid:
         self.image = image
 
     def get_cell_shape(self, across: int, down: int) -> geometry_utils.Polygon:
+        """Get the shape of a cell using it's 0-based index. Returns the contour
+        in CW direction starting with the top left cell."""
         points_in_basis = [
             geometry_utils.Point(across * self.horizontal_cell_size,
                                  down * self.horizontal_cell_size),
@@ -53,23 +58,10 @@ class Grid:
         return [self._from_grid_basis(p) for p in points_in_basis]
 
     def get_cell_center(self, across: int, down: int) -> geometry_utils.Point:
+        """Get the center point of a cell using it's 0-based index."""
         return self._from_grid_basis(
             geometry_utils.Point((across + 0.5) * self.horizontal_cell_size,
                                  (down + 0.5) * self.horizontal_cell_size))
-
-    def get_all_centers(self) -> geometry_utils.Polygon:
-        result = []
-        for x in range(self.horizontal_cells):
-            for y in range(self.vertical_cells):
-                result.append(self.get_cell_center(x, y))
-        return result
-
-    def get_all_shapes(self) -> typing.List[geometry_utils.Polygon]:
-        result = []
-        for x in range(self.horizontal_cells):
-            for y in range(self.vertical_cells):
-                result.append(self.get_cell_shape(x, y))
-        return result
 
 
 class GridRange:
@@ -94,17 +86,30 @@ class GridRange:
             y = self.vertical_start if not self.is_vertical else self.vertical_start + i
 
             square = self.grid.get_cell_shape(x, y)
-            is_filled = image_utils.get_fill_percent(self.grid.image,
-                                                     square) > 0.2
+            # TODO: Currently includes the space around the circle. Maybe crop
+            # the square to remove that space. Adjust the threshold if so.
+            is_filled = image_utils.get_fill_percent(
+                self.grid.image, square[0],
+                square[2]) > GRID_CELL_FILL_THRESHOLD
             if is_filled:
                 filled.append(i)
 
         return filled
 
 
+def read_grid_value(range: GridRange) -> bool:
+    return range.is_vertical
+
+
 class AlphabetGridRange(GridRange):
-    def __init__(self, grid: Grid, horizontal_start: int, vertical_start: int):
-        super().__init__(grid, horizontal_start, vertical_start, True, 26)
+    def __init__(self,
+                 grid: Grid,
+                 horizontal_start: int,
+                 vertical_start: int,
+                 is_vertical: bool = True,
+                 length: int = alphabet.LENGTH):
+        super().__init__(grid, horizontal_start, vertical_start, is_vertical,
+                         length)
 
     def read_value(self):
         values = super().read_value()
@@ -116,12 +121,12 @@ class NumericGridRange(GridRange):
         super().__init__(grid, horizontal_start, vertical_start, True, 10)
 
 
-class AnswerGridRange(GridRange):
+class AnswerGridRange(AlphabetGridRange):
     def __init__(self, grid: Grid, horizontal_start: int, vertical_start: int):
         super().__init__(grid, horizontal_start, vertical_start, False, 5)
 
 
-class FormCodeGridRange(GridRange):
+class FormCodeGridRange(AlphabetGridRange):
     def __init__(self, grid: Grid, horizontal_start: int, vertical_start: int):
         super().__init__(grid, horizontal_start, vertical_start, False, 6)
 

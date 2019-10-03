@@ -28,3 +28,5 @@ letters = [
     "Y",
     "Z"
 ]
+
+LENGTH = len(letters)

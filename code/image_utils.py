@@ -61,15 +61,14 @@ def convert_to_bw(image: np.array) -> np.ndarray:
     return image
 
 
-def get_fill_percent(image: np.array, polygon: geometry_utils.Polygon):
-    """Get the percent of the pixels in the polygon that are not white."""
-    contours = [geometry_utils.polygon_to_contour(polygon).astype(int)]
-    cimg = np.zeros_like(image)
-    cv2.drawContours(cimg, contours, -1, color=255, thickness=-1)
-    pts = np.where(cimg == 255)
-    intensities = image[pts[0], pts[1]]
+def get_fill_percent(image: np.array, top_left_point: geometry_utils.Point, bottom_right_point: geometry_utils.Point) -> float:
+    """Get the percent of the pixels in the range that are not white."""
+    # +1 because indexing doesn't include the last number (ie, [1,2,3,4][1:3] ->
+    # [2,3]) and we want that last row / column.
+    x_range = (int(top_left_point.x), int(bottom_right_point.x) + 1)
+    y_range = (int(top_left_point.y), int(bottom_right_point.y) + 1)
+    image_section = image[y_range[0]:y_range[1], x_range[0]:x_range[1]]
     try:
-        return (255 - (sum(intensities) / len(intensities))) / 255
+        return 1 - (np.mean(image_section) / 255)
     except ZeroDivisionError:
         return 0
-
