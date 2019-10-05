@@ -27,13 +27,13 @@
   "reportInvalidStringEscapeSequence": true,
   "reportUnknownParameterType": true,
   "reportUnknownVariableType": false,
-  "reportUnknownMemberType": true,
+  "reportUnknownMemberType": false,
   "reportCallInDefaultInitializer": true,
   "reportUnnecessaryIsInstance": true,
   "reportUnnecessaryCast": true,
   "executionEnvironments": [
     {
-        "root": "code"
+      "root": "code"
     }
   ]
 }

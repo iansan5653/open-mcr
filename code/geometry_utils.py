@@ -151,15 +151,15 @@ def is_in_inequalities(point: Point,
     for inequality in inequalities:
         compare_value = inequality[0](point.x)
 
-        if ((inequality[1] == math_utils.InequalityTypes.GT
+        if ((inequality[1] is math_utils.InequalityTypes.GT
              and point.y <= compare_value)
-                or (inequality[1] == math_utils.InequalityTypes.GTE
+                or (inequality[1] is math_utils.InequalityTypes.GTE
                     and point.y < compare_value)
-                or (inequality[1] == math_utils.InequalityTypes.LT
+                or (inequality[1] is math_utils.InequalityTypes.LT
                     and point.y >= compare_value)
-                or (inequality[1] == math_utils.InequalityTypes.LTE
+                or (inequality[1] is math_utils.InequalityTypes.LTE
                     and point.y > compare_value)
-                or (inequality[1] == math_utils.InequalityTypes.NE
+                or (inequality[1] is math_utils.InequalityTypes.NE
                     and point.y == compare_value)):
             return False
     return True
@@ -231,6 +231,11 @@ class Corner(enum.Enum):
     BL = (0, 0)
 
 
+class Orientation(enum.Enum):
+    VERTICAL = enum.auto()
+    HORIZONTAL = enum.auto()
+
+
 def get_corner(square: Polygon, corner: Corner) -> Point:
     """Gets the point representing the given corner of the square. Square should
     be pretty close to vertical - horizontal. """
@@ -247,3 +252,22 @@ def get_corner(square: Polygon, corner: Corner) -> Point:
         corner.value[1] == 1) else side_points[list_utils.next_index(
             side_points, highest_y)]
     return corner_point
+
+
+def crop_rectangle(top_left_corner: Point, bottom_right_corner: Point,
+                   crop_fraction: float) -> typing.Tuple[Point, Point]:
+    """Given a rectangle which aligns with the grid, crops away `crop_fraction`
+    of the height and width from the edges, preserving the center.
+
+    NOTE: Assumes the rectangle is aligned with the grid. Will not work for other
+    shapes.
+
+    Returns the new top left and bottom right corners.
+    """
+    height = abs(top_left_corner.y - bottom_right_corner.y)
+    dy = crop_fraction * height / 2
+    width = abs(top_left_corner.x - bottom_right_corner.x)
+    dx = crop_fraction * width / 2
+    return Point(top_left_corner.x + dx,
+                 top_left_corner.y + dy), Point(bottom_right_corner.x - dx,
+                                                bottom_right_corner.y - dy)

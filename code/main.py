@@ -3,16 +3,18 @@ import image_utils
 import corner_finding
 import grid_reading
 
-import time
+images = [str(i) + ".jpg" for i in range(1, 11)]
 
-images = [
-    "SMITH"#, "SANDERS", "KAW", "ABCDEFGHIJ", "UNRELIABLE"
-]
+last_name_info = grid_reading.GridGroupInfo(1, 3, 12, grid_reading.FieldType.LETTER)
+first_name_info = grid_reading.GridGroupInfo(14, 3, 6, grid_reading.FieldType.LETTER)
+middle_name_info = grid_reading.GridGroupInfo(21, 3, 2, grid_reading.FieldType.LETTER)
+student_id_info = grid_reading.GridGroupInfo(25, 3, 10)
+course_id_info = grid_reading.GridGroupInfo(25, 16, 10)
 
-start = time.time()
-folder = pathlib.Path("C:\\Users\\Ian Sanders\\Git Repositories\\scantron-reading\\examples\\")
+folder = pathlib.Path(
+    "C:\\Users\\Ian Sanders\\Git Repositories\\scantron-reading\\examples\\")
 for image_name in images:
-    image_path = folder / (image_name + ".jpg")
+    image_path = folder / image_name
     image = image_utils.get_image(image_path)
     try:
         corners = corner_finding.find_corner_marks(image)
@@ -21,7 +23,8 @@ for image_name in images:
         continue
     image_bw = image_utils.convert_to_bw(image)
     grid = grid_reading.Grid(corners, 36, 51, image_bw)
-    last_name = grid_reading.make_alphabet_group(grid, 1, 3, 12)
-    values = [letter.read_value() for letter in last_name]
-    print(f"{image_name}: {values}")
-print(time.time() - start)
+    last_name_group = last_name_info.get_group(grid)
+    student_id_group = student_id_info.get_group(grid)
+    last_name = last_name_group.read_value()
+    student_id = student_id_group.read_value()
+    print(f"{image_name}:\n\t{last_name}\n\t{student_id}")

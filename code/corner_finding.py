@@ -136,7 +136,6 @@ def find_corner_marks(image: np.ndarray) -> geometry_utils.Polygon:
                 continue
             centroid = geometry_utils.guess_centroid(square.polygon)
             centroid_new_basis = to_new_basis(centroid)
-            square.centroid_new_basis = centroid_new_basis
 
             if math_utils.is_within_tolerance(
                     centroid_new_basis.x, -0.5 * l_mark.unit_length,
