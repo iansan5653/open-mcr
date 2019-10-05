@@ -39,8 +39,7 @@ def get_image(path: pathlib.PurePath) -> np.array:
 
 def find_polygons(image: np.array) -> typing.List[geometry_utils.Polygon]:
     """Returns a list of polygons found in the image."""
-    processed_image = remove_hf_noise(convert_to_grayscale(image))
-    edges = detect_edges(processed_image)
+    edges = detect_edges(image)
     all_contours = find_contours(edges)
     polygons = [
         geometry_utils.approx_poly(contour) for contour in all_contours
@@ -54,11 +53,15 @@ def get_dimensions(image: np.array) -> typing.Tuple[int, int]:
     return width, height
 
 
-def convert_to_bw(image: np.array) -> np.ndarray:
-    """Convert an image to B&W."""
+def threshold(image: np.array) -> np.ndarray:
+    """Convert an image to B&W by thresholding."""
     gray_image = convert_to_grayscale(image)
     _, image = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     return image
+
+
+def prepare_scan_for_processing(image: np.array) -> np.array:
+    return threshold(remove_hf_noise(image))
 
 
 def get_fill_percent(image: np.array, top_left_point: geometry_utils.Point, bottom_right_point: geometry_utils.Point) -> float:

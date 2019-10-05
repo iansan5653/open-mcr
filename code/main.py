@@ -2,29 +2,37 @@ import pathlib
 import image_utils
 import corner_finding
 import grid_reading
+import grid_info
+from grid_info import fields_info, Field
+import data_exporting
 
 images = [str(i) + ".jpg" for i in range(1, 11)]
 
-last_name_info = grid_reading.GridGroupInfo(1, 3, 12, grid_reading.FieldType.LETTER)
-first_name_info = grid_reading.GridGroupInfo(14, 3, 6, grid_reading.FieldType.LETTER)
-middle_name_info = grid_reading.GridGroupInfo(21, 3, 2, grid_reading.FieldType.LETTER)
-student_id_info = grid_reading.GridGroupInfo(25, 3, 10)
-course_id_info = grid_reading.GridGroupInfo(25, 16, 10)
+results = data_exporting.OutputSheet()
 
 folder = pathlib.Path(
     "C:\\Users\\Ian Sanders\\Git Repositories\\scantron-reading\\examples\\")
 for image_name in images:
     image_path = folder / image_name
     image = image_utils.get_image(image_path)
+    prepared_image = image_utils.prepare_scan_for_processing(image)
     try:
-        corners = corner_finding.find_corner_marks(image)
+        corners = corner_finding.find_corner_marks(prepared_image)
     except RuntimeError:
         print(f"{image_name}: Can't find corners.")
         continue
-    image_bw = image_utils.convert_to_bw(image)
-    grid = grid_reading.Grid(corners, 36, 51, image_bw)
-    last_name_group = last_name_info.get_group(grid)
-    student_id_group = student_id_info.get_group(grid)
-    last_name = last_name_group.read_value()
-    student_id = student_id_group.read_value()
-    print(f"{image_name}:\n\t{last_name}\n\t{student_id}")
+    grid = grid_reading.Grid(corners, 36, 48, prepared_image)
+    field_data = {
+        field: data_exporting.field_group_to_string(
+            fields_info[field].get_group(grid).read_value())
+        for field in Field
+    }
+    answers = [
+        data_exporting.field_group_to_string(
+            question.get_group(grid).read_value())
+        for question in grid_info.questions_info
+    ]
+    results.add(field_data, answers)
+
+results.save(folder / "output.csv")
+print(f"Results saved to {str(folder / 'output.csv')}")

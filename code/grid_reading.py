@@ -9,7 +9,7 @@ import enum
 import alphabet
 import abc
 """ Percent fill past which a grid cell is considered filled."""
-GRID_CELL_FILL_THRESHOLD = 0.4
+GRID_CELL_FILL_THRESHOLD = 0.54
 GRID_CELL_CROP_FRACTION = 0.4
 
 # TODO: Import from geometry_utils when pyright#284 is fixed.
@@ -51,13 +51,13 @@ class Grid:
                                  down: int) -> geometry_utils.Polygon:
         return [
             geometry_utils.Point(across * self.horizontal_cell_size,
-                                 down * self.horizontal_cell_size),
+                                 down * self.vertical_cell_size),
             geometry_utils.Point((across + 1) * self.horizontal_cell_size,
-                                 down * self.horizontal_cell_size),
+                                 down * self.vertical_cell_size),
             geometry_utils.Point((across + 1) * self.horizontal_cell_size,
-                                 (down + 1) * self.horizontal_cell_size),
+                                 (down + 1) * self.vertical_cell_size),
             geometry_utils.Point(across * self.horizontal_cell_size,
-                                 (down + 1) * self.horizontal_cell_size),
+                                 (down + 1) * self.vertical_cell_size),
         ]
 
     def get_cell_shape(self, across: int, down: int) -> geometry_utils.Polygon:
@@ -109,15 +109,24 @@ class _GridField(abc.ABC):
         self.orientation = orientation
         self.num_cells = num_cells
         self.grid = grid
-    
+
     @abc.abstractclassmethod
     def read_value(self) -> typing.Union[typing.List[str], typing.List[int]]:
         ...
 
     def _read_value_indexes(self) -> typing.List[int]:
         filled = []
-        is_vertical = self.orientation is geometry_utils.Orientation.VERTICAL
+        for i, square in enumerate(self.get_cell_shapes()):
+            is_filled = image_utils.get_fill_percent(
+                self.grid.image, square[0],
+                square[2]) > GRID_CELL_FILL_THRESHOLD
+            if is_filled:
+                filled.append(i)
+        return filled
 
+    def get_cell_shapes(self) -> typing.List[Polygon]:
+        results: typing.List[Polygon] = []
+        is_vertical = self.orientation is geometry_utils.Orientation.VERTICAL
         for i in range(self.num_cells):
             x = self.horizontal_start if is_vertical else self.horizontal_start + i
             y = self.vertical_start if not is_vertical else self.vertical_start + i
@@ -127,13 +136,8 @@ class _GridField(abc.ABC):
             square = self.grid.get_cropped_cell_shape(x, y,
                                                       GRID_CELL_CROP_FRACTION)
 
-            is_filled = image_utils.get_fill_percent(
-                self.grid.image, square[0],
-                square[2]) > GRID_CELL_FILL_THRESHOLD
-            if is_filled:
-                filled.append(i)
-
-        return filled
+            results.append(square)
+        return results
 
 
 class NumberGridField(_GridField):
