@@ -18,9 +18,9 @@ def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:
     return [item for item in directory.iterdir() if item.is_file()]
 
 
-def filter_by_extensions(files: typing.List[pathlib.PurePath],
+def filter_by_extensions(files: typing.Sequence[pathlib.Path],
                          extensions: typing.List[str]
-                         ) -> typing.List[pathlib.PurePath]:
+                         ) -> typing.List[pathlib.Path]:
     """Filter a list of Paths by a list of extensions.
 
     Params:
