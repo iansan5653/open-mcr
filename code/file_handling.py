@@ -1,7 +1,9 @@
 """Functions and utilities related to importing and exporting files."""
 
+from image_utils import SUPPORTED_IMAGE_EXTENSIONS
 import typing
 import pathlib
+from tkinter import filedialog
 
 
 def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:
@@ -33,3 +35,14 @@ def filter_by_extensions(files: typing.Sequence[pathlib.Path],
         objects.
     """
     return [file for file in files if "".join(file.suffixes) in extensions]
+
+
+def filter_images(files: typing.Sequence[pathlib.Path]
+                  ) -> typing.List[pathlib.Path]:
+    """Filter a list of Paths and return only the images."""
+    return filter_by_extensions(files, SUPPORTED_IMAGE_EXTENSIONS)
+
+
+def prompt_folder(message: str) -> pathlib.Path:
+    folderpath = filedialog.askdirectory(initialdir="./", title=message)
+    return pathlib.Path(folderpath)

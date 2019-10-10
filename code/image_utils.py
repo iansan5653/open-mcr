@@ -8,6 +8,10 @@ import numpy as np
 
 import geometry_utils
 
+SUPPORTED_IMAGE_EXTENSIONS = [
+    ".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"
+]
+
 
 def convert_to_grayscale(image: np.array) -> np.ndarray:
     """Convert an image to grayscale."""

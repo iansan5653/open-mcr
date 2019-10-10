@@ -1,4 +1,3 @@
-import pathlib
 import image_utils
 import corner_finding
 import grid_reading
@@ -6,17 +5,18 @@ import grid_info
 from grid_info import fields_info, Field
 import data_exporting
 import tkinter as tk
-import tkinter.filedialog
 import file_handling
 
-results = data_exporting.OutputSheet()
+answers_results = data_exporting.OutputSheet([x for x in Field])
+keys_results = data_exporting.OutputSheet([Field.TEST_FORM_CODE])
 
 app = tk.Tk()
-folderpath = tk.filedialog.askdirectory(
-    initialdir="./", title="Select folder to import files from")
-folder = pathlib.Path(folderpath)
-images = file_handling.filter_by_extensions(
-    file_handling.list_file_paths(folder), [".jpg", ".png"])
+input_directory = file_handling.prompt_folder(
+    "Select a folder to import scans from")
+images = file_handling.filter_images(
+    file_handling.list_file_paths(input_directory))
+output_directory = file_handling.prompt_folder(
+    "Select a folder to save results in")
 app.destroy()
 
 for image_path in images:
@@ -41,5 +41,5 @@ for image_path in images:
     results.add(field_data, answers)
     print(f"Processed '{image_path.name}' successfully.")
 
-results.save(folder / "output.csv")
-print(f"Results saved to {str(folder / 'output.csv')}")
+results.save(input_directory / "output.csv")
+print(f"Results saved to {str(input_directory / 'output.csv')}")
