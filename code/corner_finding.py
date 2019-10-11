@@ -13,6 +13,10 @@ class WrongShapeError(ValueError):
     pass
 
 
+class CornerFindingError(RuntimeError):
+    pass
+
+
 class LMark():
     """An L-shaped polygon.
 

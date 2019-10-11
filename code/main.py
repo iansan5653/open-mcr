@@ -1,13 +1,14 @@
 import image_utils
 import corner_finding
-import grid_reading
-from grid_info import fields_info, Field, KEY_LAST_NAME, read_field_as_string, GRID_HORIZONTAL_CELLS, GRID_VERTICAL_CELLS
+import grid_reading as grid_r
+import grid_info as grid_i
 import data_exporting
 import tkinter as tk
 import file_handling
+import typing
 
-answers_results = data_exporting.OutputSheet([x for x in Field])
-keys_results = data_exporting.OutputSheet([Field.TEST_FORM_CODE])
+answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
+keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
 
 app = tk.Tk()
 input_directory = file_handling.prompt_folder(
@@ -21,31 +22,38 @@ app.destroy()
 for image_path in images:
     image = image_utils.get_image(image_path)
     prepared_image = image_utils.prepare_scan_for_processing(image)
+
     try:
         corners = corner_finding.find_corner_marks(prepared_image)
-    except RuntimeError:
+    except corner_finding.CornerFindingError:
         print(f"{image_path.name}: Can't find corners.")
         continue
-    grid = grid_reading.Grid(corners, GRID_HORIZONTAL_CELLS, GRID_VERTICAL_CELLS, prepared_image)
+    grid = grid_r.Grid(corners, grid_i.GRID_HORIZONTAL_CELLS, grid_i.GRID_VERTICAL_CELLS, prepared_image)
 
-    last_name = read_field_as_string(Field.LAST_NAME, grid)
-    if last_name == KEY_LAST_NAME:
-        field_data = {
-            Field.TEST_FORM_CODE: read_field_as_string(Field.TEST_FORM_CODE, grid)
-        }
+    last_name = grid_r.read_field_as_string(grid_i.Field.LAST_NAME, grid)
+    field_data: typing.Dict[grid_i.Field, str] = {}
+
+    if last_name == grid_i.KEY_LAST_NAME:
+        form_code_field = grid_i.Field.TEST_FORM_CODE
+        field_data[form_code_field] = grid_r.read_field_as_string(form_code_field, grid)
     else:
-        field_data = {
-            field: data_exporting.field_group_to_string(
-                fields_info[field].get_group(grid).read_value())
-            for field in Field if field is not Field.LAST_NAME
-        }
+        field_data[grid_i.Field.LAST_NAME] = last_name
+        for field in grid_i.Field:
+            if field is not grid_i.Field.LAST_NAME:
+                field_data[field] = grid_r.read_field_as_string(field, grid)
+
     answers = [
-        data_exporting.field_group_to_string(
-            question.get_group(grid).read_value())
-        for question in grid_info.questions_info
+        grid_r.read_answer_as_string(i, grid)
+        for i in range(grid_i.NUM_QUESTIONS)
     ]
-    results.add(field_data, answers)
+
+    if last_name == grid_i.KEY_LAST_NAME:
+        keys_results.add(field_data, answers)
+    else:
+        answers_results.add(field_data, answers)
     print(f"Processed '{image_path.name}' successfully.")
 
-results.save(input_directory / "output.csv")
-print(f"Results saved to {str(input_directory / 'output.csv')}")
+answers_results.save(output_directory / "results.csv")
+if (keys_results.row_count != 0):
+    keys_results.save(output_directory / "keys.csv")
+print(f"Results saved to {str(output_directory)}")

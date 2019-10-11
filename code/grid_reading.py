@@ -223,6 +223,13 @@ def read_field(
     return get_group_from_info(grid_info.fields_info[field], grid).read_value()
 
 
+def read_answer(
+        question: int, grid: Grid
+) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
+    """Shortcut to read a field given just the key for it and the grid object."""
+    return get_group_from_info(grid_info.questions_info[question], grid).read_value()
+
+
 def field_group_to_string(
         values: typing.List[typing.Union[typing.List[str], typing.List[int]]]):
     result_strings: typing.List[str] = []
@@ -241,3 +248,9 @@ def read_field_as_string(field: grid_info.Field, grid: Grid) -> str:
     """Shortcut to read a field and format it as a string, given just the key and
     the grid object. """
     return field_group_to_string(read_field(field, grid))
+
+
+def read_answer_as_string(question: int, grid: Grid) -> str:
+    """Shortcut to read a question's answer and format it as a string, given
+    just the question number and the grid object. """
+    return field_group_to_string(read_answer(question, grid))
