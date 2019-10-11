@@ -14,20 +14,6 @@ COLUMN_NAMES: typing.Dict[Field, str] = {
 }
 
 
-def field_group_to_string(
-        values: typing.List[typing.Union[typing.List[str], typing.List[int]]]):
-    result_strings: typing.List[str] = []
-    for value in values:
-        if len(value) == 0:
-            result_strings.append(' ')
-        elif len(value) == 1:
-            result_strings.append(str(value[0]))
-        else:
-            value_as_strings = [str(el) for el in value]
-            result_strings.append(f'[{"|".join(value_as_strings)}]')
-    return "".join(result_strings).strip()
-
-
 class OutputSheet():
     """A lightweight matrix of data to be exported. Faster than a dataframe but
     can be easily converted to one when the need arises."""

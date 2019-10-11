@@ -1,11 +1,11 @@
 """Functions for establishing and reading the grid."""
 
+import grid_info
 import geometry_utils
 import math
 import typing
 import image_utils
 import numpy as np
-import enum
 import alphabet
 import abc
 """ Percent fill past which a grid cell is considered filled."""
@@ -87,11 +87,6 @@ class Grid:
                                  (down + 0.5) * self.horizontal_cell_size))
 
 
-class FieldType(enum.Enum):
-    LETTER = enum.auto()
-    NUMBER = enum.auto()
-
-
 class _GridField(abc.ABC):
     """A grid field is one set of grid cells that represents a value, ie a single
     letter or number. Do not use directly."""
@@ -164,7 +159,9 @@ class _GridFieldGroup(abc.ABC):
                  field_orientation: geometry_utils.Orientation):
         ...
 
-    def read_value(self) -> typing.List[list]:
+    def read_value(
+            self
+    ) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
         return [field.read_value() for field in self.fields]
 
 
@@ -184,7 +181,7 @@ class NumberGridFieldGroup(_GridFieldGroup):
         ]
 
     def read_value(self) -> typing.List[typing.List[int]]:
-        return super().read_value()
+        return typing.cast(typing.List[typing.List[int]], super().read_value())
 
 
 class LetterGridFieldGroup(_GridFieldGroup):
@@ -203,47 +200,44 @@ class LetterGridFieldGroup(_GridFieldGroup):
         ]
 
     def read_value(self) -> typing.List[typing.List[str]]:
-        return super().read_value()
+        return typing.cast(typing.List[typing.List[str]], super().read_value())
 
 
-class GridGroupInfo():
-    """Metadata about a set of grid cells (not tide to a specific grid or image)."""
+def get_group_from_info(info: grid_info.GridGroupInfo, grid: Grid) -> _GridFieldGroup:
+    if info.fields_type is grid_info.FieldType.LETTER:
+        return LetterGridFieldGroup(grid, info.horizontal_start,
+                                    info.vertical_start, info.num_fields,
+                                    info.field_length,
+                                    info.field_orientation)
+    else:
+        return NumberGridFieldGroup(grid, info.horizontal_start,
+                                    info.vertical_start, info.num_fields,
+                                    info.field_length,
+                                    info.field_orientation)
 
-    horizontal_start: int
-    vertical_start: int
-    num_fields: int
-    field_length: int
-    fields_type: FieldType
-    field_orientation: geometry_utils.Orientation
 
-    def __init__(self,
-                 horizontal_start: int,
-                 vertical_start: int,
-                 num_fields: int = 1,
-                 fields_type: FieldType = FieldType.NUMBER,
-                 field_length: typing.Optional[int] = None,
-                 field_orientation: geometry_utils.
-                 Orientation = geometry_utils.Orientation.VERTICAL):
-        self.horizontal_start = horizontal_start
-        self.vertical_start = vertical_start
-        self.num_fields = num_fields
-        if field_length is not None:
-            self.field_length = field_length
-        elif fields_type is FieldType.LETTER:
-            self.field_length = alphabet.LENGTH
+def read_field(
+        field: grid_info.Field, grid: Grid
+) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
+    """Shortcut to read a field given just the key for it and the grid object."""
+    return get_group_from_info(grid_info.fields_info[field], grid).read_value()
+
+
+def field_group_to_string(
+        values: typing.List[typing.Union[typing.List[str], typing.List[int]]]):
+    result_strings: typing.List[str] = []
+    for value in values:
+        if len(value) == 0:
+            result_strings.append(' ')
+        elif len(value) == 1:
+            result_strings.append(str(value[0]))
         else:
-            self.field_length = 10
-        self.fields_type = fields_type
-        self.field_orientation = field_orientation
+            value_as_strings = [str(el) for el in value]
+            result_strings.append(f'[{"|".join(value_as_strings)}]')
+    return "".join(result_strings).strip()
 
-    def get_group(self, grid: Grid) -> _GridFieldGroup:
-        if self.fields_type is FieldType.LETTER:
-            return LetterGridFieldGroup(grid, self.horizontal_start,
-                                        self.vertical_start, self.num_fields,
-                                        self.field_length,
-                                        self.field_orientation)
-        else:
-            return NumberGridFieldGroup(grid, self.horizontal_start,
-                                        self.vertical_start, self.num_fields,
-                                        self.field_length,
-                                        self.field_orientation)
+
+def read_field_as_string(field: grid_info.Field, grid: Grid) -> str:
+    """Shortcut to read a field and format it as a string, given just the key and
+    the grid object. """
+    return field_group_to_string(read_field(field, grid))

@@ -1,8 +1,7 @@
 import image_utils
 import corner_finding
 import grid_reading
-import grid_info
-from grid_info import fields_info, Field
+from grid_info import fields_info, Field, KEY_LAST_NAME, read_field_as_string, GRID_HORIZONTAL_CELLS, GRID_VERTICAL_CELLS
 import data_exporting
 import tkinter as tk
 import file_handling
@@ -27,12 +26,19 @@ for image_path in images:
     except RuntimeError:
         print(f"{image_path.name}: Can't find corners.")
         continue
-    grid = grid_reading.Grid(corners, 36, 48, prepared_image)
-    field_data = {
-        field: data_exporting.field_group_to_string(
-            fields_info[field].get_group(grid).read_value())
-        for field in Field
-    }
+    grid = grid_reading.Grid(corners, GRID_HORIZONTAL_CELLS, GRID_VERTICAL_CELLS, prepared_image)
+
+    last_name = read_field_as_string(Field.LAST_NAME, grid)
+    if last_name == KEY_LAST_NAME:
+        field_data = {
+            Field.TEST_FORM_CODE: read_field_as_string(Field.TEST_FORM_CODE, grid)
+        }
+    else:
+        field_data = {
+            field: data_exporting.field_group_to_string(
+                fields_info[field].get_group(grid).read_value())
+            for field in Field if field is not Field.LAST_NAME
+        }
     answers = [
         data_exporting.field_group_to_string(
             question.get_group(grid).read_value())
