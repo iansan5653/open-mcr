@@ -28,9 +28,10 @@ def is_approx_equal(value_a: float, value_b: float,
     return abs(value_a - value_b) <= (tolerance * value_b)
 
 
-def is_within_tolerance(value_a: float, target: float, tolerance: float) -> bool:
+def is_within_tolerance(value_a: float, target: float,
+                        tolerance: float) -> bool:
     """Returns true if a falls within target +- tolerance."""
-    return value_a < target + tolerance and value_a > target - tolerance 
+    return value_a < target + tolerance and value_a > target - tolerance
 
 
 def all_approx_equal(values: typing.List[float],
