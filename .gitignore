@@ -128,3 +128,9 @@ dmypy.json
 
 # Virtual Environment
 scantron-reader
+
+# Cache files
+.pyc
+
+# Processing results
+/results
