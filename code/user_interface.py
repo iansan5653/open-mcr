@@ -5,6 +5,7 @@ import typing
 import str_utils
 import ctypes
 import file_handling
+import sys
 
 PADDING = 15
 APP_NAME = "Bubble Sheet Reader"
@@ -73,6 +74,7 @@ class MainWindow:
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
+        self.root = app
         app.title(f"{APP_NAME} - Select Inputs")
         try:
             ctypes.windll.shcore.SetProcessDpiAwareness(1)
@@ -164,7 +166,7 @@ class MainWindow:
         return ok_to_submit
 
     def disable_all(self):
-        self.confirm_button.configure(statue=tk.DISABLED)
+        self.confirm_button.configure(state=tk.DISABLED)
         self.input_folder_picker.disable()
         self.output_folder_picker.disable()
 
@@ -172,3 +174,48 @@ class MainWindow:
         if self.update_status():
             self.disable_all()
             self.ready_to_continue.set(1)
+
+
+class ProgressWindow:
+    def __init__(self, parent: tk.Tk, maximum: int):
+        self.window = tk.Toplevel(parent)
+        self.window.title(f"Processing...")
+        self.maximum = maximum
+        self.value = 0
+        pack_opts = {
+            "fill": tk.X,
+            "expand": 1,
+            "padx": PADDING,
+            "pady": PADDING
+        }
+        self.status_text = tk.StringVar(self.window)
+        status = ttk.Label(self.window,
+                           textvariable=self.status_text,
+                           width=45)
+        status.pack(**pack_opts)
+        self.progress_bar = ttk.Progressbar(self.window,
+                                            maximum=maximum,
+                                            mode="determinate")
+        self.progress_bar.pack(**pack_opts)
+        self.close_when_changes = tk.IntVar(self.window, name="Ready to Close")
+
+    def step_progress(self, step: int = 1):
+        self.value += step
+        self.progress_bar.step(step)
+        self.window.update()
+        self.window.update_idletasks()
+
+    def set_status(self, status: str, show_count: bool = True):
+        new_status = f"{status} ({self.value}/{self.maximum})" if show_count else status
+        self.status_text.set(new_status)
+
+    def set_ready_to_close(self):
+        self.close_when_changes.set(1)
+
+    def show_exit_button_and_wait(self):
+        close_button = ttk.Button(self.window,
+                                  text="Close",
+                                  command=self.set_ready_to_close)
+        close_button.pack(padx=PADDING, pady=PADDING)
+        close_button.wait_variable("Ready to Close")
+        sys.exit(0)

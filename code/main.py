@@ -7,6 +7,7 @@ import file_handling
 import typing
 import scoring
 import user_interface
+import time
 
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
@@ -16,7 +17,10 @@ input_folder = folders_prompt.input_folder
 image_paths = file_handling.filter_images(file_handling.list_file_paths(input_folder))
 output_folder = folders_prompt.output_folder
 
+progress = user_interface.ProgressWindow(folders_prompt.root, len(image_paths))
+
 for image_path in image_paths:
+    progress.set_status(f"Processing '{image_path.name}'.")
     image = image_utils.get_image(image_path)
     prepared_image = image_utils.prepare_scan_for_processing(image)
 
@@ -24,7 +28,8 @@ for image_path in image_paths:
     try:
         corners = corner_finding.find_corner_marks(prepared_image)
     except corner_finding.CornerFindingError:
-        print(f"{image_path.name}: Can't find corners.")
+        progress.set_status(f"Error with '{image_path.name}': couldn't find corners. Skipping...")
+        time.sleep(1)
         continue
 
     # Establish a grid
@@ -46,9 +51,6 @@ for image_path in image_paths:
         field_data[form_code_field] = grid_r.read_field_as_string(
             form_code_field, grid)
         keys_results.add(field_data, answers)
-        print(
-            f"Processed '{image_path.name}' successfully as the key for form code {field_data[form_code_field]}."
-        )
     else:
         field_data[grid_i.Field.LAST_NAME] = last_name
         for field in grid_i.Field:
@@ -56,18 +58,19 @@ for image_path in image_paths:
             if field is not grid_i.Field.LAST_NAME:
                 field_data[field] = grid_r.read_field_as_string(field, grid)
         answers_results.add(field_data, answers)
-        print(f"Processed '{image_path.name}' successfully.")
+    progress.step_progress()
 
 answers_results.save(output_folder / "results.csv")
-print("All exams processed and saved to 'results.csv'.")
+
+success_string = "✔️ All exams processed and saved to 'results.csv'.\n"
 if (keys_results.row_count != 0):
-    print("Keys found, scoring exams...")
     keys_results.save(output_folder / "keys.csv")
-    print("All keys processed and saved to 'keys.csv'.")
+    success_string += "✔️ All keys processed and saved to 'keys.csv'.\n"
     scores = scoring.score_results(answers_results, keys_results)
     scores.save(output_folder / "scores.csv")
-    print("All scores processed and saved to 'scores.csv'.")
+    success_string += "✔️ All scores processed and saved to 'scores.csv'."
 else:
-    print("No exam keys were found, so no scoring performed.")
+    success_string += "No exam keys were found, so no scoring performed."
 
-print(f"✔️ All results saved to '{str(output_folder)}'.")
+progress.set_status(success_string, False)
+progress.show_exit_button_and_wait()
