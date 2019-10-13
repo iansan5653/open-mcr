@@ -43,6 +43,6 @@ def filter_images(files: typing.Sequence[pathlib.Path]
     return filter_by_extensions(files, SUPPORTED_IMAGE_EXTENSIONS)
 
 
-def prompt_folder(message: str) -> pathlib.Path:
-    folderpath = filedialog.askdirectory(initialdir="./", title=message)
+def prompt_folder(message: str, default: str = "./") -> pathlib.Path:
+    folderpath = filedialog.askdirectory(initialdir=default, title=message)
     return pathlib.Path(folderpath)

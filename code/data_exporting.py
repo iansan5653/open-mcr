@@ -1,16 +1,17 @@
 """"""
 import typing
 import csv
-from grid_info import Field, NUM_QUESTIONS
+from grid_info import Field, NUM_QUESTIONS, RealOrVirtualField, VirtualField
 import pathlib
 
-COLUMN_NAMES: typing.Dict[Field, str] = {
+COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
     Field.LAST_NAME: "Last Name",
     Field.FIRST_NAME: "First Name",
     Field.MIDDLE_NAME: "Middle Name",
     Field.STUDENT_ID: "Student ID",
     Field.COURSE_ID: "Course ID",
-    Field.TEST_FORM_CODE: "Test Form Code"
+    Field.TEST_FORM_CODE: "Test Form Code",
+    VirtualField.SCORE: "Total Score (%)"
 }
 
 
@@ -19,13 +20,14 @@ class OutputSheet():
     can be easily converted to one when the need arises."""
     # Must be structured as: field_a, field_b, ..., 1, 2, 3, ...
     data: typing.List[typing.List[str]]
-    __field_columns: typing.List[Field]
+    field_columns: typing.List[RealOrVirtualField]
+    num_questions: int = NUM_QUESTIONS
     row_count: int
 
-    def __init__(self, columns: typing.List[Field]):
-        self.__field_columns = columns
+    def __init__(self, columns: typing.List[RealOrVirtualField]):
+        self.field_columns = columns
         field_column_names = [COLUMN_NAMES[column] for column in columns]
-        answer_columns = [str(i + 1) for i in range(NUM_QUESTIONS)]
+        answer_columns = [str(i + 1) for i in range(self.num_questions)]
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
 
@@ -34,9 +36,9 @@ class OutputSheet():
             writer = csv.writer(output_file)
             writer.writerows(self.data)
 
-    def add(self, fields: typing.Dict[Field, str], answers: typing.List[str]):
+    def add(self, fields: typing.Dict[RealOrVirtualField, str], answers: typing.List[str]):
         row: typing.List[str] = []
-        for column in self.__field_columns:
+        for column in self.field_columns:
             try:
                 row.append(fields[column])
             except KeyError:

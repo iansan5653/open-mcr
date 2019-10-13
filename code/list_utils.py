@@ -4,6 +4,13 @@ import math
 import typing
 
 
+T = typing.TypeVar('T')
+
+
+def find_index(items: typing.List[T], value: T) -> int:
+    return next(i for i, x in enumerate(items) if x == value)
+
+
 def find_greatest_value_indexes(values: typing.List[float],
                                 n: int) -> typing.List[int]:
     """Find the indices of the greatest `n` numbers in `items`.

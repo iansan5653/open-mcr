@@ -6,6 +6,7 @@ import data_exporting
 import tkinter as tk
 import file_handling
 import typing
+import scoring
 
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
@@ -16,7 +17,7 @@ input_directory = file_handling.prompt_folder(
 image_paths = file_handling.filter_images(
     file_handling.list_file_paths(input_directory))
 output_directory = file_handling.prompt_folder(
-    "Select a folder to save results in")
+    "Select a folder to save results in", default=str(input_directory.parent))
 app.destroy()
 
 for image_path in image_paths:
@@ -49,7 +50,9 @@ for image_path in image_paths:
         field_data[form_code_field] = grid_r.read_field_as_string(
             form_code_field, grid)
         keys_results.add(field_data, answers)
-        print(f"Processed '{image_path.name}' successfully as the key for form code {field_data[form_code_field]}.")
+        print(
+            f"Processed '{image_path.name}' successfully as the key for form code {field_data[form_code_field]}."
+        )
     else:
         field_data[grid_i.Field.LAST_NAME] = last_name
         for field in grid_i.Field:
@@ -59,8 +62,16 @@ for image_path in image_paths:
         answers_results.add(field_data, answers)
         print(f"Processed '{image_path.name}' successfully.")
 
-
 answers_results.save(output_directory / "results.csv")
+print("All exams processed and saved to 'results.csv'.")
 if (keys_results.row_count != 0):
+    print("Keys found, scoring exams...")
     keys_results.save(output_directory / "keys.csv")
-print(f"Results saved to {str(output_directory)}")
+    print("All keys processed and saved to 'keys.csv'.")
+    scores = scoring.score_results(answers_results, keys_results)
+    scores.save(output_directory / "scores.csv")
+    print("All scores processed and saved to 'scores.csv'.")
+else:
+    print("No exam keys were found, so no scoring performed.")
+
+print(f"All results saved to {str(output_directory)}")

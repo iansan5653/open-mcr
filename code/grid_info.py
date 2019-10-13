@@ -10,12 +10,21 @@ GRID_VERTICAL_CELLS = 48
 
 
 class Field(enum.Enum):
+    """Fields that exist on the bubble sheet."""
     LAST_NAME = enum.auto()
     FIRST_NAME = enum.auto()
     MIDDLE_NAME = enum.auto()
     STUDENT_ID = enum.auto()
     COURSE_ID = enum.auto()
     TEST_FORM_CODE = enum.auto()
+
+
+class VirtualField(enum.Enum):
+    """Data points that don't exist on the bubble sheet, but could be added to the output."""
+    SCORE = enum.auto()
+
+
+RealOrVirtualField = typing.Union[Field, VirtualField]
 
 
 class FieldType(enum.Enum):
