@@ -3,7 +3,6 @@
 from image_utils import SUPPORTED_IMAGE_EXTENSIONS
 import typing
 import pathlib
-from tkinter import filedialog
 
 
 def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:
@@ -41,8 +40,3 @@ def filter_images(files: typing.Sequence[pathlib.Path]
                   ) -> typing.List[pathlib.Path]:
     """Filter a list of Paths and return only the images."""
     return filter_by_extensions(files, SUPPORTED_IMAGE_EXTENSIONS)
-
-
-def prompt_folder(message: str, default: str = "./") -> pathlib.Path:
-    folderpath = filedialog.askdirectory(initialdir=default, title=message)
-    return pathlib.Path(folderpath)

@@ -3,22 +3,18 @@ import corner_finding
 import grid_reading as grid_r
 import grid_info as grid_i
 import data_exporting
-import tkinter as tk
 import file_handling
 import typing
 import scoring
+import user_interface
 
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
 
-app = tk.Tk()
-input_directory = file_handling.prompt_folder(
-    "Select a folder to import scans from")
-image_paths = file_handling.filter_images(
-    file_handling.list_file_paths(input_directory))
-output_directory = file_handling.prompt_folder(
-    "Select a folder to save results in", default=str(input_directory.parent))
-app.destroy()
+folders_prompt = user_interface.MainWindow()
+input_folder = folders_prompt.input_folder
+image_paths = file_handling.filter_images(file_handling.list_file_paths(input_folder))
+output_folder = folders_prompt.output_folder
 
 for image_path in image_paths:
     image = image_utils.get_image(image_path)
@@ -62,16 +58,16 @@ for image_path in image_paths:
         answers_results.add(field_data, answers)
         print(f"Processed '{image_path.name}' successfully.")
 
-answers_results.save(output_directory / "results.csv")
+answers_results.save(output_folder / "results.csv")
 print("All exams processed and saved to 'results.csv'.")
 if (keys_results.row_count != 0):
     print("Keys found, scoring exams...")
-    keys_results.save(output_directory / "keys.csv")
+    keys_results.save(output_folder / "keys.csv")
     print("All keys processed and saved to 'keys.csv'.")
     scores = scoring.score_results(answers_results, keys_results)
-    scores.save(output_directory / "scores.csv")
+    scores.save(output_folder / "scores.csv")
     print("All scores processed and saved to 'scores.csv'.")
 else:
     print("No exam keys were found, so no scoring performed.")
 
-print(f"All results saved to {str(output_directory)}")
+print(f"✔️ All results saved to '{str(output_folder)}'.")
