@@ -17,7 +17,7 @@ input_folder = folders_prompt.input_folder
 image_paths = file_handling.filter_images(file_handling.list_file_paths(input_folder))
 output_folder = folders_prompt.output_folder
 
-progress = user_interface.ProgressWindow(folders_prompt.root, len(image_paths))
+progress = user_interface.ProgressTracker(folders_prompt.root, len(image_paths))
 
 for image_path in image_paths:
     progress.set_status(f"Processing '{image_path.name}'.")

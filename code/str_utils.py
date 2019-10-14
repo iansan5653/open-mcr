@@ -1,4 +1,8 @@
-def shorten_by_cutting_middle(string: str, length: int, startpoint: int = 15):
+"""String-related utilities."""
+
+
+def trim_middle_to_len(string: str, length: int, start: int = 15):
     difference = len(string) - length
     if difference > 0:
-        return string[:startpoint] + " ... " + string[startpoint + difference + 5:]
+        return string[:start] + " ... " + string[start + difference + 5:]
+    return string
