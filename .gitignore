@@ -134,3 +134,6 @@ scantron-reader
 
 # Processing results
 /results
+
+# Executable install files
+.exe
