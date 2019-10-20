@@ -5,6 +5,8 @@ import sys
 import tkinter as tk
 import typing
 from tkinter import filedialog, ttk
+import subprocess
+import os
 
 import file_handling
 import str_utils
@@ -116,7 +118,8 @@ class FolderPickerWidget(PickerWidget):
 class FilePickerWidget(PickerWidget):
     def __init__(self,
                  root: tk.Tk,
-                 filetypes: typing.Optional[typing.List[typing.Tuple[str, str]]] = None,
+                 filetypes: typing.Optional[typing.List[
+                     typing.Tuple[str, str]]] = None,
                  onchange: typing.Optional[typing.Callable] = None):
         self.__filetypes = filetypes
         super().__init__(root, "No File Selected", onchange)
@@ -144,7 +147,7 @@ class MainWindow:
         create_and_pack_label(app, "Select Input Folder", heading=True)
         create_and_pack_label(
             app,
-            "Select a folder containing the scanned filled bubble sheets.\nAll image files in the selected folder will be processed."
+            "Select a folder containing the scanned filled bubble sheets.\nAll image files in the selected folder will be processed.\nSubfolders will be ignored."
         )
 
         self.__input_folder_picker = FolderPickerWidget(
@@ -155,17 +158,19 @@ class MainWindow:
                               heading=True)
         create_and_pack_label(
             app,
-            "Select a CSV file containing the answer keys.\nIf provided, these keys will be used over any keys found in sheets."
+            "Select a CSV file containing the answer keys.\nIf provided, these keys will be used over any keys found in sheets.\nSee 'Help' for details."
         )
 
-        self.__answer_key_picker = FilePickerWidget(app, [("CSV Files", "*.csv")], self.update_status)
+        self.__answer_key_picker = FilePickerWidget(app,
+                                                    [("CSV Files", "*.csv")],
+                                                    self.update_status)
 
         create_and_pack_label(app,
                               "Select Keys Arrangement File (Optional)",
                               heading=True)
         create_and_pack_label(
             app,
-            "Select a CSV file containing information about the relative order of each key.\nIf provided, a reordered version will be included in the output."
+            "Select a CSV file containing information about the relative order of each key.\nIf provided, a reordered version will be included in the output.\nSee 'Help' for details."
         )
 
         self.__key_arrangement_picker = FilePickerWidget(
@@ -185,12 +190,21 @@ class MainWindow:
         status.pack(fill=tk.X, expand=1, pady=(PADDING * 2, 0))
         self.update_status()
 
-        self.__confirm_button = pack(ttk.Button(app,
+        buttons_frame = tk.Frame(app)
+        self.__help_button = pack(ttk.Button(buttons_frame,
+                                             text="Help",
+                                             command=self.show_help),
+                                  padx=PADDING,
+                                  pady=PADDING,
+                                  side=tk.LEFT)
+        self.__confirm_button = pack(ttk.Button(buttons_frame,
                                                 text="Continue",
                                                 command=self.confirm,
                                                 state=tk.DISABLED),
                                      padx=PADDING,
-                                     pady=PADDING)
+                                     pady=PADDING,
+                                     side=tk.LEFT)
+        pack(buttons_frame)
 
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
@@ -239,6 +253,11 @@ class MainWindow:
         if self.update_status():
             self.disable_all()
             self.__ready_to_continue.set(1)
+
+    def show_help(self):
+        print(__file__)
+        helpfile = str(pathlib.Path(__file__).parent / "manual.pdf")
+        subprocess.Popen([helpfile], shell=True)
 
 
 class ProgressTracker:
