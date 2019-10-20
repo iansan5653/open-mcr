@@ -1,8 +1,9 @@
 """"""
-import typing
 import csv
-from grid_info import Field, NUM_QUESTIONS, RealOrVirtualField, VirtualField
 import pathlib
+import typing
+
+from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 
 COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
     Field.LAST_NAME: "Last Name",

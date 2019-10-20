@@ -1,13 +1,14 @@
-import image_utils
+import time
+import typing
+
 import corner_finding
-import grid_reading as grid_r
-import grid_info as grid_i
 import data_exporting
 import file_handling
-import typing
+import grid_info as grid_i
+import grid_reading as grid_r
+import image_utils
 import scoring
 import user_interface
-import time
 
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])

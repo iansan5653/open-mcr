@@ -3,7 +3,6 @@
 import math
 import typing
 
-
 T = typing.TypeVar('T')
 
 

@@ -1,12 +1,12 @@
 import math
-
-import math_utils
-import list_utils
-import image_utils
-import geometry_utils
-
 import typing
+
 import numpy as np
+
+import geometry_utils
+import image_utils
+import list_utils
+import math_utils
 
 
 class WrongShapeError(ValueError):

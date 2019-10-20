@@ -1,1 +1,5 @@
-pyinstaller
+PyInstaller==3.5
+typing==3.7.4.1
+numpy==1.17.2
+pathlib==1.0.1
+opencv-python==4.1.1.26

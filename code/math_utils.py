@@ -1,8 +1,9 @@
 """General mathematics utilities."""
 
-import list_utils
-import typing
 import enum
+import typing
+
+import list_utils
 
 
 class InequalityTypes(enum.Enum):

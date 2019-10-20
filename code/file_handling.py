@@ -1,8 +1,9 @@
 """Functions and utilities related to importing and exporting files."""
 
-from image_utils import SUPPORTED_IMAGE_EXTENSIONS
-import typing
 import pathlib
+import typing
+
+from image_utils import SUPPORTED_IMAGE_EXTENSIONS
 
 
 def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:

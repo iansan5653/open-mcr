@@ -1,12 +1,14 @@
 """General geometry-related math utilities."""
 
-import cv2
-import math
-import math_utils
-import list_utils
-import typing
-import numpy as np
 import enum
+import math
+import typing
+
+import cv2
+import numpy as np
+
+import list_utils
+import math_utils
 
 
 class Point:

@@ -1,11 +1,12 @@
-import tkinter as tk
-from tkinter import filedialog, ttk
-import pathlib
-import typing
-import str_utils
 import ctypes
-import file_handling
+import pathlib
 import sys
+import tkinter as tk
+import typing
+from tkinter import filedialog, ttk
+
+import file_handling
+import str_utils
 
 PADDING = 15
 APP_NAME = "Bubble Sheet Reader"

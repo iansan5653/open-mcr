@@ -1,9 +1,9 @@
-import list_utils
-import data_exporting
-import grid_info
-import math_utils
 import typing
 
+import data_exporting
+import grid_info
+import list_utils
+import math_utils
 
 KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
 
@@ -31,7 +31,8 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
         form_code_index = list_utils.find_index(keys[0], form_code_column_name)
         # After the test form codes column, search for the 1st question column
         # index
-        answers_start_index = list_utils.find_index(keys[0][form_code_index + 1:], "1") + form_code_index + 1
+        answers_start_index = list_utils.find_index(
+            keys[0][form_code_index + 1:], "1") + form_code_index + 1
     except StopIteration:
         raise ValueError(
             "Invalid key matrix passed to scoring functions. Test form code column must be prior to answers columns, which must be named '1' through N."
@@ -44,18 +45,23 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
 
 
 def score_results(results: data_exporting.OutputSheet,
-                  answer_keys: data_exporting.OutputSheet) -> data_exporting.OutputSheet:
+                  answer_keys: data_exporting.OutputSheet
+                  ) -> data_exporting.OutputSheet:
     answers = results.data
     keys = establish_key_dict(answer_keys)
     form_code_column_name = data_exporting.COLUMN_NAMES[
         grid_info.Field.TEST_FORM_CODE]
     form_code_index = list_utils.find_index(answers[0], form_code_column_name)
-    answers_start_index = list_utils.find_index(answers[0][form_code_index + 1:], "1") + form_code_index + 1
+    answers_start_index = list_utils.find_index(
+        answers[0][form_code_index + 1:], "1") + form_code_index + 1
     columns = results.field_columns + [grid_info.VirtualField.SCORE]
     scored_results = data_exporting.OutputSheet(columns)
 
     for exam in answers[1:]:  # Skip header row
-        fields = {k: v for k, v in zip(results.field_columns, exam[:answers_start_index])}
+        fields = {
+            k: v
+            for k, v in zip(results.field_columns, exam[:answers_start_index])
+        }
         form_code = exam[form_code_index]
         try:
             key = keys[form_code]
@@ -63,8 +69,12 @@ def score_results(results: data_exporting.OutputSheet,
             fields[grid_info.VirtualField.SCORE] = KEY_NOT_FOUND_MESSAGE
             scored_answers = []
         else:
-            scored_answers = [actual == correct for actual, correct in zip(exam[answers_start_index:], key)]
-            fields[grid_info.VirtualField.SCORE] = str(round(math_utils.mean(scored_answers), 4))
+            scored_answers = [
+                actual == correct
+                for actual, correct in zip(exam[answers_start_index:], key)
+            ]
+            fields[grid_info.VirtualField.SCORE] = str(
+                round(math_utils.mean(scored_answers), 4))
         string_scored_answers = [str(s) for s in scored_answers]
         scored_results.add(fields, string_scored_answers)
 

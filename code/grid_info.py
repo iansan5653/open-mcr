@@ -1,7 +1,8 @@
-from geometry_utils import Orientation
 import enum
 import typing
+
 import alphabet
+from geometry_utils import Orientation
 
 NUM_QUESTIONS = 75
 KEY_LAST_NAME = "XXXXXXXXXXXX"

@@ -1,13 +1,16 @@
 """Functions for establishing and reading the grid."""
 
-import grid_info
-import geometry_utils
+import abc
 import math
 import typing
-import image_utils
+
 import numpy as np
+
 import alphabet
-import abc
+import geometry_utils
+import grid_info
+import image_utils
+
 """ Percent fill past which a grid cell is considered filled."""
 GRID_CELL_FILL_THRESHOLD = 0.54
 GRID_CELL_CROP_FRACTION = 0.4
