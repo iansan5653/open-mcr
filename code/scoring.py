@@ -11,7 +11,7 @@ KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
 def establish_key_dict(answer_keys: data_exporting.OutputSheet
                        ) -> typing.Dict[str, typing.List[str]]:
     """Takes the matrix of answer keys and transforms it into a dictionary that
-    maps the test form codes to the list of correct answers. 
+    maps the test form codes to the list of correct answers.
 
     Treats the answer_keys data naively by assuming the following:
         * The column with the form codes comes before the answer columns.
