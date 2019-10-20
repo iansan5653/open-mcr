@@ -1,3 +1,4 @@
+import abc
 import ctypes
 import pathlib
 import sys
@@ -18,6 +19,17 @@ def prompt_folder(message: str = "Select Folder",
     return pathlib.Path(folderpath)
 
 
+def prompt_file(
+        message: str = "Select File",
+        default: str = "./",
+        filetypes: typing.Optional[typing.List[typing.Tuple[str, str]]] = None
+) -> pathlib.Path:
+    filepath = filedialog.askopenfile(initialdir=default,
+                                      title=message,
+                                      filetypes=filetypes)
+    return pathlib.Path(filepath)
+
+
 T = typing.TypeVar("T", bound=tk.Widget)
 
 
@@ -35,17 +47,18 @@ def create_and_pack_label(root: tk.Tk, text: str,
     return pack(label, fill=tk.X, expand=1, padx=PADDING, **pady_opt)
 
 
-class FolderPickerWidget():
+class PickerWidget(abc.ABC):
     """File picker widget (browse button and file path)."""
 
     onchange: typing.Optional[typing.Callable]
     frame: tk.Frame
     browse_button: ttk.Button
     display_text: tk.StringVar
-    selected_folder: typing.Optional[pathlib.Path] = None
+    selection: typing.Optional[pathlib.Path] = None
 
     def __init__(self,
                  root: tk.Tk,
+                 emptytext: str,
                  onchange: typing.Optional[typing.Callable] = None):
         self.onchange = onchange
 
@@ -72,18 +85,45 @@ class FolderPickerWidget():
                        padding=internal_padding),
              **pack_opts,
              padx=external_padding)
-        self.display_text.set("No Folder Selected")
+        self.display_text.set(emptytext)
         self.frame.pack()
 
+    @abc.abstractmethod
     def callback(self):
-        self.selected_folder = prompt_folder()
+        ...
+
+    def update_display_text(self, selection: pathlib.Path):
         self.display_text.set(
-            str_utils.trim_middle_to_len(str(self.selected_folder), 45, 3))
+            str_utils.trim_middle_to_len(str(selection), 45, 3))
         if self.onchange is not None:
             self.onchange()
 
     def disable(self):
         self.browse_button.configure(state=tk.DISABLED)
+
+
+class FolderPickerWidget(PickerWidget):
+    def __init__(self,
+                 root: tk.Tk,
+                 onchange: typing.Optional[typing.Callable] = None):
+        super().__init__(root, "No Folder Selected", onchange)
+
+    def callback(self):
+        self.selection = prompt_folder()
+        self.update_display_text(self.selection)
+
+
+class FilePickerWidget(PickerWidget):
+    def __init__(self,
+                 root: tk.Tk,
+                 filetypes: typing.Optional[typing.List[typing.Tuple[str, str]]] = None,
+                 onchange: typing.Optional[typing.Callable] = None):
+        self.__filetypes = filetypes
+        super().__init__(root, "No File Selected", onchange)
+
+    def callback(self):
+        self.selection = prompt_file(filetypes=self.__filetypes)
+        self.update_display_text(self.selection)
 
 
 class MainWindow:
@@ -109,6 +149,27 @@ class MainWindow:
 
         self.__input_folder_picker = FolderPickerWidget(
             app, self.update_status)
+
+        create_and_pack_label(app,
+                              "Select Answer Keys File (Optional)",
+                              heading=True)
+        create_and_pack_label(
+            app,
+            "Select a CSV file containing the answer keys.\nIf provided, these keys will be used over any keys found in sheets."
+        )
+
+        self.__answer_key_picker = FilePickerWidget(app, [("CSV Files", "*.csv")], self.update_status)
+
+        create_and_pack_label(app,
+                              "Select Keys Arrangement File (Optional)",
+                              heading=True)
+        create_and_pack_label(
+            app,
+            "Select a CSV file containing information about the relative order of each key.\nIf provided, a reordered version will be included in the output."
+        )
+
+        self.__key_arrangement_picker = FilePickerWidget(
+            app, [("CSV Files", "*.csv")], self.update_status)
 
         create_and_pack_label(app, "Select Output Folder", heading=True)
         create_and_pack_label(
@@ -138,7 +199,7 @@ class MainWindow:
         ok_to_submit = True
         new_status = ""
 
-        input_folder = self.__input_folder_picker.selected_folder
+        input_folder = self.__input_folder_picker.selection
         if input_folder is None:
             new_status += "⚠ Input folder is required.\n"
             ok_to_submit = False
@@ -152,7 +213,7 @@ class MainWindow:
             else:
                 new_status += f"✔ Input folder selected. {len(images)} image files found.\n"
 
-        output_folder = self.__output_folder_picker.selected_folder
+        output_folder = self.__output_folder_picker.selection
         if output_folder is None:
             new_status += "⚠ Output folder is required.\n"
             ok_to_submit = False

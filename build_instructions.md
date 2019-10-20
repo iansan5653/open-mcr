@@ -10,6 +10,7 @@ file that can be run to install the software.
    ```sh
    pyinstaller -p code -y -w code/bubble_sheet_reader.py
    ```
-4. Create a zip file from `dist/bubble_sheet_reader`.
+4. Use a markdown to PDF converter to generate a `manual.pdf` file and place it
+   in `./dist/bubble_sheet_reader`.
 5. Install NSIS if you haven't already.
 6. Run NSIS and compile [`installer.nsi`](installer.nsi).

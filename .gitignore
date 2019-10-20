@@ -138,5 +138,5 @@ scantron-reader
 # Executable install files
 .exe
 
-# Virtual Environment
-scantron-reading/
+# Manual
+manual.pdf
