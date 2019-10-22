@@ -1,3 +1,5 @@
+import csv
+import pathlib
 import typing
 
 import data_exporting
@@ -79,3 +81,16 @@ def score_results(results: data_exporting.OutputSheet,
         scored_results.add(fields, string_scored_answers)
 
     return scored_results
+
+
+def verify_answer_key_sheet(file_path: pathlib.Path) -> bool:
+    try:
+        with open(str(file_path), newline='') as file:
+            reader = csv.reader(file)
+            keys_column_name = data_exporting.COLUMN_NAMES[grid_info.Field.TEST_FORM_CODE]
+            names = next(reader)
+            keys_column_name_index = list_utils.find_index(names, keys_column_name)
+            list_utils.find_index(names[keys_column_name_index:], "1")
+        return True
+    except Exception:
+        return False

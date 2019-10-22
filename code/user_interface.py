@@ -9,8 +9,10 @@ import subprocess
 
 import file_handling
 import str_utils
+import scoring
 
-PADDING = 7.5
+YPADDING = 7.5
+XPADDING = 15
 APP_NAME = "Bubble Sheet Reader"
 
 
@@ -43,9 +45,9 @@ def pack(widget: T, *args: typing.Any, **kwargs: typing.Any) -> T:
 def create_and_pack_label(root: tk.Tk, text: str,
                           heading: bool = False) -> ttk.Label:
     font_opt = {"font": "TkDefaultFont 10 bold"} if heading else {}
-    pady_opt = {"pady": (PADDING * 2, 0)} if heading else {"pady": PADDING}
+    pady_opt = {"pady": (YPADDING * 2, 0)} if heading else {"pady": YPADDING}
     label = ttk.Label(root, text=text, justify=tk.LEFT, anchor="w", **font_opt)
-    return pack(label, fill=tk.X, expand=1, padx=PADDING, **pady_opt)
+    return pack(label, fill=tk.X, expand=1, padx=XPADDING, **pady_opt)
 
 
 class PickerWidget(abc.ABC):
@@ -64,8 +66,8 @@ class PickerWidget(abc.ABC):
         self.onchange = onchange
         self.emptytext = emptytext
 
-        internal_padding = int(PADDING * 0.66)
-        external_padding = PADDING
+        internal_padding = int(XPADDING * 0.66)
+        external_padding = XPADDING
         pack_opts = {"side": tk.LEFT, "pady": external_padding}
 
         self.frame = tk.Frame(root)
@@ -147,8 +149,8 @@ class CheckboxWidget:
         self.onchange = onchange
         self.checked = tk.IntVar(root, 0)
 
-        internal_padding = int(PADDING * 0.66)
-        external_padding = PADDING
+        internal_padding = int(XPADDING * 0.66)
+        external_padding = XPADDING
         pack_opts = {"side": tk.LEFT, "pady": external_padding}
 
         self.frame = tk.Frame(root)
@@ -175,7 +177,7 @@ class MainWindow:
     input_folder: pathlib.Path
     output_folder: pathlib.Path
     multi_answers_as_f: bool
-    keys_file: pathlib.Path
+    keys_file: typing.Optional[pathlib.Path]
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
@@ -184,6 +186,8 @@ class MainWindow:
 
         iconpath = str(pathlib.Path(__file__).parent / "assets" / "icon.ico")
         app.iconbitmap(iconpath)
+
+        self.keys_file = None
 
         try:
             ctypes.windll.shcore.SetProcessDpiAwareness(1)
@@ -237,30 +241,30 @@ class MainWindow:
 
         self.__status_text = tk.StringVar()
         status = tk.Label(app, textvariable=self.__status_text)
-        status.pack(fill=tk.X, expand=1, pady=(PADDING * 2, 0))
+        status.pack(fill=tk.X, expand=1, pady=(YPADDING * 2, 0))
         self.update_status()
 
         buttons_frame = tk.Frame(app)
         self.__sheet_button = pack(ttk.Button(buttons_frame,
                                               text="Open Sheet",
                                               command=self.show_sheet),
-                                   padx=PADDING,
-                                   pady=PADDING,
+                                   padx=XPADDING,
+                                   pady=YPADDING,
                                    side=tk.LEFT)
         self.__help_button = pack(ttk.Button(buttons_frame,
                                              text="Open Help",
                                              command=self.show_help),
-                                  padx=PADDING,
-                                  pady=PADDING,
+                                  padx=XPADDING,
+                                  pady=YPADDING,
                                   side=tk.LEFT)
         self.__confirm_button = pack(ttk.Button(buttons_frame,
-                                                text="Continue",
+                                                text="✔ Continue",
                                                 command=self.confirm,
                                                 state=tk.DISABLED),
-                                     padx=PADDING,
-                                     pady=PADDING,
-                                     side=tk.LEFT)
-        pack(buttons_frame)
+                                     padx=XPADDING,
+                                     pady=YPADDING,
+                                     side=tk.RIGHT)
+        pack(buttons_frame, fill=tk.X, expand=1)
 
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
@@ -271,7 +275,7 @@ class MainWindow:
 
         input_folder = self.__input_folder_picker.selection
         if input_folder is None:
-            new_status += "⚠ Input folder is required.\n"
+            new_status += "❌ Input folder is required.\n"
             ok_to_submit = False
         else:
             self.input_folder = input_folder
@@ -285,7 +289,7 @@ class MainWindow:
 
         output_folder = self.__output_folder_picker.selection
         if output_folder is None:
-            new_status += "⚠ Output folder is required.\n"
+            new_status += "❌ Output folder is required.\n"
             ok_to_submit = False
         else:
             self.output_folder = output_folder
@@ -294,18 +298,24 @@ class MainWindow:
             if len(existing_csv_files) == 0:
                 new_status += f"✔ Output folder selected.\n"
             else:
-                new_status += f"⚠ Output folder selected. Existing CSV files may be overwritten.\n"
+                new_status += f"✔⚠ Output folder selected. Existing CSV files may be overwritten.\n"
+
+        keys_file = self.__answer_key_picker.selection
+        if keys_file:
+            if scoring.verify_answer_key_sheet(keys_file):
+                self.keys_file = keys_file
+                new_status += f"✔ Selected answer keys file is valid.\n"
+            else:
+                self.keys_file = None
+                new_status += f"❌ Selected answer keys file is not valid.\n"
+                ok_to_submit = False
 
         self.multi_answers_as_f = bool(
             self.__multi_answers_as_f_checkbox.checked.get())
         if self.multi_answers_as_f:
-            new_status += f"Questions with multiple answers selected will have output as 'F'.\n"
+            new_status += f"Questions with multiple answers selected will be output as 'F'.\n"
         else:
-            new_status += f"Questions with multiple answers selected will have output in '[A|B]' form.\n"
-
-        keys_file = self.__answer_key_picker.selection
-        if keys_file:
-            self.keys_file = keys_file
+            new_status += f"Questions with multiple answers selected will be output in '[A|B]' form.\n"
 
         self.__status_text.set(new_status)
         if ok_to_submit:
@@ -343,8 +353,8 @@ class ProgressTracker:
         pack_opts = {
             "fill": tk.X,
             "expand": 1,
-            "padx": PADDING,
-            "pady": PADDING
+            "padx": XPADDING,
+            "pady": YPADDING
         }
         self.status_text = tk.StringVar(parent)
         pack(ttk.Label(parent, textvariable=self.status_text, width=45),
@@ -371,6 +381,6 @@ class ProgressTracker:
         close_button = ttk.Button(self.parent,
                                   text="Close",
                                   command=self.set_ready_to_close)
-        close_button.pack(padx=PADDING, pady=PADDING)
+        close_button.pack(padx=XPADDING, pady=YPADDING)
         close_button.wait_variable("Ready to Close")
         sys.exit(0)

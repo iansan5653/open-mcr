@@ -7,6 +7,8 @@ T = typing.TypeVar('T')
 
 
 def find_index(items: typing.List[T], value: T) -> int:
+    if isinstance(value, str):
+        return next(i for i, x in enumerate(items) if x.strip() == value.strip())
     return next(i for i, x in enumerate(items) if x == value)
 
 
