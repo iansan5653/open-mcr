@@ -4,6 +4,7 @@ import pathlib
 import typing
 
 from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
+import list_utils
 
 COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
     Field.LAST_NAME: "Last Name",
@@ -46,3 +47,21 @@ class OutputSheet():
                 row.append('')
         self.data.append(row + answers)
         self.row_count = len(self.data) - 1
+
+    def addFile(self, csvfile: pathlib.Path):
+        with open(str(csvfile), 'r', newline='') as file:
+            reader = csv.reader(file)
+            names = next(reader)
+            keys: typing.List[RealOrVirtualField] = []
+            for name in names:
+                try:
+                    key = next(key for key, value in COLUMN_NAMES.items() if value == name)
+                except StopIteration:
+                    pass
+                keys.append(key)
+            first_answer_index = list_utils.find_index(names, "1")
+            for row in reader:
+                fields = {key: value for key, value in list(zip(keys, row))[:first_answer_index]}
+                answers = row[first_answer_index:]
+                self.add(fields, answers)
+            

@@ -10,7 +10,7 @@ import subprocess
 import file_handling
 import str_utils
 
-PADDING = 15
+PADDING = 7.5
 APP_NAME = "Bubble Sheet Reader"
 
 
@@ -25,7 +25,7 @@ def prompt_file(
         default: str = "./",
         filetypes: typing.Optional[typing.List[typing.Tuple[str, str]]] = None
 ) -> pathlib.Path:
-    filepath = filedialog.askopenfile(initialdir=default,
+    filepath = filedialog.askopenfilename(initialdir=default,
                                       title=message,
                                       filetypes=filetypes)
     return pathlib.Path(filepath)
@@ -42,7 +42,7 @@ def pack(widget: T, *args: typing.Any, **kwargs: typing.Any) -> T:
 
 def create_and_pack_label(root: tk.Tk, text: str,
                           heading: bool = False) -> ttk.Label:
-    font_opt = {"font": "TkDefaultFont 12 bold"} if heading else {}
+    font_opt = {"font": "TkDefaultFont 10 bold"} if heading else {}
     pady_opt = {"pady": (PADDING * 2, 0)} if heading else {"pady": PADDING}
     label = ttk.Label(root, text=text, justify=tk.LEFT, anchor="w", **font_opt)
     return pack(label, fill=tk.X, expand=1, padx=PADDING, **pady_opt)
@@ -62,6 +62,7 @@ class PickerWidget(abc.ABC):
                  emptytext: str,
                  onchange: typing.Optional[typing.Callable] = None):
         self.onchange = onchange
+        self.emptytext = emptytext
 
         internal_padding = int(PADDING * 0.66)
         external_padding = PADDING
@@ -93,9 +94,9 @@ class PickerWidget(abc.ABC):
     def callback(self):
         ...
 
-    def update_display_text(self, selection: pathlib.Path):
-        self.display_text.set(
-            str_utils.trim_middle_to_len(str(selection), 45, 3))
+    def update_display_text(self, selection: typing.Optional[pathlib.Path]):
+        display_text = str_utils.trim_middle_to_len(str(selection), 45, 3) if selection is not None else self.emptytext
+        self.display_text.set(display_text)
         if self.onchange is not None:
             self.onchange()
 
@@ -110,7 +111,8 @@ class FolderPickerWidget(PickerWidget):
         super().__init__(root, "No Folder Selected", onchange)
 
     def callback(self):
-        self.selection = prompt_folder()
+        selection = prompt_folder()
+        self.selection = selection if str(selection).strip() != "." else None
         self.update_display_text(self.selection)
 
 
@@ -124,7 +126,8 @@ class FilePickerWidget(PickerWidget):
         super().__init__(root, "No File Selected", onchange)
 
     def callback(self):
-        self.selection = prompt_file(filetypes=self.__filetypes)
+        selection = prompt_file(filetypes=self.__filetypes)
+        self.selection = selection if str(selection).strip() != "." else None
         self.update_display_text(self.selection)
 
 
@@ -153,7 +156,7 @@ class CheckboxWidget:
                                              command=self.callback,
                                              variable=self.checked,
                                              padding=internal_padding,
-                                             width=45),
+                                             width=50),
                              **pack_opts,
                              padx=(external_padding, 0))
         self.frame.pack()
@@ -170,6 +173,8 @@ class MainWindow:
     root: tk.Tk
     input_folder: pathlib.Path
     output_folder: pathlib.Path
+    multi_answers_as_f: bool
+    keys_file: pathlib.Path
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
@@ -188,7 +193,7 @@ class MainWindow:
         create_and_pack_label(app, "Select Input Folder", heading=True)
         create_and_pack_label(
             app,
-            "Select a folder containing the scanned filled bubble sheets.\nSheets with last name of 'ZZZZZZZZZZZZ' will be treated as keys.\nAll image files in the selected folder will be processed.\nSubfolders will be ignored."
+            "Select a folder containing the scanned filled bubble sheets.\nSheets with last name of 'ZZZZZZZZZZZZ' will be treated as keys.\nAll image files in the selected folder will be processed, ignoring subfolders."
         )
 
         self.__input_folder_picker = FolderPickerWidget(
@@ -283,11 +288,15 @@ class MainWindow:
             else:
                 new_status += f"⚠ Output folder selected. Existing CSV files may be overwritten.\n"
 
-        self.multi_answers_as_f = self.__multi_answers_as_f_checkbox.checked.get()
+        self.multi_answers_as_f = bool(self.__multi_answers_as_f_checkbox.checked.get())
         if self.multi_answers_as_f:
             new_status += f"Questions with multiple answers selected will have output as 'F'.\n"
         else:
             new_status += f"Questions with multiple answers selected will have output in '[A|B]' form.\n"
+
+        keys_file = self.__answer_key_picker.selection
+        if keys_file:
+            self.keys_file = keys_file
 
         self.__status_text.set(new_status)
         if ok_to_submit:

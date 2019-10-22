@@ -5,7 +5,7 @@ import alphabet
 from geometry_utils import Orientation
 
 NUM_QUESTIONS = 75
-KEY_LAST_NAME = "XXXXXXXXXXXX"
+KEY_LAST_NAME = "ZZZZZZZZZZZZ"
 GRID_HORIZONTAL_CELLS = 36
 GRID_VERTICAL_CELLS = 48
 

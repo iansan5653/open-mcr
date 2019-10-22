@@ -253,7 +253,11 @@ def read_field_as_string(field: grid_info.Field, grid: Grid) -> str:
     return field_group_to_string(read_field(field, grid))
 
 
-def read_answer_as_string(question: int, grid: Grid) -> str:
+def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool) -> str:
     """Shortcut to read a question's answer and format it as a string, given
     just the question number and the grid object. """
-    return field_group_to_string(read_answer(question, grid))
+    answer = field_group_to_string(read_answer(question, grid))
+    if not multi_answers_as_f or "|" not in answer:
+        return answer
+    else:
+        return "F"

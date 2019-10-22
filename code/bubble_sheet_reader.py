@@ -17,6 +17,8 @@ folders_prompt = user_interface.MainWindow()
 input_folder = folders_prompt.input_folder
 image_paths = file_handling.filter_images(file_handling.list_file_paths(input_folder))
 output_folder = folders_prompt.output_folder
+multi_answers_as_f = folders_prompt.multi_answers_as_f
+keys_file = folders_prompt.keys_file
 
 progress = user_interface.ProgressTracker(folders_prompt.root, len(image_paths))
 
@@ -39,7 +41,7 @@ for image_path in image_paths:
 
     # Get the answers for questions
     answers = [
-        grid_r.read_answer_as_string(i, grid)
+        grid_r.read_answer_as_string(i, grid, multi_answers_as_f)
         for i in range(grid_i.NUM_QUESTIONS)
     ]
 
@@ -64,6 +66,10 @@ for image_path in image_paths:
 answers_results.save(output_folder / "results.csv")
 
 success_string = "✔️ All exams processed and saved to 'results.csv'.\n"
+
+if keys_file:
+    keys_results.addFile(keys_file)
+
 if (keys_results.row_count != 0):
     keys_results.save(output_folder / "keys.csv")
     success_string += "✔️ All keys processed and saved to 'keys.csv'.\n"
@@ -71,7 +77,7 @@ if (keys_results.row_count != 0):
     scores.save(output_folder / "scores.csv")
     success_string += "✔️ All scores processed and saved to 'scores.csv'."
 else:
-    success_string += "No exam keys were found, so no scoring performed."
+    success_string += "No exam keys were found, so no scoring was performed."
 
 progress.set_status(success_string, False)
 progress.show_exit_button_and_wait()
