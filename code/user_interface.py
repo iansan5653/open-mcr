@@ -26,8 +26,8 @@ def prompt_file(
         filetypes: typing.Optional[typing.List[typing.Tuple[str, str]]] = None
 ) -> pathlib.Path:
     filepath = filedialog.askopenfilename(initialdir=default,
-                                      title=message,
-                                      filetypes=filetypes)
+                                          title=message,
+                                          filetypes=filetypes)
     return pathlib.Path(filepath)
 
 
@@ -95,7 +95,8 @@ class PickerWidget(abc.ABC):
         ...
 
     def update_display_text(self, selection: typing.Optional[pathlib.Path]):
-        display_text = str_utils.trim_middle_to_len(str(selection), 45, 3) if selection is not None else self.emptytext
+        display_text = str_utils.trim_middle_to_len(
+            str(selection), 45, 3) if selection is not None else self.emptytext
         self.display_text.set(display_text)
         if self.onchange is not None:
             self.onchange()
@@ -181,7 +182,7 @@ class MainWindow:
         self.root = app
         app.title(f"{APP_NAME} - Select Inputs")
 
-        iconpath = str(pathlib.Path(__file__).parent / "icon.ico")
+        iconpath = str(pathlib.Path(__file__).parent / "assets" / "icon.ico")
         app.iconbitmap(iconpath)
 
         try:
@@ -199,7 +200,8 @@ class MainWindow:
         self.__input_folder_picker = FolderPickerWidget(
             app, self.update_status)
         self.__multi_answers_as_f_checkbox = CheckboxWidget(
-            app, "Convert multiple answers in a question to 'F'.", self.update_status)
+            app, "Convert multiple answers in a question to 'F'.",
+            self.update_status)
 
         create_and_pack_label(app,
                               "Select Answer Keys File (Optional)",
@@ -239,8 +241,14 @@ class MainWindow:
         self.update_status()
 
         buttons_frame = tk.Frame(app)
+        self.__sheet_button = pack(ttk.Button(buttons_frame,
+                                              text="Open Sheet",
+                                              command=self.show_sheet),
+                                   padx=PADDING,
+                                   pady=PADDING,
+                                   side=tk.LEFT)
         self.__help_button = pack(ttk.Button(buttons_frame,
-                                             text="Help",
+                                             text="Open Help",
                                              command=self.show_help),
                                   padx=PADDING,
                                   pady=PADDING,
@@ -288,7 +296,8 @@ class MainWindow:
             else:
                 new_status += f"⚠ Output folder selected. Existing CSV files may be overwritten.\n"
 
-        self.multi_answers_as_f = bool(self.__multi_answers_as_f_checkbox.checked.get())
+        self.multi_answers_as_f = bool(
+            self.__multi_answers_as_f_checkbox.checked.get())
         if self.multi_answers_as_f:
             new_status += f"Questions with multiple answers selected will have output as 'F'.\n"
         else:
@@ -317,8 +326,12 @@ class MainWindow:
             self.__ready_to_continue.set(1)
 
     def show_help(self):
-        print(pathlib.Path(__file__).parent / "manual.pdf")
-        helpfile = str(pathlib.Path(__file__).parent / "manual.pdf")
+        helpfile = str(pathlib.Path(__file__).parent / "assets" / "manual.pdf")
+        subprocess.Popen([helpfile], shell=True)
+
+    def show_sheet(self):
+        helpfile = str(
+            pathlib.Path(__file__).parent / "assets" / "bubble_sheet.pdf")
         subprocess.Popen([helpfile], shell=True)
 
 

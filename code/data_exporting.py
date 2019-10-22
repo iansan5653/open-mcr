@@ -6,6 +6,7 @@ import typing
 from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 import list_utils
 
+# If you change these, also update the manual!
 COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
     Field.LAST_NAME: "Last Name",
     Field.FIRST_NAME: "First Name",
@@ -38,7 +39,8 @@ class OutputSheet():
             writer = csv.writer(output_file)
             writer.writerows(self.data)
 
-    def add(self, fields: typing.Dict[RealOrVirtualField, str], answers: typing.List[str]):
+    def add(self, fields: typing.Dict[RealOrVirtualField, str],
+            answers: typing.List[str]):
         row: typing.List[str] = []
         for column in self.field_columns:
             try:
@@ -55,13 +57,16 @@ class OutputSheet():
             keys: typing.List[RealOrVirtualField] = []
             for name in names:
                 try:
-                    key = next(key for key, value in COLUMN_NAMES.items() if value == name)
+                    key = next(key for key, value in COLUMN_NAMES.items()
+                               if value == name)
                 except StopIteration:
                     pass
                 keys.append(key)
             first_answer_index = list_utils.find_index(names, "1")
             for row in reader:
-                fields = {key: value for key, value in list(zip(keys, row))[:first_answer_index]}
+                fields = {
+                    key: value
+                    for key, value in list(zip(keys, row))[:first_answer_index]
+                }
                 answers = row[first_answer_index:]
                 self.add(fields, answers)
-            

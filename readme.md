@@ -44,4 +44,4 @@ TODO: download and installation directions.
 
 ## Manual
 
-For full operating instructions, click here for the [Manual](manual.md).
+For full operating instructions, click here for the [Manual](code/assets/manual.md).
