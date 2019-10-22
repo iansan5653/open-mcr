@@ -6,7 +6,6 @@ import tkinter as tk
 import typing
 from tkinter import filedialog, ttk
 import subprocess
-import os
 
 import file_handling
 import str_utils
@@ -138,6 +137,10 @@ class MainWindow:
         app: tk.Tk = tk.Tk()
         self.root = app
         app.title(f"{APP_NAME} - Select Inputs")
+
+        iconpath = str(pathlib.Path(__file__).parent / "icon2.ico")
+        app.iconbitmap(iconpath)
+
         try:
             ctypes.windll.shcore.SetProcessDpiAwareness(1)
             app.tk.call('tk', 'scaling', 3.0)
