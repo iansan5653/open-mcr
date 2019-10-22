@@ -128,6 +128,44 @@ class FilePickerWidget(PickerWidget):
         self.update_display_text(self.selection)
 
 
+class CheckboxWidget:
+    """File picker widget (browse button and file path)."""
+
+    onchange: typing.Optional[typing.Callable]
+    frame: tk.Frame
+    checkbox: ttk.Checkbutton
+    checked: tk.IntVar
+
+    def __init__(self,
+                 root: tk.Tk,
+                 label: str,
+                 onchange: typing.Optional[typing.Callable] = None):
+        self.onchange = onchange
+        self.checked = tk.IntVar(root, 0)
+
+        internal_padding = int(PADDING * 0.66)
+        external_padding = PADDING
+        pack_opts = {"side": tk.LEFT, "pady": external_padding}
+
+        self.frame = tk.Frame(root)
+        self.checkbox = pack(ttk.Checkbutton(self.frame,
+                                             text=label,
+                                             command=self.callback,
+                                             variable=self.checked,
+                                             padding=internal_padding,
+                                             width=45),
+                             **pack_opts,
+                             padx=(external_padding, 0))
+        self.frame.pack()
+
+    def callback(self):
+        if self.onchange is not None:
+            self.onchange()
+
+    def disable(self):
+        self.checkbox.configure(state=tk.DISABLED)
+
+
 class MainWindow:
     root: tk.Tk
     input_folder: pathlib.Path
@@ -138,7 +176,7 @@ class MainWindow:
         self.root = app
         app.title(f"{APP_NAME} - Select Inputs")
 
-        iconpath = str(pathlib.Path(__file__).parent / "icon2.ico")
+        iconpath = str(pathlib.Path(__file__).parent / "icon.ico")
         app.iconbitmap(iconpath)
 
         try:
@@ -150,18 +188,20 @@ class MainWindow:
         create_and_pack_label(app, "Select Input Folder", heading=True)
         create_and_pack_label(
             app,
-            "Select a folder containing the scanned filled bubble sheets.\nAll image files in the selected folder will be processed.\nSubfolders will be ignored."
+            "Select a folder containing the scanned filled bubble sheets.\nSheets with last name of 'ZZZZZZZZZZZZ' will be treated as keys.\nAll image files in the selected folder will be processed.\nSubfolders will be ignored."
         )
 
         self.__input_folder_picker = FolderPickerWidget(
             app, self.update_status)
+        self.__multi_answers_as_f_checkbox = CheckboxWidget(
+            app, "Convert multiple answers in a question to 'F'.", self.update_status)
 
         create_and_pack_label(app,
                               "Select Answer Keys File (Optional)",
                               heading=True)
         create_and_pack_label(
             app,
-            "Select a CSV file containing the answer keys.\nIf provided, these keys will be used over any keys found in sheets.\nSee 'Help' for details."
+            "Select a CSV file containing the answer keys.\nIf provided, these keys will be used over any keys found in sheets.\nSee 'Help' for formatting instructions."
         )
 
         self.__answer_key_picker = FilePickerWidget(app,
@@ -173,7 +213,7 @@ class MainWindow:
                               heading=True)
         create_and_pack_label(
             app,
-            "Select a CSV file containing information about the relative order of each key.\nIf provided, a reordered version will be included in the output.\nSee 'Help' for details."
+            "Select a CSV file containing information about the relative order of each key.\nIf provided, a reordered version will be included in the output.\nSee 'Help' for formatting instructions."
         )
 
         self.__key_arrangement_picker = FilePickerWidget(
@@ -242,6 +282,13 @@ class MainWindow:
                 new_status += f"✔ Output folder selected.\n"
             else:
                 new_status += f"⚠ Output folder selected. Existing CSV files may be overwritten.\n"
+
+        self.multi_answers_as_f = self.__multi_answers_as_f_checkbox.checked.get()
+        if self.multi_answers_as_f:
+            new_status += f"Questions with multiple answers selected will have output as 'F'.\n"
+        else:
+            new_status += f"Questions with multiple answers selected will have output in '[A|B]' form.\n"
+
         self.__status_text.set(new_status)
         if ok_to_submit:
             self.__confirm_button.configure(state=tk.NORMAL)
@@ -251,6 +298,9 @@ class MainWindow:
         self.__confirm_button.configure(state=tk.DISABLED)
         self.__input_folder_picker.disable()
         self.__output_folder_picker.disable()
+        self.__answer_key_picker.disable()
+        self.__key_arrangement_picker.disable()
+        self.__multi_answers_as_f_checkbox.disable()
 
     def confirm(self):
         if self.update_status():
@@ -258,7 +308,7 @@ class MainWindow:
             self.__ready_to_continue.set(1)
 
     def show_help(self):
-        print(__file__)
+        print(pathlib.Path(__file__).parent / "manual.pdf")
         helpfile = str(pathlib.Path(__file__).parent / "manual.pdf")
         subprocess.Popen([helpfile], shell=True)
 
