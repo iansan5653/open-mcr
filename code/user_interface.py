@@ -1,5 +1,4 @@
 import abc
-import ctypes
 import pathlib
 import sys
 import tkinter as tk
@@ -11,8 +10,8 @@ import file_handling
 import str_utils
 import scoring
 
-YPADDING = 7.5
-XPADDING = 15
+YPADDING = 4
+XPADDING = 7
 APP_NAME = "Bubble Sheet Reader"
 
 
@@ -188,12 +187,6 @@ class MainWindow:
         app.iconbitmap(iconpath)
 
         self.keys_file = None
-
-        try:
-            ctypes.windll.shcore.SetProcessDpiAwareness(1)
-            app.tk.call('tk', 'scaling', 3.0)
-        except Exception:
-            pass
 
         create_and_pack_label(app, "Select Input Folder", heading=True)
         create_and_pack_label(
