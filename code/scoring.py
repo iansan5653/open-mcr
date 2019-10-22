@@ -56,7 +56,9 @@ def score_results(results: data_exporting.OutputSheet,
     form_code_index = list_utils.find_index(answers[0], form_code_column_name)
     answers_start_index = list_utils.find_index(
         answers[0][form_code_index + 1:], "1") + form_code_index + 1
-    columns = results.field_columns + [grid_info.VirtualField.SCORE]
+    columns = results.field_columns + [
+        grid_info.VirtualField.SCORE, grid_info.VirtualField.POINTS
+    ]
     scored_results = data_exporting.OutputSheet(columns)
 
     for exam in answers[1:]:  # Skip header row
@@ -69,6 +71,7 @@ def score_results(results: data_exporting.OutputSheet,
             key = keys[form_code]
         except KeyError:
             fields[grid_info.VirtualField.SCORE] = KEY_NOT_FOUND_MESSAGE
+            fields[grid_info.VirtualField.POINTS] = KEY_NOT_FOUND_MESSAGE
             scored_answers = []
         else:
             scored_answers = [
@@ -77,6 +80,7 @@ def score_results(results: data_exporting.OutputSheet,
             ]
             fields[grid_info.VirtualField.SCORE] = str(
                 round(math_utils.mean(scored_answers), 4))
+            fields[grid_info.VirtualField.POINTS] = str(sum(scored_answers))
         string_scored_answers = [str(s) for s in scored_answers]
         scored_results.add(fields, string_scored_answers)
 
@@ -87,9 +91,11 @@ def verify_answer_key_sheet(file_path: pathlib.Path) -> bool:
     try:
         with open(str(file_path), newline='') as file:
             reader = csv.reader(file)
-            keys_column_name = data_exporting.COLUMN_NAMES[grid_info.Field.TEST_FORM_CODE]
+            keys_column_name = data_exporting.COLUMN_NAMES[
+                grid_info.Field.TEST_FORM_CODE]
             names = next(reader)
-            keys_column_name_index = list_utils.find_index(names, keys_column_name)
+            keys_column_name_index = list_utils.find_index(
+                names, keys_column_name)
             list_utils.find_index(names[keys_column_name_index:], "1")
         return True
     except Exception:

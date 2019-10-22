@@ -23,6 +23,7 @@ class Field(enum.Enum):
 class VirtualField(enum.Enum):
     """Data points that don't exist on the bubble sheet, but could be added to the output."""
     SCORE = enum.auto()
+    POINTS = enum.auto()
 
 
 RealOrVirtualField = typing.Union[Field, VirtualField]
