@@ -18,6 +18,7 @@ software is as reliable as any other product available.
 
 Features built into this tool incude:
 
+- Quick bulk processing of scanned sheets
 - Support for first, middle, and last name
 - Support for course and student ID numbers
 - Support for up to 64 different test variations
