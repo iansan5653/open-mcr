@@ -1,4 +1,4 @@
-# Free and Open Source Exam Bubble Sheet Reader
+# Free / Open Source Exam Bubble Sheet Reader
 
 ## Background
 
@@ -27,7 +27,6 @@ Features built into this tool incude:
 - Orientation-independent file reading (can read sideways scans, upside down
   scans, or even off-axis scans)
 - Can read both pencil and pen marks
--
 
 If desired, the following additional features can optionally be used:
 
@@ -39,9 +38,14 @@ If desired, the following additional features can optionally be used:
 
 ## Installation Instructions
 
-TODO: download and installation directions.
+To download and install the processing utility, see the
+[releases](https://github.com/iansan5653/bubble-sheet-reader/releases) page.
 
+To print the bubble sheet, see
+[bubble_sheet.pdf](https://github.com/iansan5653/bubble-sheet-reader/blob/master/code/assets/bubble_sheet.pdf).
+This can also be accessed from within the software.
 
-## Manual
+## Usage Instructions
 
-For full operating instructions, click here for the [Manual](code/assets/manual.md).
+For full operating instructions, see the [Manual](code/assets/manual.md) or
+click the "Open Help" button in the software.
