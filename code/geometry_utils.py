@@ -39,7 +39,8 @@ class Line:
 
 
 def contour_to_polygon(contour: np.array) -> Polygon:
-    """Convert an OpenCV contour (a numpy array) to a list of points (a polygon)."""
+    """Convert an OpenCV contour (a numpy array) to a list of points (a
+    polygon)."""
     return [Point(vertex[0][0], vertex[0][1]) for vertex in contour]
 
 
@@ -72,7 +73,8 @@ def calc_2d_dist(point_a: Point, point_b: Point) -> float:
 
 
 def calc_angle(end_a: Point, shared: Point, end_b: Point) -> float:
-    """Calculate the internal angle between the two vectors (always in 0-180 range)."""
+    """Calculate the internal angle between the two vectors (always in 0-180
+    range)."""
     mag_a = calc_2d_dist(shared, end_a)
     mag_b = calc_2d_dist(shared, end_b)
     dist_ab = calc_2d_dist(end_a, end_b)
@@ -103,13 +105,15 @@ def calc_side_lengths(contour: Polygon) -> typing.List[float]:
 
 
 def all_approx_square(contour: Polygon) -> bool:
-    """Returns true if every angle in `contour` is approximately right (90deg)."""
+    """Returns true if every angle in `contour` is approximately right
+    (90deg)."""
     angles = calc_corner_angles(contour)
     return math_utils.all_approx_equal(angles, math.pi / 2)
 
 
 def line_from_points(point_a: Point, point_b: Point) -> Line:
-    """Given two points, generate the point-slope of a line that passes through them."""
+    """Given two points, generate the point-slope of a line that passes through
+    them."""
     run = (point_a.x - point_b.x)
     slope = (point_a.y - point_b.y) / run if run != 0 else math.inf
     return Line(slope, point_a)
@@ -117,7 +121,8 @@ def line_from_points(point_a: Point, point_b: Point) -> Line:
 
 def get_perpendicular_line(line: Line,
                            point: typing.Optional[Point] = None) -> Line:
-    """Given a slope and a point, returns a line passing through the point with a perpendicular slope."""
+    """Given a slope and a point, returns a line passing through the point with
+    a perpendicular slope."""
     return rotate_line(line, math.pi / 2, point)
 
 
@@ -179,7 +184,8 @@ def offset_line(line: Line, offset_point: Point) -> Line:
 
 
 def extend_ray(a: Point, b: Point, distance: float):
-    """Return the point that is `distance` from `point_b` in the direction a->b."""
+    """Return the point that is `distance` from `point_b` in the direction
+    a->b."""
     theta = math.atan2((b.y - a.y), (b.x - a.x))
     dx = math.cos(theta) * distance
     dy = math.sin(theta) * distance
@@ -261,8 +267,8 @@ def crop_rectangle(top_left_corner: Point, bottom_right_corner: Point,
     """Given a rectangle which aligns with the grid, crops away `crop_fraction`
     of the height and width from the edges, preserving the center.
 
-    NOTE: Assumes the rectangle is aligned with the grid. Will not work for other
-    shapes.
+    NOTE: Assumes the rectangle is aligned with the grid. Will not work for
+    other shapes.
 
     Returns the new top left and bottom right corners.
     """
