@@ -7,8 +7,6 @@ import grid_info
 import list_utils
 import math_utils
 
-KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
-
 
 def establish_key_dict(answer_keys: data_exporting.OutputSheet
                        ) -> typing.Dict[str, typing.List[str]]:
@@ -70,8 +68,10 @@ def score_results(results: data_exporting.OutputSheet,
         try:
             key = keys[form_code]
         except KeyError:
-            fields[grid_info.VirtualField.SCORE] = KEY_NOT_FOUND_MESSAGE
-            fields[grid_info.VirtualField.POINTS] = KEY_NOT_FOUND_MESSAGE
+            fields[grid_info.VirtualField.
+                   SCORE] = data_exporting.KEY_NOT_FOUND_MESSAGE
+            fields[grid_info.VirtualField.
+                   POINTS] = data_exporting.KEY_NOT_FOUND_MESSAGE
             scored_answers = []
         else:
             scored_answers = [

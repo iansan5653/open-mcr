@@ -18,6 +18,8 @@ COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
     VirtualField.POINTS: "Total Points"
 }
 
+KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
+
 
 class OutputSheet():
     """A lightweight matrix of data to be exported. Faster than a dataframe but
@@ -51,7 +53,7 @@ class OutputSheet():
         self.data.append(row + answers)
         self.row_count = len(self.data) - 1
 
-    def addFile(self, csvfile: pathlib.Path):
+    def add_file(self, csvfile: pathlib.Path):
         with open(str(csvfile), 'r', newline='') as file:
             reader = csv.reader(file)
             names = next(reader)
@@ -71,3 +73,40 @@ class OutputSheet():
                 }
                 answers = row[first_answer_index:]
                 self.add(fields, answers)
+
+
+def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
+                           save_path: pathlib.Path):
+    """Reorder the output sheet based on a key arrangement file and save CSV."""
+    # order_map will be a dict matching form code keys to a list where the
+    # new index of question `i` in `key` is `order_map[key][i]`
+    order_map: typing.Dict[str, typing.List[int]] = {}
+    with open(str(arrangement_file), 'r', newline='') as file:
+        reader = csv.reader(file)
+        names = next(reader)
+        form_code_index = list_utils.find_index(
+            names, COLUMN_NAMES[Field.TEST_FORM_CODE])
+        first_answer_index = list_utils.find_index(names, "1")
+        for form in reader:
+            form_code = form[form_code_index]
+            to_order_zero_ind = [int(n) - 1 for n in form[first_answer_index:]]
+            order_map[form_code] = to_order_zero_ind
+    sheet_form_code_index = list_utils.find_index(
+        sheet.data[0], COLUMN_NAMES[Field.TEST_FORM_CODE])
+    sheet_first_answer_index = list_utils.find_index(sheet.data[0], "1")
+    sheet_total_score_index = list_utils.find_index(
+        sheet.data[0], COLUMN_NAMES[VirtualField.SCORE])
+    results = [sheet.data[0]]
+    for row in sheet.data[1:]:
+        if row[sheet_total_score_index] != KEY_NOT_FOUND_MESSAGE:
+            form_code = row[sheet_form_code_index]
+            row_reordered = row[:sheet_first_answer_index] + [
+                row[ind + sheet_first_answer_index]
+                for ind in order_map[form_code]
+            ]
+            results.append(row_reordered)
+        else:
+            results.append(row)
+    with open(str(save_path), 'w+', newline='') as output_file:
+        writer = csv.writer(output_file)
+        writer.writerows(results)

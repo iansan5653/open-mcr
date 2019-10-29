@@ -116,6 +116,36 @@ selected multiple answers will have the answer `F`. Since the answer choices on
 the bubble sheet only range from `A` to `E`, this will make such instances
 readily apparent.
 
+### Reordering Scored Results
+
+Often if you want to be able to analyze the exam results as a whole but also use
+multiple keys, the easiest way to do so is to create a single exam and then
+provide the other variations as the original but with the questions and/or
+answers randomly ordered. However, to be able to perform the analysis, you need
+a way to reorder the results back to the original order.
+
+To have the software automatically reorder the scored results, simply provide a
+CSV file defining the order. Each row in this file represents a key, and each
+column represents the position that that question should be moved to.
+
+For example, if exam form A has questions 1, 2, and 3, exam form B might have
+them in 3, 1, 2 order and C might have them in 3, 2, 1 order. This would result
+in the following arrangement file:
+
+| Test Form Code | 1   | 2   | 3   |
+| -------------- | --- | --- | --- |
+| A              | 1   | 2   | 3   |
+| B              | 3   | 1   | 2   |
+| C              | 3   | 2   | 1   |
+
+If this were the file you upload, then all of the exams with form A would be
+left untouched while B and C would be rearranged to 1, 2, 3 order.
+
+_Note_: They Key column must be called "Test Form Code" and the question columns
+must be 1, 2, 3, .... Any exam with a key not listed here will not be reordered.
+
+_Note_: Do not leave any cells blank when using this file!
+
 ## Overview of Output Files
 
 _Note_: The selected output folder should be empty. If not, any existing CSV

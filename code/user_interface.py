@@ -177,6 +177,7 @@ class MainWindow:
     output_folder: pathlib.Path
     multi_answers_as_f: bool
     keys_file: typing.Optional[pathlib.Path]
+    arrangement_file: typing.Optional[pathlib.Path]
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
@@ -297,10 +298,20 @@ class MainWindow:
         if keys_file:
             if scoring.verify_answer_key_sheet(keys_file):
                 self.keys_file = keys_file
-                new_status += f"✔ Selected answer keys file is valid.\n"
+                new_status += f"✔ Selected answer keys file appears to be valid.\n"
             else:
                 self.keys_file = None
                 new_status += f"❌ Selected answer keys file is not valid.\n"
+                ok_to_submit = False
+
+        arrangement_file = self.__key_arrangement_picker.selection
+        if arrangement_file:
+            if scoring.verify_answer_key_sheet(arrangement_file):
+                self.arrangement_file = arrangement_file
+                new_status += f"✔ Selected key arrangement file appears to be valid.\n"
+            else:
+                self.arrangement_file = None
+                new_status += f"❌ Selected key arrangement file is not valid.\n"
                 ok_to_submit = False
 
         self.multi_answers_as_f = bool(
