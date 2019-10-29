@@ -98,13 +98,18 @@ def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
         sheet.data[0], COLUMN_NAMES[VirtualField.SCORE])
     results = [sheet.data[0]]
     for row in sheet.data[1:]:
+        form_code = row[sheet_form_code_index]
         if row[sheet_total_score_index] != KEY_NOT_FOUND_MESSAGE:
-            form_code = row[sheet_form_code_index]
-            row_reordered = row[:sheet_first_answer_index] + [
-                row[ind + sheet_first_answer_index]
-                for ind in order_map[form_code]
-            ]
-            results.append(row_reordered)
+            try:
+                order_map[form_code]
+            except IndexError:
+                results.append(row)
+            else:
+                row_reordered = row[:sheet_first_answer_index] + [
+                    row[ind + sheet_first_answer_index]
+                    for ind in order_map[form_code]
+                ]
+                results.append(row_reordered)
         else:
             results.append(row)
     with open(str(save_path), 'w+', newline='') as output_file:
