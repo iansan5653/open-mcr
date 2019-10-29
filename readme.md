@@ -1,4 +1,4 @@
-# Free and Open Source Exam Bubble Sheet Reader
+# Free / Open Source Exam Bubble Sheet Reader
 
 ## Background
 
@@ -18,6 +18,7 @@ software is as reliable as any other product available.
 
 Features built into this tool incude:
 
+- Quick bulk processing of scanned sheets
 - Support for first, middle, and last name
 - Support for course and student ID numbers
 - Support for up to 64 different test variations
@@ -27,7 +28,6 @@ Features built into this tool incude:
 - Orientation-independent file reading (can read sideways scans, upside down
   scans, or even off-axis scans)
 - Can read both pencil and pen marks
--
 
 If desired, the following additional features can optionally be used:
 
@@ -45,7 +45,11 @@ install it. After installation, check your Start menu for a shortcut.
 
 Currently, installers are only provided for Windows.
 
-## Manual
+To print the bubble sheet, see
+[bubble_sheet.pdf](https://github.com/iansan5653/bubble-sheet-reader/blob/master/code/assets/bubble_sheet.pdf).
+This can also be accessed from within the software.
 
-For full operating instructions, click here for the
-[Manual](code/assets/manual.md).
+## Usage Instructions
+
+For full operating instructions, see the [Manual](code/assets/manual.md) or
+click the "Open Help" button in the software.
