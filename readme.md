@@ -39,9 +39,13 @@ If desired, the following additional features can optionally be used:
 
 ## Installation Instructions
 
-TODO: download and installation directions.
+To install the utility, simply download the latest release from the
+[releases](https://github.com/iansan5653/bubble-sheet-reader/releases) page and
+install it. After installation, check your Start menu for a shortcut.
 
+Currently, installers are only provided for Windows.
 
 ## Manual
 
-For full operating instructions, click here for the [Manual](code/assets/manual.md).
+For full operating instructions, click here for the
+[Manual](code/assets/manual.md).
