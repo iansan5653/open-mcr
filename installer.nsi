@@ -1,26 +1,3 @@
-; MODIFIED FROM: basic script template for NSIS installers
-;
-; Originally Written by Philip Chu
-; Modified by Ian Sanders
-; Original code Copyright (c) 2004-2005 Technicat, LLC
-;
-; This software is provided 'as-is', without any express or implied warranty.
-; In no event will the authors be held liable for any damages arising from the
-; use of this software.
-
-; Permission is granted to anyone to use this software for any purpose,
-; including commercial applications, and to alter it ; and redistribute
-; it freely, subject to the following restrictions:
-
-;    1. The origin of this software must not be misrepresented; you must not claim that
-;       you wrote the original software. If you use this software in a product, an
-;       acknowledgment in the product documentation would be appreciated but is not required.
-
-;    2. Altered source versions must be plainly marked as such, and must not be
-;       misrepresented as being the original software.
-
-;    3. This notice may not be removed or altered from any source distribution.
-
 !include "MUI2.nsh"
 
 !define setup "bubble_sheet_reader_install.exe"
@@ -34,7 +11,6 @@
 !define regkey "Software\${prodname}"
 !define uninstkey "Software\Microsoft\Windows\CurrentVersion\Uninstall\${prodname}"
 
-!define startmenu "$SMPROGRAMS\${prodname}"
 !define uninstaller "uninstall.exe"
 
 ; Settings ---------------------------------------------------------------------
@@ -44,10 +20,11 @@ ShowInstDetails hide
 ShowUninstDetails hide
 
 Name "${prodname}"
-Caption "${prodname}"
+Caption "${prodname} Installer"
 
 !ifdef icon
   Icon "${srcdir}\${icon}"
+  !define MUI_ICON "${srcdir}\${icon}"
 !endif
 
 OutFile "${setup}"
@@ -60,20 +37,40 @@ SilentInstall normal
 InstallDir "$PROGRAMFILES\${prodname}"
 InstallDirRegKey HKLM "${regkey}" ""
 
+; MUI Settings -----------------------------------------------------------------
+
+!define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Select a directory to install the program to:"
+!define MUI_DIRECTORYPAGE_TEXT_TOP "This will install the ${prodname} utility to your machine.$\r$\n$\r$\nNOTE: If you encounter an 'Error opening file for writing' during installation, abort installation, restart your computer, and try again. If you encounter any futher errors, submit a bug on the project's GitHub page."
+
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "${regkey}"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
+!define MUI_STARTMENUPAGE_TEXT_CHECKBOX "Don't create start menu folder"
+
+!define MUI_FINISHPAGE_TITLE "Installation Complete"
+!define MUI_FINISHPAGE_TEXT "Thank you! ${prodname} installation is complete."
+!define MUI_FINISHPAGE_BUTTON "Finish"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\${exec}"
+!define MUI_FINISHPAGE_RUN_TEXT "Run Bubble Sheet Reader"
+
 ; Pages ------------------------------------------------------------------------
 
-Page directory
-Page instfiles
+Var StartMenuFolder
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
 
 UninstPage uninstConfirm
 UninstPage instfiles
 
-;--------------------------------
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
 
 AutoCloseWindow false
 ShowInstDetails show
 
-; Beginning (invisible) section
 Section
   WriteRegStr HKLM "${regkey}" "Install_Dir" "$INSTDIR"
   WriteRegStr HKLM "${uninstkey}" "DisplayName" "${prodname} (remove only)"
@@ -96,32 +93,33 @@ Section
   WriteUninstaller "${uninstaller}"
 SectionEnd
 
-; Create shortcuts
 Section
-  CreateDirectory "${startmenu}"
   SetOutPath $INSTDIR ; for working directory
 
-  !ifdef icon
-    CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}" "" "$INSTDIR\${icon}"
-  !else
-    CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}"
-  !endif
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+    CreateShortcut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+    !ifdef icon
+      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${prodname}.lnk" "$INSTDIR\${exec}" "" "$INSTDIR\${icon}"
+    !else
+      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${prodname}.lnk" "$INSTDIR\${exec}"
+    !endif
+  !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-; Uninstaller
-; All section names prefixed by "Un" will be in the uninstaller
+; Uninstaller ------------------------------------------------------------------
 UninstallText "This will uninstall ${prodname}."
 
 !ifdef icon
   UninstallIcon "${srcdir}\${icon}"
 !endif
 
-Section "Uninstall"
   DeleteRegKey HKLM "${uninstkey}"
-  DeleteRegKey HKLM "${regkey}"
 
-  Delete "${startmenu}\*.*"
-  Delete "${startmenu}"
+  !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
+
+  Delete "$SMPROGRAMS\$StartMenuFolder\*.*"
+  Delete "$SMPROGRAMS\$StartMenuFolder"
 
   !ifdef licensefile
     Delete "$INSTDIR\${licensefile}"
@@ -140,4 +138,6 @@ Section "Uninstall"
   !ifdef unfiles
     !include "${unfiles}"
   !endif
+
+  DeleteRegKey HKLM "${regkey}"
 SectionEnd
