@@ -188,6 +188,7 @@ class MainWindow:
         app.iconbitmap(iconpath)
 
         self.keys_file = None
+        self.arrangement_file = None
 
         create_and_pack_label(app, "Select Input Folder", heading=True)
         create_and_pack_label(
