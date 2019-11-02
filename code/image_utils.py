@@ -8,9 +8,7 @@ import numpy as np
 
 import geometry_utils
 
-SUPPORTED_IMAGE_EXTENSIONS = [
-    ".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"
-]
+SUPPORTED_IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"]
 
 
 def convert_to_grayscale(image: np.array) -> np.ndarray:
@@ -26,7 +24,11 @@ def remove_hf_noise(image: np.array) -> np.ndarray:
 def detect_edges(image: np.array) -> np.ndarray:
     """Detect edges in the image."""
     low_threshold = 100
-    return cv2.Canny(image, low_threshold, low_threshold * 3, edges=3)
+    return cv2.Canny(image,
+                     low_threshold,
+                     low_threshold * 3,
+                     L2gradient=True,
+                     edges=3)
 
 
 def find_contours(edges: np.array) -> np.ndarray:
@@ -60,7 +62,8 @@ def get_dimensions(image: np.array) -> typing.Tuple[int, int]:
 def threshold(image: np.array) -> np.ndarray:
     """Convert an image to B&W by thresholding."""
     gray_image = convert_to_grayscale(image)
-    _, image = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    _, image = cv2.threshold(gray_image, 128, 255,
+                             cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     return image
 
 
@@ -68,7 +71,8 @@ def prepare_scan_for_processing(image: np.array) -> np.array:
     return threshold(remove_hf_noise(image))
 
 
-def get_fill_percent(image: np.array, top_left_point: geometry_utils.Point, bottom_right_point: geometry_utils.Point) -> float:
+def get_fill_percent(image: np.array, top_left_point: geometry_utils.Point,
+                     bottom_right_point: geometry_utils.Point) -> float:
     """Get the percent of the pixels in the range that are not white."""
     # +1 because indexing doesn't include the last number (ie, [1,2,3,4][1:3] ->
     # [2,3]) and we want that last row / column.
@@ -79,3 +83,7 @@ def get_fill_percent(image: np.array, top_left_point: geometry_utils.Point, bott
         return 1 - (np.mean(image_section) / 255)
     except ZeroDivisionError:
         return 0
+
+
+def dilate(image: np.array) -> np.array:
+    return cv2.dilate(image, np.ones((3, 3), np.uint8), iterations=1)

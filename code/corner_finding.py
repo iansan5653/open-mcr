@@ -53,7 +53,9 @@ class LMark():
                 "Longest sides are not twice the length of the other sides.")
 
         self.polygon = list_utils.arrange_index_to_first(
-            clockwise_polygon, list_utils.determine_which_is_next(polygon, *longest_sides_indexes))
+            clockwise_polygon,
+            list_utils.determine_which_is_next(polygon,
+                                               *longest_sides_indexes))
         self.unit_length = math_utils.mean(unit_lengths)
 
 
@@ -101,8 +103,11 @@ class SquareMark:
 
 
 def find_corner_marks(image: np.ndarray) -> geometry_utils.Polygon:
+    # Dilating helps find corner marks, but we don't want to mess up bubble fills
+    # so it's only dilated after passing here
+    dilated_image = image_utils.dilate(image)
     all_polygons: typing.List[
-        geometry_utils.Polygon] = image_utils.find_polygons(image)
+        geometry_utils.Polygon] = image_utils.find_polygons(dilated_image)
 
     # Even though the LMark and SquareMark classes check length, it's faster to
     # filter out the shapes of incorrect length despite the increased time
