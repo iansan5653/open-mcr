@@ -130,13 +130,13 @@ dmypy.json
 scantron-reader
 
 # Cache files
-.pyc
+*.pyc
 
 # Processing results
 /results
 
 # Executable install files
-.exe
+*.exe
 
 # Manual
 manual.pdf
