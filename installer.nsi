@@ -114,6 +114,8 @@ UninstallText "This will uninstall ${prodname}."
   UninstallIcon "${srcdir}\${icon}"
 !endif
 
+Section "Uninstall"
+
   DeleteRegKey HKLM "${uninstkey}"
 
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
