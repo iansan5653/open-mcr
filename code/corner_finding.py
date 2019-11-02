@@ -105,9 +105,9 @@ class SquareMark:
 def find_corner_marks(image: np.ndarray) -> geometry_utils.Polygon:
     # Dilating helps find corner marks, but we don't want to mess up bubble fills
     # so it's only dilated after passing here
-    dilated_image = image_utils.dilate(image)
+    # dilated_image = image_utils.dilate(image)
     all_polygons: typing.List[
-        geometry_utils.Polygon] = image_utils.find_polygons(dilated_image)
+        geometry_utils.Polygon] = image_utils.find_polygons(image)
 
     # Even though the LMark and SquareMark classes check length, it's faster to
     # filter out the shapes of incorrect length despite the increased time

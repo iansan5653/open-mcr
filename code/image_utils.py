@@ -1,5 +1,6 @@
 """Image filtering and processing utilities."""
 
+import math
 import pathlib
 import typing
 
@@ -18,7 +19,7 @@ def convert_to_grayscale(image: np.array) -> np.ndarray:
 
 def remove_hf_noise(image: np.array) -> np.ndarray:
     """Blur image slightly to remove high-frequency noise."""
-    return cv2.GaussianBlur(image, (3, 3), 0)
+    return cv2.GaussianBlur(image, (0, 0), sigmaX=math.sqrt(2))
 
 
 def detect_edges(image: np.array) -> np.ndarray:
