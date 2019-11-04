@@ -63,9 +63,9 @@ def get_dimensions(image: np.array) -> typing.Tuple[int, int]:
 def threshold(image: np.array) -> np.ndarray:
     """Convert an image to B&W by thresholding."""
     gray_image = convert_to_grayscale(image)
-    _, image = cv2.threshold(gray_image, 128, 255,
-                             cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    return image
+    _, result = cv2.threshold(gray_image, 128, 255,
+                              cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    return result
 
 
 def prepare_scan_for_processing(image: np.array) -> np.array:
