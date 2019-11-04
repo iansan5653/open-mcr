@@ -12,7 +12,12 @@ import grid_info
 import image_utils
 
 """ Percent fill past which a grid cell is considered filled."""
-GRID_CELL_FILL_THRESHOLD = 0.54
+# This was found by averaging the empty fill percents of all bubbles and adding
+# 10% to that number.
+GRID_CELL_FILL_THRESHOLD = 0.6
+
+""" The fraction cropped from each cell (the percentage of the box around each
+cell that is empty space)"""
 GRID_CELL_CROP_FRACTION = 0.4
 
 # TODO: Import from geometry_utils when pyright#284 is fixed.
