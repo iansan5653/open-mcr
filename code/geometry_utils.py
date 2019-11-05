@@ -193,33 +193,50 @@ def extend_ray(a: Point, b: Point, distance: float):
 
 
 def create_change_of_basis(
-        new_origin: Point,
-        theta: float) -> typing.Tuple[typing.Callable[[Point], Point], typing.
-                                      Callable[[Point], Point]]:
-    """Returns functions that will convert points from the current coordinate
-    system to a new one where the origin is translated to `new_origin` and the
-    axis are rotated `theta` radians CCW.
+        origin: Point, bottom_left: Point, bottom_right: Point
+) -> typing.Tuple[typing.Callable[[Point], Point], typing.
+                  Callable[[Point], Point]]:
+    """Returns functions that will convert points to/from the current coordinate
+    system to a new one where the passed `origin` point becomes `0,0`, the
+    `bottom_left` point becomes `0,1`, and the `bottom_right` point becomes `1,1`.
 
     Returns:
         A tuple where the first element is a function that converts
-            points to the new system, and the second is a function that converts
+            points _to_ the new system, and the second is a function that converts
             them back.
     """
-    origin = Point(0, 0)
+    target_origin = Point(0, 0)
+    target_bl = Point(0, 1)
+    target_br = Point(1, 1)
+    target_matrix = np.array([[target_origin.x], [target_bl.x], [target_br.x],
+                              [target_origin.y], [target_bl.y], [target_br.y]],
+                             float)
+
+    from_matrix = np.array([[origin.x, origin.y, 1, 0, 0, 0],
+                            [bottom_left.x, bottom_left.y, 1, 0, 0, 0],
+                            [bottom_right.x, bottom_right.y, 1, 0, 0, 0],
+                            [0, 0, 0, origin.x, origin.y, 1],
+                            [0, 0, 0, bottom_left.x, bottom_left.y, 1],
+                            [0, 0, 0, bottom_right.x, bottom_right.y, 1]],
+                           float)
+
+    result = np.matmul(np.linalg.inv(from_matrix), target_matrix)
+    transformation_matrix = np.array([[result[0][0], result[1][0]],
+                                      [result[3][0], result[4][0]]])
+    transformation_matrix_inv = np.linalg.inv(transformation_matrix)
+    rotation_matrix = np.array([[result[2][0]], [result[5][0]]])
 
     def to_basis(point: Point) -> Point:
-        translated = Point(point.x - new_origin.x, point.y - new_origin.y)
-        r = calc_2d_dist(origin, translated)
-        phi = math.atan2(translated.y, translated.x)
-        to_phi = phi - theta
-        return Point(r * math.cos(to_phi), r * math.sin(to_phi))
+        point_vector = np.array([[point.x], [point.y]], float)
+        result = np.matmul(transformation_matrix,
+                           point_vector) + rotation_matrix
+        return Point(result[0][0], result[1][0])
 
     def from_basis(point: Point) -> Point:
-        r = calc_2d_dist(origin, point)
-        phi = math.atan2(point.y, point.x)
-        to_phi = phi + theta
-        rotated = Point(r * math.cos(to_phi), r * math.sin(to_phi))
-        return Point(rotated.x + new_origin.x, rotated.y + new_origin.y)
+        point_vector = np.array([[point.x], [point.y]], float)
+        result = np.matmul(transformation_matrix_inv,
+                           (point_vector - rotation_matrix))
+        return Point(result[0][0], result[1][0])
 
     return to_basis, from_basis
 
@@ -248,16 +265,16 @@ def get_corner(square: Polygon, corner: Corner) -> Point:
     """Gets the point representing the given corner of the square. Square should
     be pretty close to vertical - horizontal. """
     xs = [p.x for p in square]
-    highest_xs = list_utils.find_greatest_value_indexes(xs, 2)
+    highest_xs = sorted(list_utils.find_greatest_value_indexes(xs, 2))
     side_points = [
         p for i, p in enumerate(square)
-        if (corner.value[0] == 1 and i in highest_xs) or (
-            corner.value[0] == 0 and i not in highest_xs)
+        if (corner.value[1] == 1 and i in highest_xs) or (
+            corner.value[1] == 0 and i not in highest_xs)
     ]
     side_ys = [p.y for p in side_points]
     [highest_y] = list_utils.find_greatest_value_indexes(side_ys, 1)
     corner_point = side_points[highest_y] if (
-        corner.value[1] == 1) else side_points[list_utils.next_index(
+        corner.value[0] == 0) else side_points[list_utils.next_index(
             side_points, highest_y)]
     return corner_point
 

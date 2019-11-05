@@ -1,4 +1,3 @@
-import math
 import typing
 
 import numpy as np
@@ -126,12 +125,10 @@ def find_corner_marks(image: np.ndarray) -> geometry_utils.Polygon:
         except WrongShapeError:
             continue
 
-        [a, b] = l_mark.polygon[0:2]
-        rotation = math.atan2(b.y - a.y, b.x - a.x) - math.radians(90)
-        to_new_basis, from_new_basis = geometry_utils.create_change_of_basis(
-            a, rotation)
-        nominal_to_right_side = 49.5 * l_mark.unit_length
-        nominal_to_bottom = -(66.5 * l_mark.unit_length)
+        to_new_basis, _ = geometry_utils.create_change_of_basis(
+            l_mark.polygon[0], l_mark.polygon[5], l_mark.polygon[4])
+        nominal_to_right_side = 50 - 0.5
+        nominal_to_bottom = ((64 - 0.5) / 2)
         tolerance = 0.1 * nominal_to_right_side
 
         top_right_squares = []
@@ -147,22 +144,19 @@ def find_corner_marks(image: np.ndarray) -> geometry_utils.Polygon:
             centroid_new_basis = to_new_basis(centroid)
 
             if math_utils.is_within_tolerance(
-                    centroid_new_basis.x, -0.5 * l_mark.unit_length,
+                    centroid_new_basis.x, nominal_to_right_side,
                     tolerance) and math_utils.is_within_tolerance(
-                        centroid_new_basis.y, nominal_to_right_side,
-                        tolerance):
+                        centroid_new_basis.y, 0.5, tolerance):
                 top_right_squares.append(square)
             elif math_utils.is_within_tolerance(
-                    centroid_new_basis.x, nominal_to_bottom,
+                    centroid_new_basis.x, 0.5,
                     tolerance) and math_utils.is_within_tolerance(
-                        centroid_new_basis.y, -0.5 * l_mark.unit_length,
-                        tolerance):
+                        centroid_new_basis.y, nominal_to_bottom, tolerance):
                 bottom_left_squares.append(square)
             elif math_utils.is_within_tolerance(
-                    centroid_new_basis.x, nominal_to_bottom,
+                    centroid_new_basis.x, nominal_to_right_side,
                     tolerance) and math_utils.is_within_tolerance(
-                        centroid_new_basis.y, nominal_to_right_side,
-                        tolerance):
+                        centroid_new_basis.y, nominal_to_bottom, tolerance):
                 bottom_right_squares.append(square)
 
         if len(top_right_squares) == 0 or len(bottom_left_squares) == 0 or len(
@@ -172,26 +166,13 @@ def find_corner_marks(image: np.ndarray) -> geometry_utils.Polygon:
         # TODO: When multiple, either progressively decrease tolerance or
         # choose closest to centroid
 
-        top_right_square = [
-            to_new_basis(p) for p in top_right_squares[0].polygon
-        ]
-        bottom_left_square = [
-            to_new_basis(p) for p in bottom_left_squares[0].polygon
-        ]
-        bottom_right_square = [
-            to_new_basis(p) for p in bottom_right_squares[0].polygon
-        ]
-
-        top_left_corner = a
-        top_right_corner = from_new_basis(
-            geometry_utils.get_corner(top_right_square,
-                                      geometry_utils.Corner.TR))
-        bottom_left_corner = from_new_basis(
-            geometry_utils.get_corner(bottom_left_square,
-                                      geometry_utils.Corner.BL))
-        bottom_right_corner = from_new_basis(
-            geometry_utils.get_corner(bottom_right_square,
-                                      geometry_utils.Corner.BR))
+        top_left_corner = l_mark.polygon[0]
+        top_right_corner = geometry_utils.get_corner(
+            top_right_squares[0].polygon, geometry_utils.Corner.TR)
+        bottom_right_corner = geometry_utils.get_corner(
+            bottom_right_squares[0].polygon, geometry_utils.Corner.BR)
+        bottom_left_corner = geometry_utils.get_corner(
+            bottom_left_squares[0].polygon, geometry_utils.Corner.BL)
 
         return [
             top_left_corner, top_right_corner, bottom_right_corner,

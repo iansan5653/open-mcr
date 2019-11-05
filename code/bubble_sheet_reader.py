@@ -15,13 +15,15 @@ keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
 
 folders_prompt = user_interface.MainWindow()
 input_folder = folders_prompt.input_folder
-image_paths = file_handling.filter_images(file_handling.list_file_paths(input_folder))
+image_paths = file_handling.filter_images(
+    file_handling.list_file_paths(input_folder))
 output_folder = folders_prompt.output_folder
 multi_answers_as_f = folders_prompt.multi_answers_as_f
 keys_file = folders_prompt.keys_file
 arrangement_file = folders_prompt.arrangement_file
 
-progress = user_interface.ProgressTracker(folders_prompt.root, len(image_paths))
+progress = user_interface.ProgressTracker(folders_prompt.root,
+                                          len(image_paths))
 
 for image_path in image_paths:
     progress.set_status(f"Processing '{image_path.name}'.")
@@ -32,7 +34,9 @@ for image_path in image_paths:
     try:
         corners = corner_finding.find_corner_marks(prepared_image)
     except corner_finding.CornerFindingError:
-        progress.set_status(f"Error with '{image_path.name}': couldn't find corners. Skipping...")
+        progress.set_status(
+            f"Error with '{image_path.name}': couldn't find corners. Skipping..."
+        )
         time.sleep(1)
         continue
 
@@ -78,7 +82,8 @@ if (keys_results.row_count != 0):
     scores.save(output_folder / "scores.csv")
     success_string += "✔️ All scored results processed and saved to 'scores.csv'."
     if arrangement_file:
-        data_exporting.save_reordered_version(scores, arrangement_file, output_folder / "reordered.csv")
+        data_exporting.save_reordered_version(scores, arrangement_file,
+                                              output_folder / "reordered.csv")
         success_string += "✔️ Reordered results saved to 'reordered.csv'."
 else:
     success_string += "No exam keys were found, so no scoring was performed."

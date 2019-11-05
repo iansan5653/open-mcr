@@ -1,7 +1,6 @@
 """Functions for establishing and reading the grid."""
 
 import abc
-import math
 import typing
 
 import numpy as np
@@ -10,12 +9,10 @@ import alphabet
 import geometry_utils
 import grid_info
 import image_utils
-
 """ Percent fill past which a grid cell is considered filled."""
 # This was found by averaging the empty fill percents of all bubbles and adding
 # 10% to that number.
-GRID_CELL_FILL_THRESHOLD = 0.6
-
+GRID_CELL_FILL_THRESHOLD = 0.59
 """ The fraction cropped from each cell (the percentage of the box around each
 cell that is empty space)"""
 GRID_CELL_CROP_FRACTION = 0.4
@@ -41,17 +38,11 @@ class Grid:
         self.corners = corners
         self.horizontal_cells = horizontal_cells
         self.vertical_cells = vertical_cells
-        [a, b] = corners[0:2]
-        theta = math.atan2(b.y - a.y, b.x - a.x)
         self._to_grid_basis, self._from_grid_basis = geometry_utils.create_change_of_basis(
-            corners[0], theta)
+            corners[0], corners[3], corners[2])
 
-        corners_in_basis = [self._to_grid_basis(c) for c in corners]
-        self.width = corners_in_basis[1].x
-        self.height = corners_in_basis[3].y
-
-        self.horizontal_cell_size = self.width / self.horizontal_cells
-        self.vertical_cell_size = self.height / self.vertical_cells
+        self.horizontal_cell_size = 1 / self.horizontal_cells
+        self.vertical_cell_size = 1 / self.vertical_cells
 
         self.image = image
 
@@ -211,17 +202,16 @@ class LetterGridFieldGroup(_GridFieldGroup):
         return typing.cast(typing.List[typing.List[str]], super().read_value())
 
 
-def get_group_from_info(info: grid_info.GridGroupInfo, grid: Grid) -> _GridFieldGroup:
+def get_group_from_info(info: grid_info.GridGroupInfo,
+                        grid: Grid) -> _GridFieldGroup:
     if info.fields_type is grid_info.FieldType.LETTER:
         return LetterGridFieldGroup(grid, info.horizontal_start,
                                     info.vertical_start, info.num_fields,
-                                    info.field_length,
-                                    info.field_orientation)
+                                    info.field_length, info.field_orientation)
     else:
         return NumberGridFieldGroup(grid, info.horizontal_start,
                                     info.vertical_start, info.num_fields,
-                                    info.field_length,
-                                    info.field_orientation)
+                                    info.field_length, info.field_orientation)
 
 
 def read_field(
@@ -235,7 +225,8 @@ def read_answer(
         question: int, grid: Grid
 ) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
-    return get_group_from_info(grid_info.questions_info[question], grid).read_value()
+    return get_group_from_info(grid_info.questions_info[question],
+                               grid).read_value()
 
 
 def field_group_to_string(
@@ -258,7 +249,8 @@ def read_field_as_string(field: grid_info.Field, grid: Grid) -> str:
     return field_group_to_string(read_field(field, grid))
 
 
-def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool) -> str:
+def read_answer_as_string(question: int, grid: Grid,
+                          multi_answers_as_f: bool) -> str:
     """Shortcut to read a question's answer and format it as a string, given
     just the question number and the grid object. """
     answer = field_group_to_string(read_answer(question, grid))
