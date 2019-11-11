@@ -5,7 +5,7 @@
   "enableTypeIgnoreComments": true,
   "reportTypeshedErrors": true,
   "reportMissingImports": true,
-  "reportMissingTypeStubs": false,
+  "reportMissingTypeStubs": true,
   "reportImportCycles": true,
   "reportUnusedImport": true,
   "reportUnusedClass": true,
