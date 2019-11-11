@@ -144,13 +144,15 @@ class CheckboxWidget:
     def __init__(self,
                  root: tk.Tk,
                  label: str,
-                 onchange: typing.Optional[typing.Callable] = None):
+                 onchange: typing.Optional[typing.Callable] = None,
+                 reduce_padding_above: bool = False):
         self.onchange = onchange
         self.checked = tk.IntVar(root, 0)
 
-        internal_padding = int(XPADDING * 0.66)
+        internal_padding = int(XPADDING * 0.33)
         external_padding = XPADDING
-        pack_opts = {"side": tk.LEFT, "pady": external_padding}
+        top_padding = external_padding if not reduce_padding_above else 0
+        pack_opts = {"side": tk.LEFT, "pady": (top_padding, external_padding)}
 
         self.frame = tk.Frame(root)
         self.checkbox = pack(ttk.Checkbutton(self.frame,
@@ -176,6 +178,7 @@ class MainWindow:
     input_folder: pathlib.Path
     output_folder: pathlib.Path
     multi_answers_as_f: bool
+    empty_answers_as_g: bool
     keys_file: typing.Optional[pathlib.Path]
     arrangement_file: typing.Optional[pathlib.Path]
 
@@ -201,6 +204,9 @@ class MainWindow:
         self.__multi_answers_as_f_checkbox = CheckboxWidget(
             app, "Convert multiple answers in a question to 'F'.",
             self.update_status)
+        self.__empty_answers_as_g_checkbox = CheckboxWidget(
+            app, "Save empty answers in questions as 'G'.",
+            self.update_status, True)
 
         create_and_pack_label(app,
                               "Select Answer Keys File (Optional)",
@@ -322,6 +328,13 @@ class MainWindow:
         else:
             new_status += f"Questions with multiple answers selected will be output in '[A|B]' form.\n"
 
+        self.empty_answers_as_g = bool(
+            self.__empty_answers_as_g_checkbox.checked.get())
+        if self.empty_answers_as_g:
+            new_status += f"Unanswered questions will be output as 'G'.\n"
+        else:
+            new_status += f"Unanswered questions will be left as blank cells.\n"
+
         self.__status_text.set(new_status)
         if ok_to_submit:
             self.__confirm_button.configure(state=tk.NORMAL)
@@ -334,6 +347,7 @@ class MainWindow:
         self.__answer_key_picker.disable()
         self.__key_arrangement_picker.disable()
         self.__multi_answers_as_f_checkbox.disable()
+        self.__empty_answers_as_g_checkbox.disable()
 
     def confirm(self):
         if self.update_status():
