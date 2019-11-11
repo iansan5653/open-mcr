@@ -43,28 +43,32 @@ for image_path in image_paths:
     # Establish a grid
     grid = grid_r.Grid(corners, grid_i.GRID_HORIZONTAL_CELLS,
                        grid_i.GRID_VERTICAL_CELLS, prepared_image)
+    # Calculate the fill threshold
+    threshold = grid_r.calculate_bubble_fill_threshold(grid)
 
     # Get the answers for questions
     answers = [
-        grid_r.read_answer_as_string(i, grid, multi_answers_as_f)
+        grid_r.read_answer_as_string(i, grid, multi_answers_as_f, threshold)
         for i in range(grid_i.NUM_QUESTIONS)
     ]
 
     field_data: typing.Dict[grid_i.Field, str] = {}
 
     # Read the last name. If it indicates this exam is a key, treat it as such
-    last_name = grid_r.read_field_as_string(grid_i.Field.LAST_NAME, grid)
+    last_name = grid_r.read_field_as_string(grid_i.Field.LAST_NAME, grid,
+                                            threshold)
     if last_name == grid_i.KEY_LAST_NAME:
         form_code_field = grid_i.Field.TEST_FORM_CODE
         field_data[form_code_field] = grid_r.read_field_as_string(
-            form_code_field, grid)
+            form_code_field, grid, threshold)
         keys_results.add(field_data, answers)
     else:
         field_data[grid_i.Field.LAST_NAME] = last_name
         for field in grid_i.Field:
             # Avoids re-reading the last name value to save some time
             if field is not grid_i.Field.LAST_NAME:
-                field_data[field] = grid_r.read_field_as_string(field, grid)
+                field_data[field] = grid_r.read_field_as_string(
+                    field, grid, threshold)
         answers_results.add(field_data, answers)
     progress.step_progress()
 

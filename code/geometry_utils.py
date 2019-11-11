@@ -38,18 +38,18 @@ class Line:
         return (self.slope * (x - self.point.x)) + self.point.y
 
 
-def contour_to_polygon(contour: np.array) -> Polygon:
+def contour_to_polygon(contour: np.ndarray) -> Polygon:
     """Convert an OpenCV contour (a numpy array) to a list of points (a
     polygon)."""
     return [Point(vertex[0][0], vertex[0][1]) for vertex in contour]
 
 
-def polygon_to_contour(polygon: Polygon) -> np.array:
+def polygon_to_contour(polygon: Polygon) -> np.ndarray:
     """Convert polygon (list of points) to an OpenCV contour (numpy array)."""
     return np.array([[[point.x, point.y]] for point in polygon])
 
 
-def approx_poly(contour: np.array) -> Polygon:
+def approx_poly(contour: np.ndarray) -> Polygon:
     """Approximate the simple polygon for the contour. Returns a polygon in
     clockwise order."""
     perimeter = cv2.arcLength(contour, True)
