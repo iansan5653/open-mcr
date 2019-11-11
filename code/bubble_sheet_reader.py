@@ -13,16 +13,17 @@ import user_interface
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
 
-folders_prompt = user_interface.MainWindow()
-input_folder = folders_prompt.input_folder
+user_input = user_interface.MainWindow()
+input_folder = user_input.input_folder
 image_paths = file_handling.filter_images(
     file_handling.list_file_paths(input_folder))
-output_folder = folders_prompt.output_folder
-multi_answers_as_f = folders_prompt.multi_answers_as_f
-keys_file = folders_prompt.keys_file
-arrangement_file = folders_prompt.arrangement_file
+output_folder = user_input.output_folder
+multi_answers_as_f = user_input.multi_answers_as_f
+empty_answers_as_g = user_input.empty_answers_as_g
+keys_file = user_input.keys_file
+arrangement_file = user_input.arrangement_file
 
-progress = user_interface.ProgressTracker(folders_prompt.root,
+progress = user_interface.ProgressTracker(user_input.root,
                                           len(image_paths))
 
 for image_path in image_paths:
@@ -72,6 +73,7 @@ for image_path in image_paths:
         answers_results.add(field_data, answers)
     progress.step_progress()
 
+answers_results.clean_up("G" if empty_answers_as_g else "")
 answers_results.save(output_folder / "results.csv")
 
 success_string = "✔️ All exams processed and saved to 'results.csv'.\n"

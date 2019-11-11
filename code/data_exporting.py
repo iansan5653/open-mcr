@@ -29,11 +29,13 @@ class OutputSheet():
     field_columns: typing.List[RealOrVirtualField]
     num_questions: int = NUM_QUESTIONS
     row_count: int
+    first_question_column_index: int
 
     def __init__(self, columns: typing.List[RealOrVirtualField]):
         self.field_columns = columns
         field_column_names = [COLUMN_NAMES[column] for column in columns]
         answer_columns = [str(i + 1) for i in range(self.num_questions)]
+        self.first_question_column_index = len(field_column_names)
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
 
@@ -57,22 +59,46 @@ class OutputSheet():
         with open(str(csvfile), 'r', newline='') as file:
             reader = csv.reader(file)
             names = next(reader)
-            keys: typing.List[RealOrVirtualField] = []
+            # The fields that correspond with the columns
+            keys: typing.List[typing.Union[RealOrVirtualField, None]] = []
             for name in names:
                 try:
                     key = next(key for key, value in COLUMN_NAMES.items()
                                if value == name)
                 except StopIteration:
-                    pass
+                    key = None
                 keys.append(key)
-            first_answer_index = list_utils.find_index(names, "1")
             for row in reader:
                 fields = {
                     key: value
-                    for key, value in list(zip(keys, row))[:first_answer_index]
+                    for key, value in list(zip(keys, row))
+                    [:self.first_question_column_index] if key is not None
                 }
-                answers = row[first_answer_index:]
+                answers = row[self.first_question_column_index:]
                 self.add(fields, answers)
+
+    def clean_up(self, replace_empty_with: str = ""):
+        """Removes the extra headings from the heading row and replaces blank
+        cells with `replace_empty_with`. Pads any short rows with that value to
+        make all rows the same length. """
+        # Finds the length of the longest row by subtracting the smallest index
+        # of the first element in a row that is not blank from the length of the
+        # header row.
+        longest_length = len(self.data[0]) - min([
+            next(i for i, ans in enumerate(reversed(row)) if ans != "")
+            for row in self.data[1:]
+        ])
+        for i, row in enumerate(self.data):
+            cleaned_row = row[:self.first_question_column_index] + [
+                item if (item != "") else replace_empty_with
+                for item in row[self.first_question_column_index:]
+            ]
+            difference = longest_length - len(cleaned_row)
+            if (difference < 0):
+                cleaned_row = cleaned_row[:longest_length]
+            elif (difference > 0):
+                cleaned_row += [replace_empty_with] * difference
+            self.data[i] = cleaned_row
 
 
 def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
