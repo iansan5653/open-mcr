@@ -2,6 +2,7 @@
 import csv
 import pathlib
 import typing
+import operator
 
 from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 import list_utils
@@ -39,10 +40,37 @@ class OutputSheet():
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
 
-    def save(self, path: pathlib.PurePath):
+    def save(self, path: pathlib.PurePath, sort: bool):
+        if sort:
+            self.sortByName()
         with open(str(path), 'w+', newline='') as output_file:
             writer = csv.writer(output_file)
             writer.writerows(self.data)
+
+    def sortByName(self):
+        data = self.data[1:]
+        col_names = self.data[0]
+        try:
+            primary_index = list_utils.find_index(
+                col_names, COLUMN_NAMES[Field.LAST_NAME])
+            secondary_index = list_utils.find_index(
+                col_names, COLUMN_NAMES[Field.FIRST_NAME])
+            tertiary_index = list_utils.find_index(
+                col_names, COLUMN_NAMES[Field.MIDDLE_NAME])
+        except StopIteration:
+            try:
+                primary_index = list_utils.find_index(
+                    col_names, COLUMN_NAMES[Field.TEST_FORM_CODE])
+                secondary_index = None
+                tertiary_index = None
+            except StopIteration:
+                return
+        if tertiary_index is not None:
+            data = sorted(data, key=operator.itemgetter(tertiary_index))
+        if secondary_index is not None:
+            data = sorted(data, key=operator.itemgetter(secondary_index))
+        data = sorted(data, key=operator.itemgetter(primary_index))
+        self.data = [col_names] + data
 
     def add(self, fields: typing.Dict[RealOrVirtualField, str],
             answers: typing.List[str]):

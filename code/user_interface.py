@@ -181,6 +181,7 @@ class MainWindow:
     empty_answers_as_g: bool
     keys_file: typing.Optional[pathlib.Path]
     arrangement_file: typing.Optional[pathlib.Path]
+    sort_results: bool
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
@@ -239,6 +240,9 @@ class MainWindow:
 
         self.__output_folder_picker = FolderPickerWidget(
             app, self.update_status)
+        self.__sort_results_checkbox = CheckboxWidget(
+            app, "Sort results by name",
+            self.update_status)
 
         self.__status_text = tk.StringVar()
         status = tk.Label(app, textvariable=self.__status_text)
@@ -335,6 +339,13 @@ class MainWindow:
         else:
             new_status += f"Unanswered questions will be left as blank cells.\n"
 
+        self.sort_results = bool(
+            self.__sort_results_checkbox.checked.get())
+        if self.sort_results:
+            new_status += f"Results will be sorted by name.\n"
+        else:
+            new_status += f"Results will be left in original order.\n"
+
         self.__status_text.set(new_status)
         if ok_to_submit:
             self.__confirm_button.configure(state=tk.NORMAL)
@@ -348,6 +359,7 @@ class MainWindow:
         self.__key_arrangement_picker.disable()
         self.__multi_answers_as_f_checkbox.disable()
         self.__empty_answers_as_g_checkbox.disable()
+        self.__sort_results_checkbox.disable()
 
     def confirm(self):
         if self.update_status():
