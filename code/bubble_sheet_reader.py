@@ -22,6 +22,7 @@ multi_answers_as_f = user_input.multi_answers_as_f
 empty_answers_as_g = user_input.empty_answers_as_g
 keys_file = user_input.keys_file
 arrangement_file = user_input.arrangement_file
+sort_results = user_input.sort_results
 
 progress = user_interface.ProgressTracker(user_input.root,
                                           len(image_paths))
@@ -74,7 +75,7 @@ for image_path in image_paths:
     progress.step_progress()
 
 answers_results.clean_up("G" if empty_answers_as_g else "")
-answers_results.save(output_folder / "results.csv")
+answers_results.save(output_folder / "results.csv", sort_results)
 
 success_string = "✔️ All exams processed and saved to 'results.csv'.\n"
 
@@ -82,10 +83,10 @@ if keys_file:
     keys_results.add_file(keys_file)
 
 if (keys_results.row_count != 0):
-    keys_results.save(output_folder / "keys.csv")
+    keys_results.save(output_folder / "keys.csv", sort_results)
     success_string += "✔️ All keys processed and saved to 'keys.csv'.\n"
     scores = scoring.score_results(answers_results, keys_results)
-    scores.save(output_folder / "scores.csv")
+    scores.save(output_folder / "scores.csv", sort_results)
     success_string += "✔️ All scored results processed and saved to 'scores.csv'."
     if arrangement_file:
         data_exporting.save_reordered_version(scores, arrangement_file,
