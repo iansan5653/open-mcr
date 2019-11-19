@@ -79,7 +79,7 @@ def score_results(results: data_exporting.OutputSheet,
                 for actual, correct in zip(exam[answers_start_index:], key)
             ]
             fields[grid_info.VirtualField.SCORE] = str(
-                round(math_utils.mean(scored_answers), 4))
+                round(math_utils.mean(scored_answers) * 100, 2))
             fields[grid_info.VirtualField.POINTS] = str(sum(scored_answers))
         string_scored_answers = [str(s) for s in scored_answers]
         scored_results.add(fields, string_scored_answers)
