@@ -75,7 +75,7 @@ def score_results(results: data_exporting.OutputSheet,
             scored_answers = []
         else:
             scored_answers = [
-                actual == correct
+                int(actual == correct)
                 for actual, correct in zip(exam[answers_start_index:], key)
             ]
             fields[grid_info.VirtualField.SCORE] = str(
