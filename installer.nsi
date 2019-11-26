@@ -1,10 +1,10 @@
 !include "MUI2.nsh"
 
-!define setup "bubble_sheet_reader_install.exe"
-!define srcdir ".\dist\bubble_sheet_reader"
+!define setup "open-mcr_install.exe"
+!define srcdir ".\dist\main"
 !define company "Ian Sanders"
-!define prodname "Bubble Sheet Reader"
-!define exec "bubble_sheet_reader\bubble_sheet_reader.exe"
+!define prodname "OpenMCR"
+!define exec "open-mcr\open-mcr.exe"
 
 !define icon "assets\icon.ico"
 
@@ -51,7 +51,7 @@ InstallDirRegKey HKLM "${regkey}" ""
 !define MUI_FINISHPAGE_TEXT "Thank you! ${prodname} installation is complete."
 !define MUI_FINISHPAGE_BUTTON "Finish"
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${exec}"
-!define MUI_FINISHPAGE_RUN_TEXT "Run Bubble Sheet Reader"
+!define MUI_FINISHPAGE_RUN_TEXT "Run ${prodname}"
 
 ; Pages ------------------------------------------------------------------------
 

@@ -8,13 +8,9 @@ file that can be run to install the software.
 2. Open a terminal in the root directory.
 3. Use a markdown to PDF converter to generate a `manual.pdf` file and place it
    in `./code/assets`.
-4. Run the build command:
-   ```sh
-   pyinstaller -p code --add-data="code;." -y -w --icon=code/assets/icon.ico code/bubble_sheet_reader.py
-   ```
-5. Install NSIS if you haven't already, and add the install location to your
+4. Install NSIS if you haven't already, and add the install location to your
    system's PATH variabe.
-6. Run the installer packaging command:
+5. Run the build command:
    ```sh
-   makensis installer.nsi
+   pyinstaller -p code --add-data="code;." -y -w --icon=code/assets/icon.ico code/ main.py; makensis installer.nsi
    ```
