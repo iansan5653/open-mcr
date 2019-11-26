@@ -1,4 +1,4 @@
-## ![OpenMCR](logo.png)
+## ![OpenMCR](code/assets/wordmark.png)
 
 ### _The Free and Open-Source Multiple Choice Exam Reader_
 

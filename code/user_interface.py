@@ -241,7 +241,7 @@ class MainWindow:
         self.__output_folder_picker = FolderPickerWidget(
             app, self.update_status)
         self.__sort_results_checkbox = CheckboxWidget(app,
-                                                      "Sort results by name",
+                                                      "Sort results by name.",
                                                       self.update_status)
 
         self.__status_text = tk.StringVar()
