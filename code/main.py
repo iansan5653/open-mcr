@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import typing
 import textwrap
@@ -26,6 +27,9 @@ arrangement_file = user_input.arrangement_file
 sort_results = user_input.sort_results
 
 progress = user_interface.ProgressTracker(user_input.root, len(image_paths))
+
+files_timestamp = datetime.now().replace(microsecond=0)
+
 try:
     for image_path in image_paths:
         progress.set_status(f"Processing '{image_path.name}'.")
@@ -76,23 +80,35 @@ try:
         progress.step_progress()
 
     answers_results.clean_up("G" if empty_answers_as_g else "")
-    answers_results.save(output_folder / "results.csv", sort_results)
+    answers_results.save(output_folder,
+                         "results",
+                         sort_results,
+                         timestamp=files_timestamp)
 
-    success_string = "✔️ All exams processed and saved to 'results.csv'.\n"
+    success_string = "✔️ All exams processed and saved.\n"
 
     if keys_file:
         keys_results.add_file(keys_file)
 
     if (keys_results.row_count != 0):
-        keys_results.save(output_folder / "keys.csv", sort_results)
-        success_string += "✔️ All keys processed and saved to 'keys.csv'.\n"
+        keys_path = keys_results.save(output_folder,
+                                      "keys",
+                                      sort_results,
+                                      timestamp=files_timestamp)
+        success_string += "✔️ All keys processed and saved.\n"
         scores = scoring.score_results(answers_results, keys_results)
-        scores.save(output_folder / "scores.csv", sort_results)
-        success_string += "✔️ All scored results processed and saved to 'scores.csv'."
+        scores.save(output_folder,
+                    "scores",
+                    sort_results,
+                    timestamp=files_timestamp)
+        success_string += "✔️ All scored results processed and saved."
         if arrangement_file:
-            data_exporting.save_reordered_version(
-                scores, arrangement_file, output_folder / "reordered.csv")
-            success_string += "✔️ Reordered results saved to 'reordered.csv'."
+            data_exporting.save_reordered_version(scores,
+                                                  arrangement_file,
+                                                  output_folder,
+                                                  "reordered",
+                                                  timestamp=files_timestamp)
+            success_string += "✔️ Reordered results saved."
     else:
         success_string += "No exam keys were found, so no scoring was performed."
 

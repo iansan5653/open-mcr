@@ -235,7 +235,7 @@ class MainWindow:
         create_and_pack_label(app, "Select Output Folder", heading=True)
         create_and_pack_label(
             app,
-            "Select a folder to save output files to.\nExisting files may be overwritten, so it's best to use an empty folder."
+            "Select a folder to save output files to."
         )
 
         self.__output_folder_picker = FolderPickerWidget(
@@ -297,12 +297,7 @@ class MainWindow:
             ok_to_submit = False
         else:
             self.output_folder = output_folder
-            existing_csv_files = file_handling.filter_by_extensions(
-                file_handling.list_file_paths(output_folder), [".csv"])
-            if len(existing_csv_files) == 0:
-                new_status += f"✔ Output folder selected.\n"
-            else:
-                new_status += f"✔⚠ Output folder selected. Existing CSV files may be overwritten.\n"
+            new_status += f"✔ Output folder selected.\n"
 
         keys_file = self.__answer_key_picker.selection
         if keys_file:

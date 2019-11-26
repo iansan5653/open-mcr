@@ -3,6 +3,7 @@ import csv
 import pathlib
 import typing
 import operator
+from datetime import datetime
 
 from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 import list_utils
@@ -20,6 +21,10 @@ COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
 }
 
 KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
+
+
+def format_timestamp_for_file(timestamp: datetime) -> str:
+    return timestamp.isoformat(sep="_").replace(":", "-")
 
 
 class OutputSheet():
@@ -40,12 +45,15 @@ class OutputSheet():
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
 
-    def save(self, path: pathlib.PurePath, sort: bool):
+    def save(self, path: pathlib.PurePath, filebasename: str, sort: bool,
+             timestamp: datetime) -> pathlib.PurePath:
         if sort:
             self.sortByName()
-        with open(str(path), 'w+', newline='') as output_file:
+        output_path = path / f"{format_timestamp_for_file(timestamp)}__{filebasename}.csv"
+        with open(str(output_path), 'w+', newline='') as output_file:
             writer = csv.writer(output_file)
             writer.writerows(self.data)
+        return output_path
 
     def sortByName(self):
         data = self.data[1:]
@@ -131,7 +139,8 @@ class OutputSheet():
 
 
 def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
-                           save_path: pathlib.Path):
+                           save_path: pathlib.Path, filebasename: str,
+                           timestamp: datetime) -> pathlib.PurePath:
     """Reorder the output sheet based on a key arrangement file and save CSV."""
     # order_map will be a dict matching form code keys to a list where the
     # new index of question `i` in `key` is `order_map[key][i]`
@@ -167,6 +176,8 @@ def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
                 results.append(row_reordered)
         else:
             results.append(row)
-    with open(str(save_path), 'w+', newline='') as output_file:
+    output_path = save_path / f"{format_timestamp_for_file(timestamp)}__{filebasename}.csv"
+    with open(str(output_path), 'w+', newline='') as output_file:
         writer = csv.writer(output_file)
         writer.writerows(results)
+    return output_path
