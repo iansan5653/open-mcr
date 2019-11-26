@@ -116,6 +116,7 @@ class OutputSheet():
             next(i for i, ans in enumerate(reversed(row)) if ans != "")
             for row in self.data[1:]
         ])
+        self.data[0] = self.data[0][:longest_length]
         for i, row in enumerate(self.data):
             cleaned_row = row[:self.first_question_column_index] + [
                 item if (item != "") else replace_empty_with
