@@ -1,57 +1,58 @@
 ## ![OpenMCR](code/assets/wordmark.png)
 
-### _The Free and Open-Source Multiple Choice Exam Reader_
+### _Free and Open-Source Multiple Choice Exam Reader_
 
 ## Background
 
-In response to the phenomonon that typical OMR (optical mark recognition, also
-known as bubble sheets) exams sheets, scanning hardware, and processing software
-can cost up to several thousand dollars per year, this software and the
+Commercially available OMR (optical mark recognition) exam sheets, scanners, and
+processing software can cost educators and educational institutions thousands of
+dollars per year. In response to this, OpenMCR has been developed as a free and
+easy-to-use alternative. The tool includes a multiple choice exam sheet and
+works with any scanner and printer.
+
+This software and the
 corresponding multiple choice sheet were developed as an independent study
 project by Ian Sanders, a mechanical engineering student at the University of
 South Florida, under the direction of Dr. Autar Kaw.
 
-This tool is intended to be simple, fast, and extremely reliable. One can
-conduct and grade an exam simply by printing and scanning the sheets with any
-standard machine. The software has been tested extensively to ensure that
-software is as reliable as any other product available.
-
-## Features
-
-Features built into this tool incude:
-
-- Quick bulk processing of scanned sheets
-- Support for first, middle, and last name
-- Support for course and student ID numbers
-- Support for up to 64 different test variations
-- Support for 1-75 questions per exam, with answer choices A-E
-- Support for multiple answer selection (ie A and B)
-- Data exported to standard CSV files
-- Orientation-independent file reading (can read sideways scans, upside down
-  scans, or even off-axis scans)
-- Can read both pencil and pen marks
-
-If desired, the following additional features can optionally be used:
-
-- Automatic question scoring and grade calculation (even with multiple test
-  forms)
-- Sorting of output by desired values
-- Creation of answer keys through scanned bubble sheets or through manual CSV
-  creation
+To report a bug or provide feedback, please [file an issue](https://github.com/iansan5653/open-mcr/issues/new).
 
 ## Installation Instructions
 
-To install the utility, simply download the latest release from the
+Currently, installers are only provided for Windows. For other operating
+systems, see [Running From Source](#running-from-source).
+
+### Traditional Installation
+
+To install the utility, simply download the latest `.exe` file from from the
 [releases](https://github.com/iansan5653/open-mcr/releases) page and
 install it. After installation, check your Start menu for a shortcut.
 
-Currently, installers are only provided for Windows.
+### Running Without Install
 
-To print the multiple choice sheet, see
-[multiple_choice_sheet.pdf](https://github.com/iansan5653/open-mcr/blob/master/code/assets/multiple_choice_sheet.pdf).
-This can also be accessed from within the software.
+For users who cannot or do not want to install the software on their machine,
+ZIP file packages are also available for each [release](https://github.com/iansan5653/open-mcr/releases). Download the file,
+extract it anywhere on your machine, and run the `main.exe` file. This method
+does not require administrator priveleges.
+
+### Running From Source
+
+If you wish to customize the software or you need to run it on a non-Windows
+device, you can run the Python program directly from the source files. This
+requires Python to be installed on your machine. Download
+the latest `Source code (zip)` file from [releases](https://github.com/iansan5653/open-mcr/releases).
+Extract the file and open a terminal / command prompt in the extracted directory.
+Run the command `python code/main.py`. 
+
+_Note_: This software has not been tested on other operating systems and support
+is not guarunteed. If you find a bug, please file an [issue](https://github.com/iansan5653/open-mcr/issues).
+
+## Printable Multiple Choice Sheet
+
+The multiple choice sheet that must be used with this software is available
+for printing here: [multiple_choice_sheet.pdf](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet.pdf).
 
 ## Usage Instructions
 
 For full operating instructions, see the [Manual](code/assets/manual.md) or
-click the "Open Help" button in the software.
+click the <kbd>Open Help</kbd> button in the software.
