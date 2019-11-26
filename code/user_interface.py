@@ -12,7 +12,7 @@ import scoring
 
 YPADDING = 4
 XPADDING = 7
-APP_NAME = "Bubble Sheet Reader"
+APP_NAME = "OpenMCR"
 
 
 def prompt_folder(message: str = "Select Folder",
@@ -197,7 +197,7 @@ class MainWindow:
         create_and_pack_label(app, "Select Input Folder", heading=True)
         create_and_pack_label(
             app,
-            "Select a folder containing the scanned filled bubble sheets.\nSheets with last name of 'ZZZZZZZZZZZZ' will be treated as keys.\nAll image files in the selected folder will be processed, ignoring subfolders."
+            "Select a folder containing the scanned multiple choice sheets.\nSheets with last name of 'ZZZZZZZZZZZZ' will be treated as keys.\nAll image files in the selected folder will be processed, ignoring subfolders."
         )
 
         self.__input_folder_picker = FolderPickerWidget(
@@ -206,8 +206,8 @@ class MainWindow:
             app, "Convert multiple answers in a question to 'F'.",
             self.update_status)
         self.__empty_answers_as_g_checkbox = CheckboxWidget(
-            app, "Save empty answers in questions as 'G'.",
-            self.update_status, True)
+            app, "Save empty answers in questions as 'G'.", self.update_status,
+            True)
 
         create_and_pack_label(app,
                               "Select Answer Keys File (Optional)",
@@ -240,9 +240,9 @@ class MainWindow:
 
         self.__output_folder_picker = FolderPickerWidget(
             app, self.update_status)
-        self.__sort_results_checkbox = CheckboxWidget(
-            app, "Sort results by name",
-            self.update_status)
+        self.__sort_results_checkbox = CheckboxWidget(app,
+                                                      "Sort results by name",
+                                                      self.update_status)
 
         self.__status_text = tk.StringVar()
         status = tk.Label(app, textvariable=self.__status_text)
@@ -339,8 +339,7 @@ class MainWindow:
         else:
             new_status += f"Unanswered questions will be left as blank cells.\n"
 
-        self.sort_results = bool(
-            self.__sort_results_checkbox.checked.get())
+        self.sort_results = bool(self.__sort_results_checkbox.checked.get())
         if self.sort_results:
             new_status += f"Results will be sorted by name.\n"
         else:
@@ -372,7 +371,8 @@ class MainWindow:
 
     def show_sheet(self):
         helpfile = str(
-            pathlib.Path(__file__).parent / "assets" / "bubble_sheet.pdf")
+            pathlib.Path(__file__).parent / "assets" /
+            "multiple_choice_sheet.pdf")
         subprocess.Popen([helpfile], shell=True)
 
 
