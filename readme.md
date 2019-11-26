@@ -1,4 +1,4 @@
-# OpenMCR
+## ![OpenMCR](logo.png)
 
 ### _The Free and Open-Source Multiple Choice Exam Reader_
 
