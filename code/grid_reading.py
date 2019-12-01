@@ -309,8 +309,10 @@ def calculate_bubble_fill_threshold(grid: Grid) -> float:
     # If these are not true, the values for the entire sheet will be useless.
     # However, these are most likely safe assumptions.
     fill_percents = [
-        np.array(get_group_from_info(grid_info.fields_info[field], grid).get_all_fill_percents()).flatten()
-        for field in [grid_info.Field.LAST_NAME, grid_info.Field.FIRST_NAME, grid_info.Field.MIDDLE_NAME]
+        np.array(
+            get_group_from_info(grid_info.fields_info[field],
+                                grid).get_all_fill_percents()).flatten()
+        for field in grid_info.Field
     ]
     sorted_and_flattened = np.sort(np.concatenate(fill_percents))
     last_chunk = sorted_and_flattened[-round(sorted_and_flattened.size / 10):]
