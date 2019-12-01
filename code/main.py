@@ -60,11 +60,16 @@ try:
             time.sleep(1)
             continue
 
+        # Dilates the image - removes black pixels from edges, which preserves
+        # solid shapes while destroying nonsolid ones. By doing this after noise
+        # removal and thresholding, it eliminates irregular things like W and M
+        morphed_image = image_utils.dilate(prepared_image, save_path=debug_path)
+
         # Establish a grid
         grid = grid_r.Grid(corners,
                            grid_i.GRID_HORIZONTAL_CELLS,
                            grid_i.GRID_VERTICAL_CELLS,
-                           prepared_image,
+                           morphed_image,
                            save_path=debug_path)
         # Calculate the fill threshold
         threshold = grid_r.calculate_bubble_fill_threshold(
