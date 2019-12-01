@@ -51,7 +51,8 @@ def all_approx_equal(values: typing.List[float],
         [is_approx_equal(value, target_, tolerance) for value in values])
 
 
-def mean(values: typing.Union[typing.List[float], typing.List[bool]]) -> float:
+def mean(values: typing.Union[typing.List[int], typing.List[float], typing.
+                              List[bool]]) -> float:
     """Returns the average of the list of numeric values."""
     return sum(values) / len(values)
 
