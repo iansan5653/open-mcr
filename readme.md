@@ -15,8 +15,6 @@ corresponding multiple choice sheet were developed as an independent study
 project by Ian Sanders, a mechanical engineering student at the University of
 South Florida, under the direction of Dr. Autar Kaw.
 
-To report a bug or provide feedback, please [file an issue](https://github.com/iansan5653/open-mcr/issues/new).
-
 ## Installation Instructions
 
 Currently, installers are only provided for Windows. For other operating
@@ -42,10 +40,15 @@ device, you can run the Python program directly from the source files. This
 requires Python to be installed on your machine. Download
 the latest `Source code (zip)` file from [releases](https://github.com/iansan5653/open-mcr/releases).
 Extract the file and open a terminal / command prompt in the extracted directory.
-Run the command `python code/main.py`. 
+Run the command `python code/main.py`.
 
 _Note_: This software has not been tested on other operating systems and support
 is not guarunteed. If you find a bug, please file an [issue](https://github.com/iansan5653/open-mcr/issues).
+
+## Feedback / Bug Reports
+
+To report a bug, request a new feature, or provide feedback, please
+[file an issue](https://github.com/iansan5653/open-mcr/issues/new).
 
 ## Printable Multiple Choice Sheet
 
