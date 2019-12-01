@@ -1,6 +1,5 @@
 """Image filtering and processing utilities."""
 
-import math
 import pathlib
 import typing
 
@@ -20,7 +19,11 @@ def convert_to_grayscale(image: np.ndarray) -> np.ndarray:
 
 def remove_hf_noise(image: np.ndarray) -> np.ndarray:
     """Blur image slightly to remove high-frequency noise."""
-    return cv2.GaussianBlur(image, (0, 0), sigmaX=math.sqrt(2))
+    # This value for sigma was chosen such that sigma=sqrt(2) for 2500px images.
+    # Still needs more verification for low-res images.
+    sigma = min(get_dimensions(image)) * (5.6569e-4)
+    result = cv2.GaussianBlur(image, (0, 0), sigmaX=sigma)
+    return result
 
 
 def detect_edges(image: np.ndarray) -> np.ndarray:
