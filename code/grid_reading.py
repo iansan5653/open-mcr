@@ -12,11 +12,9 @@ import geometry_utils
 import grid_info
 import image_utils
 import list_utils
+import pathlib
 
-""" Percent fill past which a grid cell is considered filled. If the empty Ws
-are being read as filled, increase this."""
-GRID_CELL_FILL_THRESHOLD = 0.59
-""" This is what determines the circle size of the grid cell mask. If it is 1.0, 
+""" This is what determines the circle size of the grid cell mask. If it is 0,
 the circle touches all edges of the grid cell. If it is 0.5, the circle is 50%
 of the width and height of the cell (centered at the center of the cell.)
 
@@ -29,7 +27,7 @@ Notes:
  the same size so if we include the entire bubble then we have around the same
  fill % for all of them.
 """
-GRID_CELL_CROP_FRACTION = 0.4
+GRID_CELL_CROP_FRACTION = 0.25
 
 # TODO: Import from geometry_utils when pyright#284 is fixed.
 Polygon = typing.List[geometry_utils.Point]
@@ -45,10 +43,17 @@ class Grid:
                                       Point]
     image: np.ndarray
 
-    def __init__(self, corners: geometry_utils.Polygon, horizontal_cells: int,
-                 vertical_cells: int, image: np.ndarray):
+    def __init__(self,
+                 corners: geometry_utils.Polygon,
+                 horizontal_cells: int,
+                 vertical_cells: int,
+                 image: np.ndarray,
+                 save_path: typing.Optional[pathlib.PurePath] = None):
         """Initiate a new Grid. Corners should be clockwise starting from the
-        top left - if not, the grid will have unexpected behavior. """
+        top left - if not, the grid will have unexpected behavior.
+
+        If `save_path` is provided, will save the resulting image to this location
+        as "grid.jpg". Used for debugging purposes."""
         self.corners = corners
         self.horizontal_cells = horizontal_cells
         self.vertical_cells = vertical_cells
@@ -59,6 +64,9 @@ class Grid:
         self.vertical_cell_size = 1 / self.vertical_cells
 
         self.image = image
+
+        if save_path:
+            image_utils.save_image(save_path / "grid.jpg", self.draw_grid())
 
     def _get_cell_shape_in_basis(self, across: int,
                                  down: int) -> geometry_utils.Polygon:
@@ -90,6 +98,17 @@ class Grid:
         y_range = (int(top_left_point.y), int(bottom_right_point.y) + 1)
         return self.image[y_range[0]:y_range[1], x_range[0]:x_range[1]]
 
+    def get_cell_circle(self, across: int, down: int
+                        ) -> typing.Tuple[geometry_utils.Point, float]:
+        [top_left_point, _, bottom_right_point,
+         _] = self.get_cell_shape(across, down)
+        x_range = int(bottom_right_point.x) + 1 - int(top_left_point.x)
+        y_range = int(bottom_right_point.y) + 1 - int(top_left_point.y)
+        center = geometry_utils.Point(top_left_point.x + x_range / 2,
+                                      top_left_point.y + y_range / 2)
+        radius = ((x_range + y_range) / 2) / 2 * (1 - (GRID_CELL_CROP_FRACTION / 2))
+        return (center, radius)
+
     def get_masked_cell_matrix(self, across: int, down: int) -> ma.MaskedArray:
         unmasked = self.get_unmasked_cell_matrix(across, down)
         mask = np.ones(unmasked.shape)
@@ -100,6 +119,22 @@ class Grid:
         cv2.circle(mask, center, int(circle_radius), (0, 0, 0), -1)
         masked = ma.masked_array(unmasked, mask)
         return masked
+
+    def draw_grid(self):
+        """Draws the grid on the image, returning a copy with red dots at grid
+        points."""
+        image = cv2.cvtColor(self.image.copy(), cv2.COLOR_GRAY2BGR)
+        for x in range(self.horizontal_cells):
+            for y in range(self.vertical_cells):
+                points = self.get_cell_shape(x, y)
+                for point in points:
+                    cv2.circle(image,
+                               (int(round(point.x)), int(round(point.y))), 2,
+                               (0, 0, 255), -1)
+                center, radius = self.get_cell_circle(x, y)
+                cv2.circle(image, (int(round(center.x)), int(round(center.y))),
+                           int(round(radius)), (255, 0, 0), 1)
+        return image
 
 
 class _GridField(abc.ABC):
@@ -290,7 +325,9 @@ def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
         return "F"
 
 
-def calculate_bubble_fill_threshold(grid: Grid) -> float:
+def calculate_bubble_fill_threshold(
+        grid: Grid,
+        save_path: typing.Optional[pathlib.PurePath] = None) -> float:
     """Dynamically calculate the threshold to use for determining if a bubble is
     filled or unfilled.
 
@@ -300,6 +337,9 @@ def calculate_bubble_fill_threshold(grid: Grid) -> float:
     between all the values in the highest 1/4 (assumes all the filled bubbles
     are less than 1/4 of all the bubbles). It then returns the average of the
     two values that were subtracted to make the largest increase.
+
+    If `save_path` is provided, saves debugging data to this location as
+    "threshold_values.txt".
     """
     # This function makes the following assumptions:
     # A. At least one bubble in first, last, or middle name is full.
@@ -321,5 +361,9 @@ def calculate_bubble_fill_threshold(grid: Grid) -> float:
     ]
     biggest_diff_index = list_utils.find_greatest_value_indexes(
         differences, 1)[0]
-    return (last_chunk[biggest_diff_index] +
-            last_chunk[biggest_diff_index + 1]) / 2
+    result = (last_chunk[biggest_diff_index] +
+              last_chunk[biggest_diff_index + 1]) / 2
+    if save_path:
+        with open(str(save_path / "threshold_values.txt"), "w+") as file:
+            file.writelines([str(sorted_and_flattened), "\n\n", str(result)])
+    return result

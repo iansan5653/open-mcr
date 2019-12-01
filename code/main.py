@@ -25,20 +25,34 @@ empty_answers_as_g = user_input.empty_answers_as_g
 keys_file = user_input.keys_file
 arrangement_file = user_input.arrangement_file
 sort_results = user_input.sort_results
+debug_mode_on = user_input.debug_mode
 
 progress = user_interface.ProgressTracker(user_input.root, len(image_paths))
 
 files_timestamp = datetime.now().replace(microsecond=0)
 
+debug_dir = output_folder / (
+    data_exporting.format_timestamp_for_file(files_timestamp) + "__debug")
+if debug_mode_on:
+    data_exporting.make_dir_if_not_exists(debug_dir)
+
 try:
     for image_path in image_paths:
+        if debug_mode_on:
+            debug_path = debug_dir / image_path.stem
+            data_exporting.make_dir_if_not_exists(debug_path)
+        else:
+            debug_path = None
+
         progress.set_status(f"Processing '{image_path.name}'.")
-        image = image_utils.get_image(image_path)
-        prepared_image = image_utils.prepare_scan_for_processing(image)
+        image = image_utils.get_image(image_path, save_path=debug_path)
+        prepared_image = image_utils.prepare_scan_for_processing(
+            image, save_path=debug_path)
 
         # Find the corners, skipping the image on failure
         try:
-            corners = corner_finding.find_corner_marks(prepared_image)
+            corners = corner_finding.find_corner_marks(prepared_image,
+                                                       save_path=debug_path)
         except corner_finding.CornerFindingError:
             progress.set_status(
                 f"Error with '{image_path.name}': couldn't find corners. Skipping..."
@@ -47,10 +61,14 @@ try:
             continue
 
         # Establish a grid
-        grid = grid_r.Grid(corners, grid_i.GRID_HORIZONTAL_CELLS,
-                           grid_i.GRID_VERTICAL_CELLS, prepared_image)
+        grid = grid_r.Grid(corners,
+                           grid_i.GRID_HORIZONTAL_CELLS,
+                           grid_i.GRID_VERTICAL_CELLS,
+                           prepared_image,
+                           save_path=debug_path)
         # Calculate the fill threshold
-        threshold = grid_r.calculate_bubble_fill_threshold(grid)
+        threshold = grid_r.calculate_bubble_fill_threshold(
+            grid, save_path=debug_path)
 
         # Get the answers for questions
         answers = [
@@ -116,4 +134,6 @@ try:
 except Exception as e:
     wrapped_err = "\n".join(textwrap.wrap(str(e), 70))
     progress.set_status(f"Error: {wrapped_err}", False)
+    if debug_mode_on:
+        raise
 progress.show_exit_button_and_wait()

@@ -182,6 +182,7 @@ class MainWindow:
     keys_file: typing.Optional[pathlib.Path]
     arrangement_file: typing.Optional[pathlib.Path]
     sort_results: bool
+    debug_mode: bool = False
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
@@ -241,7 +242,8 @@ class MainWindow:
         self.__output_folder_picker = FolderPickerWidget(
             app, self.update_status)
         self.__sort_results_checkbox = CheckboxWidget(
-            app, "Sort results by students' names.", self.update_status)
+            app, "Sort results by students' names.", self.toggle_sort)
+        self.__toggle_sort_count = 0
 
         self.__status_text = tk.StringVar()
         status = tk.Label(app, textvariable=self.__status_text)
@@ -272,6 +274,10 @@ class MainWindow:
 
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
+
+    def toggle_sort(self):
+        self.__toggle_sort_count += 1
+        self.update_status()
 
     def update_status(self):
         ok_to_submit = True
@@ -338,6 +344,10 @@ class MainWindow:
             new_status += f"Results will be sorted by name.\n"
         else:
             new_status += f"Results will be left in original order.\n"
+
+        if self.__toggle_sort_count > 15:
+            new_status += "WARNING: Debug mode enabled. Restart to disable."
+            self.debug_mode = True
 
         self.__status_text.set(new_status)
         if ok_to_submit:

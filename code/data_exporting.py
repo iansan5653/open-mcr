@@ -4,6 +4,7 @@ import pathlib
 import typing
 import operator
 from datetime import datetime
+import os
 
 from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 import list_utils
@@ -25,6 +26,11 @@ KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
 
 def format_timestamp_for_file(timestamp: datetime) -> str:
     return timestamp.isoformat(sep="_").replace(":", "-")
+
+
+def make_dir_if_not_exists(path: pathlib.Path):
+    if not os.path.exists(str(path)):
+        os.makedirs(str(path))
 
 
 class OutputSheet():
