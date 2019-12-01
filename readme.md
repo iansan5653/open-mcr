@@ -59,3 +59,35 @@ for printing here: [multiple_choice_sheet.pdf](https://github.com/iansan5653/ope
 
 For full operating instructions, see the [Manual](code/assets/manual.md) or
 click the <kbd>Open Help</kbd> button in the software.
+
+## License
+
+### Software License
+
+Copyright (C) 2019 Ian Sanders
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+For the full license text, see [license.txt](./license.txt).
+
+### Multiple Choice Sheet License
+
+The multiple choice sheet distributed with this software is licensed under the
+Creative Commons Attribution-ShareAlike 4.0 International license
+(CC BY-SA 4.0). In summary, this means that you are free to distribute and
+modify the document so long as you share it under the same license and provide
+attribution. For the full license, see
+[the Creative Commons website](https://creativecommons.org/licenses/by-sa/4.0/).
+
+**Note**: You are explicitly _allowed_ to distribute the multiple choice sheet
+without attribution if using it unmodified for educational purpose and not
+in any way implying that it is your own work. This is an exception to the
+Creative Commons terms. 
