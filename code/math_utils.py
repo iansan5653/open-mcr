@@ -16,11 +16,11 @@ class InequalityTypes(enum.Enum):
         LT: Less than (`<`).
         NE: Not equal (`!=`).
     """
-    GTE: enum.auto()
-    LTE: enum.auto()
-    GT: enum.auto()
-    LT: enum.auto()
-    NE: enum.auto()
+    GTE = enum.auto()
+    LTE = enum.auto()
+    GT = enum.auto()
+    LT = enum.auto()
+    NE = enum.auto()
 
 
 def is_approx_equal(value_a: float, value_b: float,
