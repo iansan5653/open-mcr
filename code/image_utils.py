@@ -12,28 +12,54 @@ import geometry_utils
 SUPPORTED_IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"]
 
 
-def convert_to_grayscale(image: np.ndarray) -> np.ndarray:
-    """Convert an image to grayscale."""
-    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+def convert_to_grayscale(image: np.ndarray,
+                         save_path: typing.Optional[pathlib.PurePath] = None
+                         ) -> np.ndarray:
+    """Convert an image to grayscale.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "grayscale.jpg". Used for debugging purposes.
+    """
+    result = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if save_path:
+        save_image(save_path / "grayscale.jpg", result)
+    return result
 
 
-def remove_hf_noise(image: np.ndarray) -> np.ndarray:
-    """Blur image slightly to remove high-frequency noise."""
+def remove_hf_noise(image: np.ndarray,
+                    save_path: typing.Optional[pathlib.PurePath] = None
+                    ) -> np.ndarray:
+    """Blur image slightly to remove high-frequency noise.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "noise_filtered.jpg". Used for debugging purposes.
+    """
     # This value for sigma was chosen such that sigma=sqrt(2) for 2500px images.
     # Still needs more verification for low-res images.
     sigma = min(get_dimensions(image)) * (5.6569e-4)
     result = cv2.GaussianBlur(image, (0, 0), sigmaX=sigma)
+    if save_path:
+        save_image(save_path / "noise_filtered.jpg", result)
     return result
 
 
-def detect_edges(image: np.ndarray) -> np.ndarray:
-    """Detect edges in the image."""
+def detect_edges(image: np.ndarray,
+                 save_path: typing.Optional[pathlib.PurePath] = None
+                 ) -> np.ndarray:
+    """Detect edges in the image.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "edges.jpg". Used for debugging purposes.
+    """
     low_threshold = 100
-    return cv2.Canny(image,
-                     low_threshold,
-                     low_threshold * 3,
-                     L2gradient=True,
-                     edges=3)
+    result = cv2.Canny(image,
+                       low_threshold,
+                       low_threshold * 3,
+                       L2gradient=True,
+                       edges=3)
+    if save_path:
+        save_image(save_path / "edges.jpg", result)
+    return result
 
 
 def find_contours(edges: np.ndarray) -> np.ndarray:
@@ -43,14 +69,31 @@ def find_contours(edges: np.ndarray) -> np.ndarray:
     return contours
 
 
-def get_image(path: pathlib.PurePath) -> np.ndarray:
-    """Returns the cv2 image located at the given path."""
-    return cv2.imread(str(path))
+def get_image(path: pathlib.PurePath,
+              save_path: typing.Optional[pathlib.PurePath] = None
+              ) -> np.ndarray:
+    """Returns the cv2 image located at the given path.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "original.jpg". Used for debugging purposes.
+    """
+    result = cv2.imread(str(path))
+    if save_path:
+        save_image(save_path / "original.jpg", result)
+    return result
 
 
-def find_polygons(image: np.ndarray) -> typing.List[geometry_utils.Polygon]:
+def save_image(path: pathlib.PurePath, image: np.ndarray):
+    """Save the given image at the provided path. Path must be the full target
+    including file extension."""
+    cv2.imwrite(str(path), image)
+
+
+def find_polygons(image: np.ndarray,
+                  save_path: typing.Optional[pathlib.PurePath] = None
+                  ) -> typing.List[geometry_utils.Polygon]:
     """Returns a list of polygons found in the image."""
-    edges = detect_edges(image)
+    edges = detect_edges(image, save_path=save_path)
     all_contours = find_contours(edges)
     polygons = [
         geometry_utils.approx_poly(contour) for contour in all_contours
@@ -64,19 +107,37 @@ def get_dimensions(image: np.ndarray) -> typing.Tuple[int, int]:
     return width, height
 
 
-def threshold(image: np.ndarray) -> np.ndarray:
-    """Convert an image to B&W by thresholding."""
+def threshold(image: np.ndarray,
+              save_path: typing.Optional[pathlib.PurePath] = None
+              ) -> np.ndarray:
+    """Convert an image to pure black and white pixels by thresholding.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "thresholded.jpg". Used for debugging purposes.
+    """
     gray_image = convert_to_grayscale(image)
     _, result = cv2.threshold(gray_image, 128, 255,
                               cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    if save_path:
+        save_image(save_path / "thresholded.jpg", result)
     return result
 
 
-def prepare_scan_for_processing(image: np.ndarray) -> np.ndarray:
-    return threshold(remove_hf_noise(image))
+def prepare_scan_for_processing(
+        image: np.ndarray,
+        save_path: typing.Optional[pathlib.PurePath] = None) -> np.ndarray:
+    """Shortcut to prepare an image for processing.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "prepared.jpg". Used for debugging purposes.
+    """
+    without_noise = remove_hf_noise(image, save_path=save_path)
+    result = threshold(without_noise, save_path=save_path)
+    return result
 
 
-def get_fill_percent(matrix: typing.Union[np.ndarray, ma.MaskedArray]) -> float:
+def get_fill_percent(matrix: typing.Union[np.ndarray, ma.MaskedArray]
+                     ) -> float:
     """Get the percent of the pixels in the B&W matrix that are not white."""
     try:
         return 1 - (matrix.mean() / 255)
@@ -84,5 +145,14 @@ def get_fill_percent(matrix: typing.Union[np.ndarray, ma.MaskedArray]) -> float:
         return 0
 
 
-def dilate(image: np.ndarray) -> np.ndarray:
-    return cv2.dilate(image, np.ones((3, 3), np.uint8), iterations=1)
+def dilate(image: np.ndarray,
+           save_path: typing.Optional[pathlib.PurePath] = None) -> np.ndarray:
+    """Dilate the image.
+
+    If `save_path` is provided, will save the resulting image to this location
+    as "dilated.jpg". Used for debugging purposes.
+    """
+    result = cv2.dilate(image, np.ones((3, 3), np.uint8), iterations=1)
+    if save_path:
+        save_image(save_path / "dilated.jpg", result)
+    return result
