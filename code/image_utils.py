@@ -36,6 +36,8 @@ def remove_hf_noise(image: np.ndarray,
     """
     # This value for sigma was chosen such that sigma=sqrt(2) for 2500px images.
     # Still needs more verification for low-res images.
+    # NOTE: This assumes the image is roughly A4 paper shaped. If it this fails,
+    # consider switching to using the mean of the image dimensions.
     sigma = min(get_dimensions(image)) * (5.6569e-4)
     result = cv2.GaussianBlur(image, (0, 0), sigmaX=sigma)
     if save_path:
@@ -103,8 +105,7 @@ def find_polygons(image: np.ndarray,
 
 def get_dimensions(image: np.ndarray) -> typing.Tuple[int, int]:
     """Returns the dimensions of the image in `(width, height)` form."""
-    height, width, _ = image.shape
-    return width, height
+    return image.shape[0], image.shape[1]
 
 
 def threshold(image: np.ndarray,
@@ -152,6 +153,10 @@ def dilate(image: np.ndarray,
     If `save_path` is provided, will save the resulting image to this location
     as "dilated.jpg". Used for debugging purposes.
     """
+    # Dilation is done with a static kernel size of 3 x 3 pixels. This means it
+    # has a far more significant effect on smaller images, which helps to
+    # counter the detail loss when Gaussian filtering small images that already
+    # have too little detail.
     result = cv2.dilate(image, np.ones((3, 3), np.uint8), iterations=1)
     if save_path:
         save_image(save_path / "dilated.jpg", result)
