@@ -15,12 +15,12 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
 
     Treats the answer_keys data naively by assuming the following:
         * The column with the form codes comes before the answer columns.
-        * The first answer column is named "1".
+        * The first answer column is named "Q1".
         * The answers are all in order.
     If these are wrong, the results will be incorrect.
 
     Also note: the returned list of answers matches the order of the questions,
-    but the questions are named "1" through "75" and the answers are in indexes
+    but the questions are named "Q1" through "Q75" and the answers are in indexes
     0 through 74.
     """
     keys = answer_keys.data
@@ -32,10 +32,10 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
         # After the test form codes column, search for the 1st question column
         # index
         answers_start_index = list_utils.find_index(
-            keys[0][form_code_index + 1:], "1") + form_code_index + 1
+            keys[0][form_code_index + 1:], "Q1") + form_code_index + 1
     except StopIteration:
         raise ValueError(
-            "Invalid key matrix passed to scoring functions. Test form code column must be prior to answers columns, which must be named '1' through N."
+            "Invalid key matrix passed to scoring functions. Test form code column must be prior to answers columns, which must be named 'Q1' through 'QN'."
         )
 
     return {
@@ -53,7 +53,7 @@ def score_results(results: data_exporting.OutputSheet,
         grid_info.Field.TEST_FORM_CODE]
     form_code_index = list_utils.find_index(answers[0], form_code_column_name)
     answers_start_index = list_utils.find_index(
-        answers[0][form_code_index + 1:], "1") + form_code_index + 1
+        answers[0][form_code_index + 1:], "Q1") + form_code_index + 1
     columns = results.field_columns + [
         grid_info.VirtualField.SCORE, grid_info.VirtualField.POINTS
     ]
@@ -96,7 +96,7 @@ def verify_answer_key_sheet(file_path: pathlib.Path) -> bool:
             names = next(reader)
             keys_column_name_index = list_utils.find_index(
                 names, keys_column_name)
-            list_utils.find_index(names[keys_column_name_index:], "1")
+            list_utils.find_index(names[keys_column_name_index:], "Q1")
         return True
     except Exception:
         return False

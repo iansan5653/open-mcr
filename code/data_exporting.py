@@ -36,7 +36,7 @@ def make_dir_if_not_exists(path: pathlib.Path):
 class OutputSheet():
     """A lightweight matrix of data to be exported. Faster than a dataframe but
     can be easily converted to one when the need arises."""
-    # Must be structured as: field_a, field_b, ..., 1, 2, 3, ...
+    # Must be structured as: field_a, field_b, ..., Q1, Q2, Q3, ...
     data: typing.List[typing.List[str]]
     field_columns: typing.List[RealOrVirtualField]
     num_questions: int = NUM_QUESTIONS
@@ -46,7 +46,7 @@ class OutputSheet():
     def __init__(self, columns: typing.List[RealOrVirtualField]):
         self.field_columns = columns
         field_column_names = [COLUMN_NAMES[column] for column in columns]
-        answer_columns = [str(i + 1) for i in range(self.num_questions)]
+        answer_columns = [f"Q{i + 1}" for i in range(self.num_questions)]
         self.first_question_column_index = len(field_column_names)
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
@@ -156,14 +156,14 @@ def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
         names = next(reader)
         form_code_index = list_utils.find_index(
             names, COLUMN_NAMES[Field.TEST_FORM_CODE])
-        first_answer_index = list_utils.find_index(names, "1")
+        first_answer_index = list_utils.find_index(names, "Q1")
         for form in reader:
             form_code = form[form_code_index]
             to_order_zero_ind = [int(n) - 1 for n in form[first_answer_index:]]
             order_map[form_code] = to_order_zero_ind
     sheet_form_code_index = list_utils.find_index(
         sheet.data[0], COLUMN_NAMES[Field.TEST_FORM_CODE])
-    sheet_first_answer_index = list_utils.find_index(sheet.data[0], "1")
+    sheet_first_answer_index = list_utils.find_index(sheet.data[0], "Q1")
     sheet_total_score_index = list_utils.find_index(
         sheet.data[0], COLUMN_NAMES[VirtualField.SCORE])
     results = [sheet.data[0]]
