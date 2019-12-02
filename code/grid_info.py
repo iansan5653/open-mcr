@@ -15,9 +15,9 @@ class Field(enum.Enum):
     LAST_NAME = enum.auto()
     FIRST_NAME = enum.auto()
     MIDDLE_NAME = enum.auto()
+    TEST_FORM_CODE = enum.auto()
     STUDENT_ID = enum.auto()
     COURSE_ID = enum.auto()
-    TEST_FORM_CODE = enum.auto()
 
 
 class VirtualField(enum.Enum):

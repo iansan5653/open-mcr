@@ -63,7 +63,8 @@ try:
         # Dilates the image - removes black pixels from edges, which preserves
         # solid shapes while destroying nonsolid ones. By doing this after noise
         # removal and thresholding, it eliminates irregular things like W and M
-        morphed_image = image_utils.dilate(prepared_image, save_path=debug_path)
+        morphed_image = image_utils.dilate(prepared_image,
+                                           save_path=debug_path)
 
         # Establish a grid
         grid = grid_r.Grid(corners,
@@ -102,7 +103,8 @@ try:
             answers_results.add(field_data, answers)
         progress.step_progress()
 
-    answers_results.clean_up("G" if empty_answers_as_g else "")
+    answers_results.clean_up(
+        replace_empty_with="G" if empty_answers_as_g else "")
     answers_results.save(output_folder,
                          "results",
                          sort_results,

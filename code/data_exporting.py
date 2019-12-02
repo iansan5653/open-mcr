@@ -14,9 +14,9 @@ COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
     Field.LAST_NAME: "Last Name",
     Field.FIRST_NAME: "First Name",
     Field.MIDDLE_NAME: "Middle Name",
+    Field.TEST_FORM_CODE: "Test Form Code",
     Field.STUDENT_ID: "Student ID",
     Field.COURSE_ID: "Course ID",
-    Field.TEST_FORM_CODE: "Test Form Code",
     VirtualField.SCORE: "Total Score (%)",
     VirtualField.POINTS: "Total Points"
 }
