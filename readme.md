@@ -81,11 +81,12 @@ For the full license text, see [license.txt](./license.txt).
 ### Multiple Choice Sheet License
 
 The multiple choice sheet distributed with this software is licensed under the
-Creative Commons Attribution-ShareAlike 4.0 International license
-(CC BY-SA 4.0). In summary, this means that you are free to distribute and
-modify the document so long as you share it under the same license and provide
-attribution. For the full license, see
-[the Creative Commons website](https://creativecommons.org/licenses/by-sa/4.0/).
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license
+(CC BY-NC-SA 4.0). In summary, this means that you are free to distribute and
+modify the document so long as you share it under the same license, provide
+attribution, and do not use it for commercial purposes. For the full license,
+see
+[the Creative Commons website](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 **Note**: You are explicitly _allowed_ to distribute the multiple choice sheet
 without attribution if using it unmodified for educational purpose and not
