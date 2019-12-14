@@ -234,10 +234,7 @@ class MainWindow:
             app, [("CSV Files", "*.csv")], self.update_status)
 
         create_and_pack_label(app, "Select Output Folder", heading=True)
-        create_and_pack_label(
-            app,
-            "Select a folder to save output files to."
-        )
+        create_and_pack_label(app, "Select a folder to save output files to.")
 
         self.__output_folder_picker = FolderPickerWidget(
             app, self.update_status)
@@ -251,18 +248,22 @@ class MainWindow:
         self.update_status()
 
         buttons_frame = tk.Frame(app)
-        self.__sheet_button = pack(ttk.Button(buttons_frame,
-                                              text="Open Sheet",
-                                              command=self.show_sheet),
-                                   padx=XPADDING,
-                                   pady=YPADDING,
-                                   side=tk.LEFT)
-        self.__help_button = pack(ttk.Button(buttons_frame,
-                                             text="Open Help",
-                                             command=self.show_help),
-                                  padx=XPADDING,
-                                  pady=YPADDING,
-                                  side=tk.LEFT)
+
+        # "Open Sheet" button
+        pack(ttk.Button(buttons_frame,
+                        text="Open Sheet",
+                        command=self.show_sheet),
+             padx=XPADDING,
+             pady=YPADDING,
+             side=tk.LEFT)
+        # "Open Help" Button
+        pack(ttk.Button(buttons_frame,
+                        text="Open Help",
+                        command=self.show_help),
+             padx=XPADDING,
+             pady=YPADDING,
+             side=tk.LEFT)
+
         self.__confirm_button = pack(ttk.Button(buttons_frame,
                                                 text="✔ Continue",
                                                 command=self.confirm,

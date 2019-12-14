@@ -54,9 +54,10 @@ def score_results(results: data_exporting.OutputSheet,
     form_code_index = list_utils.find_index(answers[0], form_code_column_name)
     answers_start_index = list_utils.find_index(
         answers[0][form_code_index + 1:], "Q1") + form_code_index + 1
-    columns = results.field_columns + [
+    virtual_fields: typing.List[grid_info.RealOrVirtualField] = [
         grid_info.VirtualField.SCORE, grid_info.VirtualField.POINTS
     ]
+    columns = results.field_columns + virtual_fields
     scored_results = data_exporting.OutputSheet(columns)
 
     for exam in answers[1:]:  # Skip header row

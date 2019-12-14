@@ -83,7 +83,7 @@ try:
             for i in range(grid_i.NUM_QUESTIONS)
         ]
 
-        field_data: typing.Dict[grid_i.Field, str] = {}
+        field_data: typing.Dict[grid_i.RealOrVirtualField, str] = {}
 
         # Read the last name. If it indicates this exam is a key, treat it as such
         last_name = grid_r.read_field_as_string(grid_i.Field.LAST_NAME, grid,

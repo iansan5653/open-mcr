@@ -105,9 +105,7 @@ class SquareMark:
 def find_corner_marks(image: np.ndarray,
                       save_path: typing.Optional[pathlib.PurePath] = None
                       ) -> geometry_utils.Polygon:
-    # Dilating helps find corner marks, but we don't want to mess up bubble fills
-    # so it's only dilated after passing here
-    # dilated_image = image_utils.dilate(image)
+
     all_polygons: typing.List[
         geometry_utils.Polygon] = image_utils.find_polygons(
             image, save_path=save_path)

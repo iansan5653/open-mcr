@@ -1,5 +1,7 @@
 """Functions for establishing and reading the grid."""
 
+# pyright: reportIncompatibleMethodOverride=false
+
 import abc
 import typing
 
@@ -355,7 +357,7 @@ def calculate_bubble_fill_threshold(
         for field in grid_info.Field
     ]
     sorted_and_flattened = np.sort(np.concatenate(fill_percents))
-    last_chunk = sorted_and_flattened[-round(sorted_and_flattened.size / 10):]
+    last_chunk = sorted_and_flattened[-round(sorted_and_flattened.size / 5):]
     differences = [
         last_chunk[i + 1] - last_chunk[i] for i in range(last_chunk.size - 1)
     ]

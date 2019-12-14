@@ -172,9 +172,9 @@ def is_in_inequalities(point: Point,
     return True
 
 
-def create_range_check_fn(*inequalities: typing.List[InequalityLine]):
-    return lambda point: is_in_inequalities(point, inequalities
-                                            )  # type: ignore
+def create_range_check_fn(*inequalities: typing.List[InequalityLine]
+                          ) -> typing.Callable[[Point], bool]:
+    return lambda point: is_in_inequalities(point, inequalities)
 
 
 def offset_line(line: Line, offset_point: Point) -> Line:

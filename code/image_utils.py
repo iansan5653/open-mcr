@@ -117,7 +117,7 @@ def threshold(image: np.ndarray,
     as "thresholded.jpg". Used for debugging purposes.
     """
     gray_image = convert_to_grayscale(image)
-    _, result = cv2.threshold(gray_image, 128, 255,
+    _, result = cv2.threshold(gray_image, 0, 255,
                               cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     if save_path:
         save_image(save_path / "thresholded.jpg", result)
