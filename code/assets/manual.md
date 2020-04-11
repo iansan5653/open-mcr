@@ -15,9 +15,11 @@ https://github.com/iansan5653/open-mcr
 ### Printing Sheets
 
 In order to use the OpenMCR software, students must use the provided multiple-
-choice sheets. A printable PDF is available by clicking <kbd>Open Sheet</kbd> in the
-software or by visiting the following link:
-https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet.pdf.
+choice sheets. Two options are available (click the names to print PDFs):
+
+- `multiple_choice_sheet_75q` (https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_75q.pdf): Has 75 questions as well as space for students' full names, course ID, student ID, and test form code.
+- `multiple_choice_sheet_150q` (https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_150q.pdf):
+  Doubles the number of questions to 150, but removes the bubbles for student name. Instead, a non-processed write-in name field is provided.
 
 The program is robust and should work with most printers and scanners, however
 best results will be obtained by using a laser printer in black & white mode
@@ -33,15 +35,13 @@ to be used.
 
 If you would like to take advantage of the automatic grading feature of the
 software, you must provide it with one or more answer keys. To create an answer
-key, simply print a normal sheet and put `ZZZZZZZZZZZZ` in the **Last Name**
+key, simply print a normal sheet and put `9999999999` in the **Student ID**
 field. Also, add a **Test Form Code** which will be used to match students' exams
 with the correct answer key, and finally fill in the exam with the correct
 answers.
 
 This is optional - you can choose to just have the software read the exams and
 not score them.
-
-See 
 
 ### Reading Sheets
 

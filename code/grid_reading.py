@@ -3,6 +3,7 @@
 # pyright: reportIncompatibleMethodOverride=false
 
 import abc
+import pathlib
 import typing
 
 import cv2
@@ -14,8 +15,6 @@ import geometry_utils
 import grid_info
 import image_utils
 import list_utils
-import pathlib
-
 """ This is what determines the circle size of the grid cell mask. If it is 0,
 the circle touches all edges of the grid cell. If it is 0.5, the circle is 50%
 of the width and height of the cell (centered at the center of the cell.)
@@ -108,7 +107,8 @@ class Grid:
         y_range = int(bottom_right_point.y) + 1 - int(top_left_point.y)
         center = geometry_utils.Point(top_left_point.x + x_range / 2,
                                       top_left_point.y + y_range / 2)
-        radius = ((x_range + y_range) / 2) / 2 * (1 - (GRID_CELL_CROP_FRACTION / 2))
+        radius = (
+            (x_range + y_range) / 2) / 2 * (1 - (GRID_CELL_CROP_FRACTION / 2))
         return (center, radius)
 
     def get_masked_cell_matrix(self, across: int, down: int) -> ma.MaskedArray:
@@ -279,19 +279,24 @@ def get_group_from_info(info: grid_info.GridGroupInfo,
                                     info.field_length, info.field_orientation)
 
 
-def read_field(
-        field: grid_info.Field, grid: Grid, threshold: float
-) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
+def read_field(field: grid_info.Field, grid: Grid, threshold: float,
+               form_variant: grid_info.FormVariant
+               ) -> typing.Optional[typing.List[
+                   typing.Union[typing.List[str], typing.List[int]]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
-    return get_group_from_info(grid_info.fields_info[field],
-                               grid).read_value(threshold)
+    grid_group_info = form_variant.fields[field]
+    if grid_group_info is not None:
+        return get_group_from_info(grid_group_info, grid).read_value(threshold)
+    else:
+        return None
 
 
 def read_answer(
-        question: int, grid: Grid, threshold: float
+        question: int, grid: Grid, threshold: float,
+        form_variant: grid_info.FormVariant
 ) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
-    return get_group_from_info(grid_info.questions_info[question],
+    return get_group_from_info(form_variant.questions[question],
                                grid).read_value(threshold)
 
 
@@ -309,18 +314,25 @@ def field_group_to_string(
     return "".join(result_strings).strip()
 
 
-def read_field_as_string(field: grid_info.Field, grid: Grid,
-                         threshold: float) -> str:
+def read_field_as_string(field: grid_info.Field, grid: Grid, threshold: float,
+                         form_variant: grid_info.FormVariant
+                         ) -> typing.Optional[str]:
     """Shortcut to read a field and format it as a string, given just the key and
     the grid object. """
-    return field_group_to_string(read_field(field, grid, threshold))
+    field_group = read_field(field, grid, threshold, form_variant)
+    if field_group is not None:
+        return field_group_to_string(field_group)
+    else:
+        return None
 
 
 def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
-                          threshold: float) -> str:
+                          threshold: float,
+                          form_variant: grid_info.FormVariant) -> str:
     """Shortcut to read a question's answer and format it as a string, given
     just the question number and the grid object. """
-    answer = field_group_to_string(read_answer(question, grid, threshold))
+    answer = field_group_to_string(
+        read_answer(question, grid, threshold, form_variant))
     if not multi_answers_as_f or "|" not in answer:
         return answer
     else:
@@ -329,12 +341,13 @@ def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
 
 def calculate_bubble_fill_threshold(
         grid: Grid,
+        form_variant: grid_info.FormVariant,
         save_path: typing.Optional[pathlib.PurePath] = None) -> float:
     """Dynamically calculate the threshold to use for determining if a bubble is
     filled or unfilled.
 
     This is a time consuming function so it should only be called once per page.
-    It works by getting the fill percentages of all the values in all the name
+    It works by getting the fill percentages of all the values in all the
     fields, sorting them, and finding the largest increase in fill percent
     between all the values in the highest 1/4 (assumes all the filled bubbles
     are less than 1/4 of all the bubbles). It then returns the average of the
@@ -343,18 +356,13 @@ def calculate_bubble_fill_threshold(
     If `save_path` is provided, saves debugging data to this location as
     "threshold_values.txt".
     """
-    # This function makes the following assumptions:
-    # A. At least one bubble in first, last, or middle name is full.
-    # B. Less than a tenth of the bubbles in first, last, and middle name are
-    #    full. For this to be untrue, an average of 2.6 bubbles per field would
-    #    be filled which doesn't make sense for anyone to do.
-    # If these are not true, the values for the entire sheet will be useless.
-    # However, these are most likely safe assumptions.
+    field_groups = [form_variant.fields[field] for field in grid_info.Field]
+    groups = [group for group in field_groups if group is not None
+              ] + form_variant.questions
     fill_percents = [
-        np.array(
-            get_group_from_info(grid_info.fields_info[field],
-                                grid).get_all_fill_percents()).flatten()
-        for field in grid_info.Field
+        np.array(get_group_from_info(group,
+                                     grid).get_all_fill_percents()).flatten()
+        for group in groups
     ]
     sorted_and_flattened = np.sort(np.concatenate(fill_percents))
     last_chunk = sorted_and_flattened[-round(sorted_and_flattened.size / 5):]

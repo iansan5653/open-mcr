@@ -7,7 +7,7 @@ import typing
 from datetime import datetime
 
 import list_utils
-from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
+from grid_info import Field, RealOrVirtualField, VirtualField
 
 # If you change these, also update the manual!
 COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
@@ -50,12 +50,13 @@ class OutputSheet():
     # Must be structured as: field_a, field_b, ..., Q1, Q2, Q3, ...
     data: typing.List[typing.List[str]]
     field_columns: typing.List[RealOrVirtualField]
-    num_questions: int = NUM_QUESTIONS
+    num_questions: int
     row_count: int
     first_question_column_index: int
 
-    def __init__(self, columns: typing.List[RealOrVirtualField]):
+    def __init__(self, columns: typing.List[RealOrVirtualField], num_questions: int):
         self.field_columns = columns
+        self.num_questions = num_questions
         field_column_names = [COLUMN_NAMES[column] for column in columns]
         answer_columns = [f"Q{i + 1}" for i in range(self.num_questions)]
         self.first_question_column_index = len(field_column_names)

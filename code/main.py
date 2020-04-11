@@ -12,9 +12,6 @@ import image_utils
 import scoring
 import user_interface
 
-answers_results = data_exporting.OutputSheet([x for x in grid_i.Field])
-keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE])
-
 user_input = user_interface.MainWindow()
 input_folder = user_input.input_folder
 image_paths = file_handling.filter_images(
@@ -23,11 +20,17 @@ output_folder = user_input.output_folder
 multi_answers_as_f = user_input.multi_answers_as_f
 empty_answers_as_g = user_input.empty_answers_as_g
 keys_file = user_input.keys_file
-arrangement_file = user_input.arrangement_file
+arrangement_file = user_input.arrangement_map
 sort_results = user_input.sort_results
 debug_mode_on = user_input.debug_mode
+form_variant = grid_i.form_150q if user_input.form_variant == user_interface.FormVariantSelection.VARIANT_150_Q else grid_i.form_75q
 
-progress = user_interface.ProgressTracker(user_input.root, len(image_paths))
+answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
+                                             form_variant.num_questions)
+keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE],
+                                          form_variant.num_questions)
+
+progress = user_input.create_and_pack_progress(maximum=len(image_paths))
 
 files_timestamp = datetime.now().replace(microsecond=0)
 
@@ -74,32 +77,31 @@ try:
                            save_path=debug_path)
         # Calculate the fill threshold
         threshold = grid_r.calculate_bubble_fill_threshold(
-            grid, save_path=debug_path)
+            grid, save_path=debug_path, form_variant=form_variant)
 
         # Get the answers for questions
         answers = [
             grid_r.read_answer_as_string(i, grid, multi_answers_as_f,
-                                         threshold)
-            for i in range(grid_i.NUM_QUESTIONS)
+                                         threshold, form_variant)
+            for i in range(form_variant.num_questions)
         ]
 
         field_data: typing.Dict[grid_i.RealOrVirtualField, str] = {}
 
-        # Read the last name. If it indicates this exam is a key, treat it as such
-        last_name = grid_r.read_field_as_string(grid_i.Field.LAST_NAME, grid,
-                                                threshold)
-        if last_name == grid_i.KEY_LAST_NAME:
+        # Read the Student ID. If it indicates this exam is a key, treat it as such
+        student_id = grid_r.read_field_as_string(grid_i.Field.STUDENT_ID, grid,
+                                                 threshold, form_variant)
+        if student_id == grid_i.KEY_STUDENT_ID:
             form_code_field = grid_i.Field.TEST_FORM_CODE
             field_data[form_code_field] = grid_r.read_field_as_string(
-                form_code_field, grid, threshold)
+                form_code_field, grid, threshold, form_variant) or ""
             keys_results.add(field_data, answers)
         else:
-            field_data[grid_i.Field.LAST_NAME] = last_name
             for field in grid_i.Field:
-                # Avoids re-reading the last name value to save some time
-                if field is not grid_i.Field.LAST_NAME:
-                    field_data[field] = grid_r.read_field_as_string(
-                        field, grid, threshold)
+                field_value = grid_r.read_field_as_string(
+                    field, grid, threshold, form_variant)
+                if field_value is not None:
+                    field_data[field] = field_value
             answers_results.add(field_data, answers)
         progress.step_progress()
 
@@ -136,7 +138,8 @@ try:
                           transpose=True)
         success_string += "✔️ Key processed and saved.\n"
 
-        scores = scoring.score_results(answers_results, keys_results)
+        scores = scoring.score_results(answers_results, keys_results,
+                                       form_variant.num_questions)
         scores.save(output_folder,
                     "rearranged_scores",
                     sort_results,
@@ -150,7 +153,8 @@ try:
                           sort_results,
                           timestamp=files_timestamp)
         success_string += "✔️ All keys processed and saved.\n"
-        scores = scoring.score_results(answers_results, keys_results)
+        scores = scoring.score_results(answers_results, keys_results,
+                                       form_variant.num_questions)
         scores.save(output_folder,
                     "scores",
                     sort_results,

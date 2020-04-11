@@ -4,8 +4,7 @@ import typing
 import alphabet
 from geometry_utils import Orientation
 
-NUM_QUESTIONS = 75
-KEY_LAST_NAME = "ZZZZZZZZZZZZ"
+KEY_STUDENT_ID = "999999999"
 GRID_HORIZONTAL_CELLS = 36
 GRID_VERTICAL_CELLS = 48
 
@@ -64,33 +63,66 @@ class GridGroupInfo():
         self.field_orientation = field_orientation
 
 
-fields_info: typing.Dict[Field, GridGroupInfo] = {
-    Field.LAST_NAME:
-    GridGroupInfo(1, 3, 12, fields_type=FieldType.LETTER),
-    Field.FIRST_NAME:
-    GridGroupInfo(14, 3, 6, fields_type=FieldType.LETTER),
-    Field.MIDDLE_NAME:
-    GridGroupInfo(21, 3, 2, fields_type=FieldType.LETTER),
-    Field.STUDENT_ID:
-    GridGroupInfo(25, 3, 10),
-    Field.COURSE_ID:
-    GridGroupInfo(25, 16, 10),
-    Field.TEST_FORM_CODE:
-    GridGroupInfo(27,
-                  28,
-                  fields_type=FieldType.LETTER,
-                  field_length=6,
-                  field_orientation=Orientation.HORIZONTAL)
-}
+class FormVariant():
+    fields: typing.Dict[Field, typing.Optional[GridGroupInfo]]
+    questions: typing.List[GridGroupInfo]
+    num_questions: int
 
-questions_info = [
-    GridGroupInfo(2 + (7 * (i // 15)),
-                  32 + i - (15 * (i // 15)),
-                  fields_type=FieldType.LETTER,
-                  field_length=5,
-                  field_orientation=Orientation.HORIZONTAL)
-    for i in range(NUM_QUESTIONS)
-]
+    def __init__(self, fields: typing.Dict[Field, typing.Optional[GridGroupInfo]],
+                 questions: typing.List[GridGroupInfo]):
+        self.fields = fields
+        self.questions = questions
+        self.num_questions = len(questions)
+
+
+form_75q = FormVariant(
+    {
+        Field.LAST_NAME:
+        GridGroupInfo(1, 3, 12, fields_type=FieldType.LETTER),
+        Field.FIRST_NAME:
+        GridGroupInfo(14, 3, 6, fields_type=FieldType.LETTER),
+        Field.MIDDLE_NAME:
+        GridGroupInfo(21, 3, 2, fields_type=FieldType.LETTER),
+        Field.STUDENT_ID:
+        GridGroupInfo(25, 3, 10),
+        Field.COURSE_ID:
+        GridGroupInfo(25, 16, 10),
+        Field.TEST_FORM_CODE:
+        GridGroupInfo(27,
+                      28,
+                      fields_type=FieldType.LETTER,
+                      field_length=6,
+                      field_orientation=Orientation.HORIZONTAL)
+    }, [
+        GridGroupInfo(2 + (7 * (i // 15)),
+                      32 + i - (15 * (i // 15)),
+                      fields_type=FieldType.LETTER,
+                      field_length=5,
+                      field_orientation=Orientation.HORIZONTAL)
+        for i in range(75)
+    ])
+
+
+form_150q = FormVariant(
+    {
+        Field.STUDENT_ID:
+        GridGroupInfo(25, 3, 10),
+        Field.COURSE_ID:
+        GridGroupInfo(14, 3, 10),
+        Field.TEST_FORM_CODE:
+        GridGroupInfo(4,
+                      12,
+                      fields_type=FieldType.LETTER,
+                      field_length=6,
+                      field_orientation=Orientation.HORIZONTAL)
+    }, [
+        GridGroupInfo(2 + (7 * (i // 30)),
+                      17 + i - (30 * (i // 30)),
+                      fields_type=FieldType.LETTER,
+                      field_length=5,
+                      field_orientation=Orientation.HORIZONTAL)
+        for i in range(150)
+    ])
 
 
 class dimensions:

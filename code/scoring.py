@@ -55,7 +55,8 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
 
 
 def score_results(results: data_exporting.OutputSheet,
-                  answer_keys: data_exporting.OutputSheet
+                  answer_keys: data_exporting.OutputSheet,
+                  num_questions: int
                   ) -> data_exporting.OutputSheet:
     answers = results.data
     keys = establish_key_dict(answer_keys)
@@ -68,7 +69,7 @@ def score_results(results: data_exporting.OutputSheet,
         grid_info.VirtualField.SCORE, grid_info.VirtualField.POINTS
     ]
     columns = results.field_columns + virtual_fields
-    scored_results = data_exporting.OutputSheet(columns)
+    scored_results = data_exporting.OutputSheet(columns, num_questions)
 
     for exam in answers[1:]:  # Skip header row
         fields = {
