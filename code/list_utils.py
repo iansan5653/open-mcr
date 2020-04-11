@@ -114,3 +114,22 @@ def determine_which_is_next(items: typing.List[typing.Any], index_a: int,
     if next_index(items, index_a) == index_b:
         return index_b
     return index_a
+
+
+def strip_all(items: typing.List[str]) -> typing.List[str]:
+    return [item.strip() for item in items]
+
+
+def remove_index(items: typing.List[T], index: int) -> typing.List[T]:
+    """Returns items, but without the item at the index. Doesn't mutate items."""
+    return [item for i, item in enumerate(items) if i != index]
+
+
+def transpose(matrix: typing.List[typing.List[T]]
+              ) -> typing.List[typing.List[T]]:
+    """Given a 2D list, transposes and returns it without mutating the original."""
+    if (len(set([len(row) for row in matrix])) != 1):
+        raise ValueError(
+            "Input matrix rows must all have the same length for transposing.")
+    return [[row[col_index] for row in matrix]
+            for col_index in range(len(matrix[0]))]

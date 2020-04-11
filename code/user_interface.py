@@ -223,14 +223,14 @@ class MainWindow:
                                                     self.update_status)
 
         create_and_pack_label(app,
-                              "Select Keys Arrangement File (Optional)",
+                              "Select Form Arrangement Map (Optional)",
                               heading=True)
         create_and_pack_label(
             app,
-            "Select a CSV file containing information about the relative order of each key.\nIf provided, a reordered version will be included in the output.\nSee 'Help' for formatting instructions."
+            "Select a CSV file containing information about the relative order of each key.\nIf provided, only one answer key may be provided.\nSee 'Help' for formatting instructions."
         )
 
-        self.__key_arrangement_picker = FilePickerWidget(
+        self.__arrangement_file_picker = FilePickerWidget(
             app, [("CSV Files", "*.csv")], self.update_status)
 
         create_and_pack_label(app, "Select Output Folder", heading=True)
@@ -316,7 +316,7 @@ class MainWindow:
                 new_status += f"❌ Selected answer keys file is not valid.\n"
                 ok_to_submit = False
 
-        arrangement_file = self.__key_arrangement_picker.selection
+        arrangement_file = self.__arrangement_file_picker.selection
         if arrangement_file:
             if scoring.verify_answer_key_sheet(arrangement_file):
                 self.arrangement_file = arrangement_file
@@ -344,7 +344,7 @@ class MainWindow:
         if self.sort_results:
             new_status += f"Results will be sorted by name.\n"
         else:
-            new_status += f"Results will be left in original order.\n"
+            new_status += f"Input sort order will be maintained.\n"
 
         if self.__toggle_sort_count > 15:
             new_status += "WARNING: Debug mode enabled. Restart to disable."
@@ -360,7 +360,7 @@ class MainWindow:
         self.__input_folder_picker.disable()
         self.__output_folder_picker.disable()
         self.__answer_key_picker.disable()
-        self.__key_arrangement_picker.disable()
+        self.__arrangement_file_picker.disable()
         self.__multi_answers_as_f_checkbox.disable()
         self.__empty_answers_as_g_checkbox.disable()
         self.__sort_results_checkbox.disable()

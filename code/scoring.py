@@ -8,6 +8,23 @@ import list_utils
 import math_utils
 
 
+def get_key_form_code(answer_keys: data_exporting.OutputSheet,
+                      index: int) -> str:
+    """Gets the form code of the answer key at the index given, where the first
+    answer key has index=0."""
+    keys = answer_keys.data
+    form_code_column_name = data_exporting.COLUMN_NAMES[
+        grid_info.Field.TEST_FORM_CODE]
+    try:
+        # Get the index of the column that had the test form codes
+        form_code_index = list_utils.find_index(keys[0], form_code_column_name)
+    except StopIteration:
+        raise ValueError(
+            "Invalid key matrix passed to scoring functions. Test form code column was not found."
+        )
+    return keys[index + 1][form_code_index]
+
+
 def establish_key_dict(answer_keys: data_exporting.OutputSheet
                        ) -> typing.Dict[str, typing.List[str]]:
     """Takes the matrix of answer keys and transforms it into a dictionary that
@@ -23,24 +40,17 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
     but the questions are named "Q1" through "Q75" and the answers are in indexes
     0 through 74.
     """
-    keys = answer_keys.data
-    form_code_column_name = data_exporting.COLUMN_NAMES[
-        grid_info.Field.TEST_FORM_CODE]
+
     try:
-        # Get the index of the column that had the test form codes
-        form_code_index = list_utils.find_index(keys[0], form_code_column_name)
-        # After the test form codes column, search for the 1st question column
-        # index
-        answers_start_index = list_utils.find_index(
-            keys[0][form_code_index + 1:], "Q1") + form_code_index + 1
+        answers_start_index = list_utils.find_index(answer_keys.data[0], "Q1")
     except StopIteration:
         raise ValueError(
-            "Invalid key matrix passed to scoring functions. Test form code column must be prior to answers columns, which must be named 'Q1' through 'QN'."
+            "Invalid key matrix passed to scoring functions. Answers columns must be named 'Q1' through 'QN'."
         )
 
     return {
-        key[form_code_index]: key[answers_start_index:]
-        for key in keys[1:]
+        get_key_form_code(answer_keys, index): key[answers_start_index:]
+        for index, key in enumerate(answer_keys.data[1:])
     }
 
 

@@ -1,13 +1,13 @@
 """"""
 import csv
+import operator
+import os
 import pathlib
 import typing
-import operator
 from datetime import datetime
-import os
 
-from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 import list_utils
+from grid_info import NUM_QUESTIONS, Field, RealOrVirtualField, VirtualField
 
 # If you change these, also update the manual!
 COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
@@ -33,6 +33,17 @@ def make_dir_if_not_exists(path: pathlib.Path):
         os.makedirs(str(path))
 
 
+def validate_order_map(order_map: typing.Dict[str, typing.List[int]],
+                       num_questions: int):
+    """Validate the given order map and throw ValueError if the map is invalid."""
+    for [form_code, map_list] in order_map.items():
+        if (min(map_list) != 1 or max(map_list) != num_questions
+                or len(set(map_list)) != num_questions):
+            raise ValueError(
+                f"Arrangement file entry for '{form_code}' is invalid. All arrangement file entries must contain one of each index from 1 to the number of questions."
+            )
+
+
 class OutputSheet():
     """A lightweight matrix of data to be exported. Faster than a dataframe but
     can be easily converted to one when the need arises."""
@@ -52,14 +63,25 @@ class OutputSheet():
         self.row_count = 0
 
     def save(self, path: pathlib.PurePath, filebasename: str, sort: bool,
-             timestamp: datetime) -> pathlib.PurePath:
+             timestamp: datetime, transpose: bool = False) -> pathlib.PurePath:
         if sort:
             self.sortByName()
         output_path = path / f"{format_timestamp_for_file(timestamp)}__{filebasename}.csv"
+        data = self.data
+        if(transpose):
+            data = list_utils.transpose(data)
         with open(str(output_path), 'w+', newline='') as output_file:
             writer = csv.writer(output_file)
-            writer.writerows(self.data)
+            writer.writerows(data)
         return output_path
+
+    def delete_field_column(self, column: RealOrVirtualField):
+        deleted_column_index = self.field_columns.index(column)
+        self.field_columns.pop(deleted_column_index)
+        self.data = [
+            list_utils.remove_index(row, deleted_column_index)
+            for row in self.data
+        ]
 
     def sortByName(self):
         data = self.data[1:]
@@ -91,10 +113,10 @@ class OutputSheet():
         row: typing.List[str] = []
         for column in self.field_columns:
             try:
-                row.append(fields[column])
+                row.append(fields[column].strip())
             except KeyError:
                 row.append('')
-        self.data.append(row + answers)
+        self.data.append(row + list_utils.strip_all(answers))
         self.row_count = len(self.data) - 1
 
     def add_file(self, csvfile: pathlib.Path):
@@ -143,47 +165,51 @@ class OutputSheet():
                 cleaned_row += [replace_empty_with] * difference
             self.data[i] = cleaned_row
 
+    def reorder(self, arrangement_file: pathlib.Path):
+        """Reorder the sheet based on an arrangement map file.
 
-def save_reordered_version(sheet: OutputSheet, arrangement_file: pathlib.Path,
-                           save_path: pathlib.Path, filebasename: str,
-                           timestamp: datetime) -> pathlib.PurePath:
-    """Reorder the output sheet based on a key arrangement file and save CSV."""
-    # order_map will be a dict matching form code keys to a list where the
-    # new index of question `i` in `key` is `order_map[key][i]`
-    order_map: typing.Dict[str, typing.List[int]] = {}
-    with open(str(arrangement_file), 'r', newline='') as file:
-        reader = csv.reader(file)
-        names = next(reader)
-        form_code_index = list_utils.find_index(
-            names, COLUMN_NAMES[Field.TEST_FORM_CODE])
-        first_answer_index = list_utils.find_index(names, "Q1")
-        for form in reader:
-            form_code = form[form_code_index]
-            to_order_zero_ind = [int(n) - 1 for n in form[first_answer_index:]]
-            order_map[form_code] = to_order_zero_ind
-    sheet_form_code_index = list_utils.find_index(
-        sheet.data[0], COLUMN_NAMES[Field.TEST_FORM_CODE])
-    sheet_first_answer_index = list_utils.find_index(sheet.data[0], "Q1")
-    sheet_total_score_index = list_utils.find_index(
-        sheet.data[0], COLUMN_NAMES[VirtualField.SCORE])
-    results = [sheet.data[0]]
-    for row in sheet.data[1:]:
-        form_code = row[sheet_form_code_index]
-        if row[sheet_total_score_index] != KEY_NOT_FOUND_MESSAGE:
+        Raises TypeError if invalid arrangement file.
+
+        Results will have empty form code index."""
+        # TODO: Validate arrangement file.
+        # order_map will be a dict matching form code keys to a list where the
+        # new index of question `i` in `key` is `order_map[key][i]`
+        order_map: typing.Dict[str, typing.List[int]] = {}
+        validate_order_map(order_map, self.num_questions)
+
+        with open(str(arrangement_file), 'r', newline='') as file:
+            reader = csv.reader(file)
+            names = list_utils.strip_all(next(reader))
+            form_code_index = list_utils.find_index(
+                names, COLUMN_NAMES[Field.TEST_FORM_CODE])
+            first_answer_index = list_utils.find_index(names, "Q1")
+            for form in reader:
+                stripped_form = list_utils.strip_all(form)
+                form_code = stripped_form[form_code_index]
+                to_order_zero_ind = [
+                    int(n) - 1 for n in stripped_form[first_answer_index:]
+                ]
+                order_map[form_code] = to_order_zero_ind
+
+        sheet_form_code_index = list_utils.find_index(
+            self.data[0], COLUMN_NAMES[Field.TEST_FORM_CODE])
+        sheet_first_answer_index = list_utils.find_index(self.data[0], "Q1")
+        rearranged = [self.data[0]]
+
+        for row in self.data[1:]:
+            original_form_code = row[sheet_form_code_index]
             try:
-                order_map[form_code]
-            except IndexError:
-                results.append(row)
+                order_map[original_form_code]
+            except KeyError:
+                raise ValueError(
+                    f"Arrangement file is missing entry for key '{original_form_code}'."
+                )
             else:
                 row_reordered = row[:sheet_first_answer_index] + [
                     row[ind + sheet_first_answer_index]
-                    for ind in order_map[form_code]
+                    for ind in order_map[original_form_code]
                 ]
-                results.append(row_reordered)
-        else:
-            results.append(row)
-    output_path = save_path / f"{format_timestamp_for_file(timestamp)}__{filebasename}.csv"
-    with open(str(output_path), 'w+', newline='') as output_file:
-        writer = csv.writer(output_file)
-        writer.writerows(results)
-    return output_path
+                row_reordered[sheet_form_code_index] = ""
+                rearranged.append(row_reordered)
+
+        self.data = rearranged

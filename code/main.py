@@ -1,7 +1,7 @@
-from datetime import datetime
+import textwrap
 import time
 import typing
-import textwrap
+from datetime import datetime
 
 import corner_finding
 import data_exporting
@@ -115,11 +115,40 @@ try:
     if keys_file:
         keys_results.add_file(keys_file)
 
-    if (keys_results.row_count != 0):
-        keys_path = keys_results.save(output_folder,
-                                      "keys",
-                                      sort_results,
-                                      timestamp=files_timestamp)
+    if (keys_results.row_count == 0):
+        success_string += "No exam keys were found, so no scoring was performed."
+    elif (arrangement_file and keys_results.row_count == 1):
+        answers_results.reorder(arrangement_file)
+        keys_results.data[1][keys_results.field_columns.index(
+            grid_i.Field.TEST_FORM_CODE)] = ""
+
+        answers_results.save(output_folder,
+                             "rearranged_results",
+                             sort_results,
+                             timestamp=files_timestamp)
+        success_string += "✔️ Results rearranged based on arrangement file.\n"
+
+        keys_results.delete_field_column(grid_i.Field.TEST_FORM_CODE)
+        keys_results.save(output_folder,
+                          "key",
+                          sort_results,
+                          timestamp=files_timestamp,
+                          transpose=True)
+        success_string += "✔️ Key processed and saved.\n"
+
+        scores = scoring.score_results(answers_results, keys_results)
+        scores.save(output_folder,
+                    "rearranged_scores",
+                    sort_results,
+                    timestamp=files_timestamp)
+        success_string += "✔️ Scored results processed and saved."
+    elif (arrangement_file):
+        success_string += "❌ Arrangement file and keys were ignored because more than one key was found."
+    else:
+        keys_results.save(output_folder,
+                          "keys",
+                          sort_results,
+                          timestamp=files_timestamp)
         success_string += "✔️ All keys processed and saved.\n"
         scores = scoring.score_results(answers_results, keys_results)
         scores.save(output_folder,
@@ -127,15 +156,6 @@ try:
                     sort_results,
                     timestamp=files_timestamp)
         success_string += "✔️ All scored results processed and saved."
-        if arrangement_file:
-            data_exporting.save_reordered_version(scores,
-                                                  arrangement_file,
-                                                  output_folder,
-                                                  "reordered",
-                                                  timestamp=files_timestamp)
-            success_string += "✔️ Reordered results saved."
-    else:
-        success_string += "No exam keys were found, so no scoring was performed."
 
     progress.set_status(success_string, False)
 except Exception as e:
