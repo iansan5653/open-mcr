@@ -75,31 +75,50 @@ try:
                            grid_i.GRID_VERTICAL_CELLS,
                            morphed_image,
                            save_path=debug_path)
+
+        # Calculate fill percent for every bubble
+        field_fill_percents = {
+            key: grid_r.get_group_from_info(value,
+                                            grid).get_all_fill_percents()
+            for key, value in form_variant.fields.items() if value is not None
+        }
+        answer_fill_percents = [
+            grid_r.get_group_from_info(question, grid).get_all_fill_percents()
+            for question in form_variant.questions
+        ]
+
         # Calculate the fill threshold
         threshold = grid_r.calculate_bubble_fill_threshold(
-            grid, save_path=debug_path, form_variant=form_variant)
+            field_fill_percents,
+            answer_fill_percents,
+            save_path=debug_path,
+            form_variant=form_variant)
 
         # Get the answers for questions
         answers = [
             grid_r.read_answer_as_string(i, grid, multi_answers_as_f,
-                                         threshold, form_variant)
+                                         threshold, form_variant,
+                                         answer_fill_percents[i])
             for i in range(form_variant.num_questions)
         ]
 
         field_data: typing.Dict[grid_i.RealOrVirtualField, str] = {}
 
         # Read the Student ID. If it indicates this exam is a key, treat it as such
-        student_id = grid_r.read_field_as_string(grid_i.Field.STUDENT_ID, grid,
-                                                 threshold, form_variant)
+        student_id = grid_r.read_field_as_string(
+            grid_i.Field.STUDENT_ID, grid, threshold, form_variant,
+            field_fill_percents[grid_i.Field.STUDENT_ID])
         if student_id == grid_i.KEY_STUDENT_ID:
             form_code_field = grid_i.Field.TEST_FORM_CODE
             field_data[form_code_field] = grid_r.read_field_as_string(
-                form_code_field, grid, threshold, form_variant) or ""
+                form_code_field, grid, threshold, form_variant,
+                field_fill_percents[form_code_field]) or ""
             keys_results.add(field_data, answers)
         else:
             for field in grid_i.Field:
                 field_value = grid_r.read_field_as_string(
-                    field, grid, threshold, form_variant)
+                    field, grid, threshold, form_variant,
+                    field_fill_percents[field])
                 if field_value is not None:
                     field_data[field] = field_value
             answers_results.add(field_data, answers)

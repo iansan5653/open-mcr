@@ -158,16 +158,16 @@ class _GridField(abc.ABC):
         self.grid = grid
 
     @abc.abstractclassmethod
-    def read_value(self, threshold: float
+    def read_value(self, threshold: float, fill_percents: typing.List[float]
                    ) -> typing.Union[typing.List[str], typing.List[int]]:
         ...
 
-    def _read_value_indexes(self, threshold: float) -> typing.List[int]:
-        filled = []
-        for i, matrix in enumerate(self.get_cell_matrixes()):
-            is_filled = image_utils.get_fill_percent(matrix) > threshold
-            if is_filled:
-                filled.append(i)
+    def _read_value_indexes(self, threshold: float,
+                            fill_percents: typing.List[float]
+                            ) -> typing.List[int]:
+        filled = [
+            i for i in range(self.num_cells) if fill_percents[i] > threshold
+        ]
         return filled
 
     def get_cell_matrixes(self) -> typing.List[ma.MaskedArray]:
@@ -194,15 +194,18 @@ class _GridField(abc.ABC):
 
 class NumberGridField(_GridField):
     """A number grid field is one set of grid cells that represents a digit."""
-    def read_value(self, threshold: float) -> typing.List[int]:
-        return super()._read_value_indexes(threshold)
+    def read_value(self, threshold: float,
+                   fill_percents: typing.List[float]) -> typing.List[int]:
+        return super()._read_value_indexes(threshold, fill_percents)
 
 
 class LetterGridField(_GridField):
     """A number grid field is one set of grid cells that represents a letter."""
-    def read_value(self, threshold: float) -> typing.List[str]:
+    def read_value(self, threshold: float,
+                   fill_percents: typing.List[float]) -> typing.List[str]:
         return [
-            alphabet.letters[i] for i in super()._read_value_indexes(threshold)
+            alphabet.letters[i]
+            for i in super()._read_value_indexes(threshold, fill_percents)
         ]
 
 
@@ -219,9 +222,14 @@ class _GridFieldGroup(abc.ABC):
         ...
 
     def read_value(
-            self, threshold: float
+            self, threshold: float,
+            fill_percents: typing.List[typing.List[float]]
     ) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
-        return [field.read_value(threshold) for field in self.fields]
+        """Calculate the field value using precalculated fill percents."""
+        return [
+            field.read_value(threshold, fill_percents[i])
+            for i, field in enumerate(self.fields)
+        ]
 
     def get_all_fill_percents(self) -> typing.List[typing.List[float]]:
         return [field.get_all_fill_percents() for field in self.fields]
@@ -242,9 +250,11 @@ class NumberGridFieldGroup(_GridFieldGroup):
                 field_orientation, field_length) for i in range(num_fields)
         ]
 
-    def read_value(self, threshold: float) -> typing.List[typing.List[int]]:
+    def read_value(self, threshold: float,
+                   fill_percents: typing.List[typing.List[float]]
+                   ) -> typing.List[typing.List[int]]:
         return typing.cast(typing.List[typing.List[int]],
-                           super().read_value(threshold))
+                           super().read_value(threshold, fill_percents))
 
 
 class LetterGridFieldGroup(_GridFieldGroup):
@@ -262,9 +272,11 @@ class LetterGridFieldGroup(_GridFieldGroup):
                 field_orientation, field_length) for i in range(num_fields)
         ]
 
-    def read_value(self, threshold: float) -> typing.List[typing.List[str]]:
+    def read_value(self, threshold: float,
+                   fill_percents: typing.List[typing.List[float]]
+                   ) -> typing.List[typing.List[str]]:
         return typing.cast(typing.List[typing.List[str]],
-                           super().read_value(threshold))
+                           super().read_value(threshold, fill_percents))
 
 
 def get_group_from_info(info: grid_info.GridGroupInfo,
@@ -280,24 +292,27 @@ def get_group_from_info(info: grid_info.GridGroupInfo,
 
 
 def read_field(field: grid_info.Field, grid: Grid, threshold: float,
-               form_variant: grid_info.FormVariant
+               form_variant: grid_info.FormVariant,
+               fill_percents: typing.List[typing.List[float]]
                ) -> typing.Optional[typing.List[
                    typing.Union[typing.List[str], typing.List[int]]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
     grid_group_info = form_variant.fields[field]
     if grid_group_info is not None:
-        return get_group_from_info(grid_group_info, grid).read_value(threshold)
+        return get_group_from_info(grid_group_info,
+                                   grid).read_value(threshold, fill_percents)
     else:
         return None
 
 
 def read_answer(
         question: int, grid: Grid, threshold: float,
-        form_variant: grid_info.FormVariant
+        form_variant: grid_info.FormVariant,
+        fill_percents: typing.List[typing.List[float]]
 ) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
     return get_group_from_info(form_variant.questions[question],
-                               grid).read_value(threshold)
+                               grid).read_value(threshold, fill_percents)
 
 
 def field_group_to_string(
@@ -315,11 +330,13 @@ def field_group_to_string(
 
 
 def read_field_as_string(field: grid_info.Field, grid: Grid, threshold: float,
-                         form_variant: grid_info.FormVariant
+                         form_variant: grid_info.FormVariant,
+                         fill_percents: typing.List[typing.List[float]]
                          ) -> typing.Optional[str]:
     """Shortcut to read a field and format it as a string, given just the key and
     the grid object. """
-    field_group = read_field(field, grid, threshold, form_variant)
+    field_group = read_field(field, grid, threshold, form_variant,
+                             fill_percents)
     if field_group is not None:
         return field_group_to_string(field_group)
     else:
@@ -328,11 +345,13 @@ def read_field_as_string(field: grid_info.Field, grid: Grid, threshold: float,
 
 def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
                           threshold: float,
-                          form_variant: grid_info.FormVariant) -> str:
+                          form_variant: grid_info.FormVariant,
+                          fill_percents: typing.List[typing.List[float]]
+                          ) -> str:
     """Shortcut to read a question's answer and format it as a string, given
     just the question number and the grid object. """
     answer = field_group_to_string(
-        read_answer(question, grid, threshold, form_variant))
+        read_answer(question, grid, threshold, form_variant, fill_percents))
     if not multi_answers_as_f or "|" not in answer:
         return answer
     else:
@@ -340,7 +359,9 @@ def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
 
 
 def calculate_bubble_fill_threshold(
-        grid: Grid,
+        field_fill_percents: typing.Dict[grid_info.Field, typing.
+                                         List[typing.List[float]]],
+        answer_fill_percents: typing.List[typing.List[typing.List[float]]],
         form_variant: grid_info.FormVariant,
         save_path: typing.Optional[pathlib.PurePath] = None) -> float:
     """Dynamically calculate the threshold to use for determining if a bubble is
@@ -356,14 +377,9 @@ def calculate_bubble_fill_threshold(
     If `save_path` is provided, saves debugging data to this location as
     "threshold_values.txt".
     """
-    field_groups = [form_variant.fields[field] for field in grid_info.Field]
-    groups = [group for group in field_groups if group is not None
-              ] + form_variant.questions
-    fill_percents = [
-        np.array(get_group_from_info(group,
-                                     grid).get_all_fill_percents()).flatten()
-        for group in groups
-    ]
+    fill_percents_lists = list(
+        field_fill_percents.values()) + answer_fill_percents
+    fill_percents = [np.array(l).flatten() for l in fill_percents_lists]
     sorted_and_flattened = np.sort(np.concatenate(fill_percents))
     last_chunk = sorted_and_flattened[-round(sorted_and_flattened.size / 5):]
     differences = [
