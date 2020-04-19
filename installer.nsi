@@ -4,7 +4,7 @@
 !define srcdir ".\dist\main"
 !define company "Ian Sanders"
 !define prodname "OpenMCR"
-!define exec "open-mcr\open-mcr.exe"
+!define exec "main\main.exe"
 
 !define icon "assets\icon.ico"
 

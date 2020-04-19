@@ -9,7 +9,7 @@ file that can be run to install the software.
 3. Use a markdown to PDF converter to generate a `manual.pdf` file and place it
    in `./code/assets`.
 4. Install NSIS if you haven't already, and add the install location to your
-   system's PATH variabe.
+   system's PATH variable.
 5. Run the build command:
    ```sh
    pyinstaller -p code --add-data="code;." -y -w --icon=code/assets/icon.ico code/main.py; makensis installer.nsi
