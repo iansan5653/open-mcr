@@ -419,7 +419,7 @@ class ProgressTrackerWidget:
         self.parent.update_idletasks()
 
     def set_status(self, status: str, show_count: bool = True):
-        new_status = f"{status} ({self.value}/{self.maximum})" if show_count else status
+        new_status = f"{status} ({self.value + 1}/{self.maximum})" if show_count else status
         self.status_text.set(new_status)
 
     def set_ready_to_close(self):
