@@ -20,7 +20,7 @@ South Florida, under the direction of Dr. Autar Kaw.
 Currently, installers are only provided for Windows. For other operating
 systems, see [Running From Source](#running-from-source).
 
-### Traditional Installation
+### Windows Installation
 
 To install the utility, simply download the latest `.exe` file from from the
 [releases](https://github.com/iansan5653/open-mcr/releases) page and
@@ -45,20 +45,25 @@ Run the command `python code/main.py`.
 _Note_: This software has not been tested on other operating systems and support
 is not guarunteed. If you find a bug, please file an [issue](https://github.com/iansan5653/open-mcr/issues).
 
+## Printable Multiple Choice Sheet
+
+The multiple choice sheet that must be used with this software is available
+for printing here:
+
+* [75 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_75q.pdf)
+* [100 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_100q.pdf)
+
+## Usage Instructions
+
+Run the program by finding it in your Start menu after installing.
+
+For full operating instructions, see the [Manual](code/assets/manual.md) or
+click the <kbd>Open Help</kbd> button in the software.
+
 ## Feedback / Bug Reports
 
 To report a bug, request a new feature, or provide feedback, please
 [file an issue](https://github.com/iansan5653/open-mcr/issues/new).
-
-## Printable Multiple Choice Sheet
-
-The multiple choice sheet that must be used with this software is available
-for printing here: [multiple_choice_sheet.pdf](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet.pdf).
-
-## Usage Instructions
-
-For full operating instructions, see the [Manual](code/assets/manual.md) or
-click the <kbd>Open Help</kbd> button in the software.
 
 ## License
 
