@@ -18,11 +18,9 @@ def get_key_form_code(answer_keys: data_exporting.OutputSheet,
     try:
         # Get the index of the column that had the test form codes
         form_code_index = list_utils.find_index(keys[0], form_code_column_name)
+        return keys[index + 1][form_code_index]
     except StopIteration:
-        raise ValueError(
-            "Invalid key matrix passed to scoring functions. Test form code column was not found."
-        )
-    return keys[index + 1][form_code_index]
+        return "*"
 
 
 def establish_key_dict(answer_keys: data_exporting.OutputSheet
@@ -77,7 +75,10 @@ def score_results(results: data_exporting.OutputSheet,
         }
         form_code = exam[form_code_index]
         try:
-            key = keys[form_code]
+            if "*" in keys:
+                key = keys["*"]
+            else:
+                key = keys[form_code]
         except KeyError:
             fields[grid_info.VirtualField.
                    SCORE] = data_exporting.KEY_NOT_FOUND_MESSAGE

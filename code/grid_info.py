@@ -4,7 +4,7 @@ import typing as tp
 import alphabet
 from geometry_utils import Orientation
 
-KEY_STUDENT_ID = "999999999"
+KEY_STUDENT_ID = "9999999999"
 GRID_HORIZONTAL_CELLS = 36
 GRID_VERTICAL_CELLS = 48
 

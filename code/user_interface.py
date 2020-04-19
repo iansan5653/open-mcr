@@ -238,7 +238,7 @@ class InputFolderPickerWidget():
         create_and_pack_label(container, "Select Input Folder", heading=True)
         create_and_pack_label(
             container,
-            "Select a folder containing the scanned multiple choice sheets.\nSheets with last name of 'ZZZZZZZZZZZZ' will be treated as keys.\nAll image files in the selected folder will be processed, ignoring subfolders."
+            "Select a folder containing the scanned multiple choice sheets.\nSheets with Student ID of '9999999999' will be treated as keys.\nAll image files in the selected folder will be processed, ignoring subfolders."
         )
 
         self.__input_folder_picker = FolderPickerWidget(
