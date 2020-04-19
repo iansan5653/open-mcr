@@ -1,5 +1,5 @@
 import enum
-import typing
+import typing as tp
 
 import alphabet
 from geometry_utils import Orientation
@@ -25,7 +25,7 @@ class VirtualField(enum.Enum):
     POINTS = enum.auto()
 
 
-RealOrVirtualField = typing.Union[Field, VirtualField]
+RealOrVirtualField = tp.Union[Field, VirtualField]
 
 
 class FieldType(enum.Enum):
@@ -48,7 +48,7 @@ class GridGroupInfo():
                  vertical_start: int,
                  num_fields: int = 1,
                  fields_type: FieldType = FieldType.NUMBER,
-                 field_length: typing.Optional[int] = None,
+                 field_length: tp.Optional[int] = None,
                  field_orientation: Orientation = Orientation.VERTICAL):
         self.horizontal_start = horizontal_start
         self.vertical_start = vertical_start
@@ -64,12 +64,12 @@ class GridGroupInfo():
 
 
 class FormVariant():
-    fields: typing.Dict[Field, typing.Optional[GridGroupInfo]]
-    questions: typing.List[GridGroupInfo]
+    fields: tp.Dict[Field, tp.Optional[GridGroupInfo]]
+    questions: tp.List[GridGroupInfo]
     num_questions: int
 
-    def __init__(self, fields: typing.Dict[Field, typing.Optional[GridGroupInfo]],
-                 questions: typing.List[GridGroupInfo]):
+    def __init__(self, fields: tp.Dict[Field, tp.Optional[GridGroupInfo]],
+                 questions: tp.List[GridGroupInfo]):
         self.fields = fields
         self.questions = questions
         self.num_questions = len(questions)
@@ -101,7 +101,6 @@ form_75q = FormVariant(
                       field_orientation=Orientation.HORIZONTAL)
         for i in range(75)
     ])
-
 
 form_150q = FormVariant(
     {

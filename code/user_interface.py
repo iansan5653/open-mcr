@@ -5,7 +5,7 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import filedialog, ttk
-import typing as t
+import typing as tp
 
 import file_handling
 import scoring
@@ -15,7 +15,7 @@ YPADDING = 4
 XPADDING = 7
 APP_NAME = "OpenMCR"
 
-PackTarget = t.Union[tk.Tk, tk.Frame]
+PackTarget = tp.Union[tk.Tk, tk.Frame]
 
 
 def prompt_folder(message: str = "Select Folder", default: str = "./") -> Path:
@@ -26,7 +26,7 @@ def prompt_folder(message: str = "Select Folder", default: str = "./") -> Path:
 
 def prompt_file(message: str = "Select File",
                 default: str = "./",
-                filetypes: t.Optional[t.List[t.Tuple[str, str]]] = None
+                filetypes: tp.Optional[tp.List[tp.Tuple[str, str]]] = None
                 ) -> Path:
     """Prompt the user to select a file."""
     filepath = filedialog.askopenfilename(initialdir=default,
@@ -35,17 +35,19 @@ def prompt_file(message: str = "Select File",
     return Path(filepath)
 
 
-T = t.TypeVar("T", bound=tk.Widget)
+T = tp.TypeVar("T", bound=tk.Widget)
 
 
-def pack(widget: T, *args: t.Any, **kwargs: t.Any) -> T:
+def pack(widget: T, *args: tp.Any, **kwargs: tp.Any) -> T:
     """Pack the widget into its root and return it."""
     widget.pack(*args, **kwargs)
     return widget
 
 
-def create_and_pack_label(parent: PackTarget, text: str,
-                          heading: bool = False, inline: bool = False) -> ttk.Label:
+def create_and_pack_label(parent: PackTarget,
+                          text: str,
+                          heading: bool = False,
+                          inline: bool = False) -> ttk.Label:
     """Create a label using the predefined font settings, pack it, and return it."""
     font_opt = {"font": "TkDefaultFont 10 bold"} if heading else {}
     pady_opt = {"pady": (YPADDING * 2, 0)} if heading else {"pady": YPADDING}
@@ -54,17 +56,22 @@ def create_and_pack_label(parent: PackTarget, text: str,
                       justify=tk.LEFT,
                       anchor="w",
                       **font_opt)
-    return pack(label, fill=tk.X if not inline else None, expand=1, padx=XPADDING, side=tk.LEFT if inline else None, **pady_opt)
+    return pack(label,
+                fill=tk.X if not inline else None,
+                expand=1,
+                padx=XPADDING,
+                side=tk.LEFT if inline else None,
+                **pady_opt)
 
 
 class PickerWidget(abc.ABC):
     """File picker widget (browse button and file path)."""
-    value: t.Optional[Path]
+    value: tp.Optional[Path]
 
     def __init__(self,
                  parent: PackTarget,
                  placeholder: str,
-                 on_change: t.Optional[t.Callable] = None):
+                 on_change: tp.Optional[tp.Callable] = None):
         internal_padding = int(XPADDING * 0.66)
         external_padding = XPADDING
         pack_opts = {"side": tk.LEFT, "pady": external_padding}
@@ -118,7 +125,7 @@ class PickerWidget(abc.ABC):
 class FolderPickerWidget(PickerWidget):
     def __init__(self,
                  parent: PackTarget,
-                 on_change: t.Optional[t.Callable] = None):
+                 on_change: tp.Optional[tp.Callable] = None):
         super().__init__(parent, "No Folder Selected", on_change)
 
     def _prompt(self):
@@ -128,8 +135,8 @@ class FolderPickerWidget(PickerWidget):
 class FilePickerWidget(PickerWidget):
     def __init__(self,
                  parent: PackTarget,
-                 filetypes: t.Optional[t.List[t.Tuple[str, str]]] = None,
-                 on_change: t.Optional[t.Callable] = None):
+                 filetypes: tp.Optional[tp.List[tp.Tuple[str, str]]] = None,
+                 on_change: tp.Optional[tp.Callable] = None):
         self.__filetypes = filetypes
         super().__init__(parent, "No File Selected", on_change)
 
@@ -144,7 +151,7 @@ class CheckboxWidget():
     def __init__(self,
                  parent: PackTarget,
                  label: str,
-                 on_change: t.Optional[t.Callable] = None,
+                 on_change: tp.Optional[tp.Callable] = None,
                  reduce_padding_above: bool = False):
         self.__on_change = on_change
         self.__raw_value = tk.IntVar(parent, 0)
@@ -183,25 +190,25 @@ class SelectWidget():
     def __init__(self,
                  parent: PackTarget,
                  label: str,
-                 options: t.List[str],
-                 on_change: t.Optional[t.Callable] = None):
+                 options: tp.List[str],
+                 on_change: tp.Optional[tp.Callable] = None):
         self.__raw_value = tk.StringVar()
         self.__on_change = on_change
 
         container = tk.Frame(parent)
         create_and_pack_label(container, label, inline=True)
-        self.__combobox = pack(
-            ttk.Combobox(container,
-                         width=35,
-                         textvariable=self.__raw_value,
-                         values=options), side=tk.RIGHT)
+        self.__combobox = pack(ttk.Combobox(container,
+                                            width=35,
+                                            textvariable=self.__raw_value,
+                                            values=options),
+                               side=tk.RIGHT)
         self.__combobox.current(0)
 
         self.__raw_value.trace("w", self.__on_update)
         self.value = self.__raw_value.get()
         pack(container)
 
-    def __on_update(self, *args: t.Any):
+    def __on_update(self, *args: tp.Any):
         self.value = self.__raw_value.get()
         if (self.__on_change is not None):
             self.__on_change()
@@ -216,14 +223,14 @@ class FormVariantSelection(enum.Enum):
 
 
 class InputFolderPickerWidget():
-    folder: t.Optional[Path]
+    folder: tp.Optional[Path]
     multi_answers_as_f: bool
     empty_answers_as_g: bool
     form_variant: FormVariantSelection
 
     def __init__(self,
                  parent: PackTarget,
-                 on_change: t.Optional[t.Callable] = None):
+                 on_change: tp.Optional[tp.Callable] = None):
         self.__on_change = on_change
 
         container = tk.Frame(parent)
@@ -253,7 +260,7 @@ class InputFolderPickerWidget():
         self.empty_answers_as_g = False
         self.form_variant = FormVariantSelection.VARIANT_75_Q
 
-    def __on_update(self, *args: t.Any):
+    def __on_update(self, *args: tp.Any):
         self.folder = self.__input_folder_picker.value
         self.multi_answers_as_f = self.__multi_answers_as_f_checkbox.value
         self.empty_answers_as_g = self.__empty_answers_as_g_checkbox.value
@@ -274,13 +281,13 @@ class InputFolderPickerWidget():
 
 
 class OutputFolderPickerWidget():
-    folder: t.Optional[Path]
+    folder: tp.Optional[Path]
     sort_results: bool
     sort_toggle_count: int
 
     def __init__(self,
                  parent: PackTarget,
-                 on_change: t.Optional[t.Callable] = None):
+                 on_change: tp.Optional[tp.Callable] = None):
         self.__on_change = on_change
 
         container = tk.Frame(parent)
@@ -318,11 +325,11 @@ class OutputFolderPickerWidget():
 
 
 class AnswerKeyPickerWidget():
-    file: t.Optional[Path]
+    file: tp.Optional[Path]
 
     def __init__(self,
                  parent: PackTarget,
-                 on_change: t.Optional[t.Callable] = None):
+                 on_change: tp.Optional[tp.Callable] = None):
         self.__on_change = on_change
 
         container = tk.Frame(parent)
@@ -353,11 +360,11 @@ class AnswerKeyPickerWidget():
 
 
 class ArrangementMapPickerWidget():
-    file: t.Optional[Path]
+    file: tp.Optional[Path]
 
     def __init__(self,
                  parent: PackTarget,
-                 on_change: t.Optional[t.Callable] = None):
+                 on_change: tp.Optional[tp.Callable] = None):
         self.__on_change = on_change
 
         container = tk.Frame(parent)
@@ -433,8 +440,8 @@ class MainWindow:
     output_folder: Path
     multi_answers_as_f: bool
     empty_answers_as_g: bool
-    keys_file: t.Optional[Path]
-    arrangement_map: t.Optional[Path]
+    keys_file: tp.Optional[Path]
+    arrangement_map: tp.Optional[Path]
     sort_results: bool
     debug_mode: bool = False
     form_variant: FormVariantSelection
@@ -585,13 +592,15 @@ class MainWindow:
         subprocess.Popen([helpfile], shell=True)
 
     def __show_sheet(self):
-        if(self.form_variant == FormVariantSelection.VARIANT_75_Q):
+        if (self.form_variant == FormVariantSelection.VARIANT_75_Q):
             helpfile = str(
-                Path(__file__).parent / "assets" / "multiple_choice_sheet_75q.pdf")
+                Path(__file__).parent / "assets" /
+                "multiple_choice_sheet_75q.pdf")
             subprocess.Popen([helpfile], shell=True)
-        elif(self.form_variant == FormVariantSelection.VARIANT_150_Q):
+        elif (self.form_variant == FormVariantSelection.VARIANT_150_Q):
             helpfile = str(
-                Path(__file__).parent / "assets" / "multiple_choice_sheet_150q.pdf")
+                Path(__file__).parent / "assets" /
+                "multiple_choice_sheet_150q.pdf")
             subprocess.Popen([helpfile], shell=True)
 
     def create_and_pack_progress(self, maximum: int) -> ProgressTrackerWidget:

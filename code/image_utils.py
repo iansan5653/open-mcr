@@ -1,7 +1,7 @@
 """Image filtering and processing utilities."""
 
 import pathlib
-import typing
+import typing as tp
 
 import cv2
 import numpy as np
@@ -13,7 +13,7 @@ SUPPORTED_IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"]
 
 
 def convert_to_grayscale(image: np.ndarray,
-                         save_path: typing.Optional[pathlib.PurePath] = None
+                         save_path: tp.Optional[pathlib.PurePath] = None
                          ) -> np.ndarray:
     """Convert an image to grayscale.
 
@@ -27,7 +27,7 @@ def convert_to_grayscale(image: np.ndarray,
 
 
 def remove_hf_noise(image: np.ndarray,
-                    save_path: typing.Optional[pathlib.PurePath] = None
+                    save_path: tp.Optional[pathlib.PurePath] = None
                     ) -> np.ndarray:
     """Blur image slightly to remove high-frequency noise.
 
@@ -46,7 +46,7 @@ def remove_hf_noise(image: np.ndarray,
 
 
 def detect_edges(image: np.ndarray,
-                 save_path: typing.Optional[pathlib.PurePath] = None
+                 save_path: tp.Optional[pathlib.PurePath] = None
                  ) -> np.ndarray:
     """Detect edges in the image.
 
@@ -72,8 +72,7 @@ def find_contours(edges: np.ndarray) -> np.ndarray:
 
 
 def get_image(path: pathlib.PurePath,
-              save_path: typing.Optional[pathlib.PurePath] = None
-              ) -> np.ndarray:
+              save_path: tp.Optional[pathlib.PurePath] = None) -> np.ndarray:
     """Returns the cv2 image located at the given path.
 
     If `save_path` is provided, will save the resulting image to this location
@@ -92,8 +91,8 @@ def save_image(path: pathlib.PurePath, image: np.ndarray):
 
 
 def find_polygons(image: np.ndarray,
-                  save_path: typing.Optional[pathlib.PurePath] = None
-                  ) -> typing.List[geometry_utils.Polygon]:
+                  save_path: tp.Optional[pathlib.PurePath] = None
+                  ) -> tp.List[geometry_utils.Polygon]:
     """Returns a list of polygons found in the image."""
     edges = detect_edges(image, save_path=save_path)
     all_contours = find_contours(edges)
@@ -103,14 +102,13 @@ def find_polygons(image: np.ndarray,
     return polygons
 
 
-def get_dimensions(image: np.ndarray) -> typing.Tuple[int, int]:
+def get_dimensions(image: np.ndarray) -> tp.Tuple[int, int]:
     """Returns the dimensions of the image in `(width, height)` form."""
     return image.shape[0], image.shape[1]
 
 
 def threshold(image: np.ndarray,
-              save_path: typing.Optional[pathlib.PurePath] = None
-              ) -> np.ndarray:
+              save_path: tp.Optional[pathlib.PurePath] = None) -> np.ndarray:
     """Convert an image to pure black and white pixels by thresholding.
 
     If `save_path` is provided, will save the resulting image to this location
@@ -124,9 +122,9 @@ def threshold(image: np.ndarray,
     return result
 
 
-def prepare_scan_for_processing(
-        image: np.ndarray,
-        save_path: typing.Optional[pathlib.PurePath] = None) -> np.ndarray:
+def prepare_scan_for_processing(image: np.ndarray,
+                                save_path: tp.Optional[pathlib.PurePath] = None
+                                ) -> np.ndarray:
     """Shortcut to prepare an image for processing.
 
     If `save_path` is provided, will save the resulting image to this location
@@ -137,8 +135,7 @@ def prepare_scan_for_processing(
     return result
 
 
-def get_fill_percent(matrix: typing.Union[np.ndarray, ma.MaskedArray]
-                     ) -> float:
+def get_fill_percent(matrix: tp.Union[np.ndarray, ma.MaskedArray]) -> float:
     """Get the percent of the pixels in the B&W matrix that are not white."""
     try:
         return 1 - (matrix.mean() / 255)
@@ -147,7 +144,7 @@ def get_fill_percent(matrix: typing.Union[np.ndarray, ma.MaskedArray]
 
 
 def dilate(image: np.ndarray,
-           save_path: typing.Optional[pathlib.PurePath] = None) -> np.ndarray:
+           save_path: tp.Optional[pathlib.PurePath] = None) -> np.ndarray:
     """Dilate the image.
 
     If `save_path` is provided, will save the resulting image to this location

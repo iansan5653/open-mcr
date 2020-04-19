@@ -1,6 +1,6 @@
 import csv
 import pathlib
-import typing
+import typing as tp
 
 import data_exporting
 import grid_info
@@ -26,7 +26,7 @@ def get_key_form_code(answer_keys: data_exporting.OutputSheet,
 
 
 def establish_key_dict(answer_keys: data_exporting.OutputSheet
-                       ) -> typing.Dict[str, typing.List[str]]:
+                       ) -> tp.Dict[str, tp.List[str]]:
     """Takes the matrix of answer keys and transforms it into a dictionary that
     maps the test form codes to the list of correct answers.
 
@@ -56,8 +56,7 @@ def establish_key_dict(answer_keys: data_exporting.OutputSheet
 
 def score_results(results: data_exporting.OutputSheet,
                   answer_keys: data_exporting.OutputSheet,
-                  num_questions: int
-                  ) -> data_exporting.OutputSheet:
+                  num_questions: int) -> data_exporting.OutputSheet:
     answers = results.data
     keys = establish_key_dict(answer_keys)
     form_code_column_name = data_exporting.COLUMN_NAMES[
@@ -65,7 +64,7 @@ def score_results(results: data_exporting.OutputSheet,
     form_code_index = list_utils.find_index(answers[0], form_code_column_name)
     answers_start_index = list_utils.find_index(
         answers[0][form_code_index + 1:], "Q1") + form_code_index + 1
-    virtual_fields: typing.List[grid_info.RealOrVirtualField] = [
+    virtual_fields: tp.List[grid_info.RealOrVirtualField] = [
         grid_info.VirtualField.SCORE, grid_info.VirtualField.POINTS
     ]
     columns = results.field_columns + virtual_fields

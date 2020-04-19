@@ -1,6 +1,6 @@
 import textwrap
 import time
-import typing
+import typing as tp
 from datetime import datetime
 
 import corner_finding
@@ -102,7 +102,7 @@ try:
             for i in range(form_variant.num_questions)
         ]
 
-        field_data: typing.Dict[grid_i.RealOrVirtualField, str] = {}
+        field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {}
 
         # Read the Student ID. If it indicates this exam is a key, treat it as such
         student_id = grid_r.read_field_as_string(

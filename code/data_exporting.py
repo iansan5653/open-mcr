@@ -3,14 +3,14 @@ import csv
 import operator
 import os
 import pathlib
-import typing
+import typing as tp
 from datetime import datetime
 
 import list_utils
 from grid_info import Field, RealOrVirtualField, VirtualField
 
 # If you change these, also update the manual!
-COLUMN_NAMES: typing.Dict[RealOrVirtualField, str] = {
+COLUMN_NAMES: tp.Dict[RealOrVirtualField, str] = {
     Field.LAST_NAME: "Last Name",
     Field.FIRST_NAME: "First Name",
     Field.MIDDLE_NAME: "Middle Name",
@@ -33,7 +33,7 @@ def make_dir_if_not_exists(path: pathlib.Path):
         os.makedirs(str(path))
 
 
-def validate_order_map(order_map: typing.Dict[str, typing.List[int]],
+def validate_order_map(order_map: tp.Dict[str, tp.List[int]],
                        num_questions: int):
     """Validate the given order map and throw ValueError if the map is invalid."""
     for [form_code, map_list] in order_map.items():
@@ -48,13 +48,13 @@ class OutputSheet():
     """A lightweight matrix of data to be exported. Faster than a dataframe but
     can be easily converted to one when the need arises."""
     # Must be structured as: field_a, field_b, ..., Q1, Q2, Q3, ...
-    data: typing.List[typing.List[str]]
-    field_columns: typing.List[RealOrVirtualField]
+    data: tp.List[tp.List[str]]
+    field_columns: tp.List[RealOrVirtualField]
     num_questions: int
     row_count: int
     first_question_column_index: int
 
-    def __init__(self, columns: typing.List[RealOrVirtualField], num_questions: int):
+    def __init__(self, columns: tp.List[RealOrVirtualField], num_questions: int):
         self.field_columns = columns
         self.num_questions = num_questions
         field_column_names = [COLUMN_NAMES[column] for column in columns]
@@ -109,9 +109,9 @@ class OutputSheet():
         data = sorted(data, key=operator.itemgetter(primary_index))
         self.data = [col_names] + data
 
-    def add(self, fields: typing.Dict[RealOrVirtualField, str],
-            answers: typing.List[str]):
-        row: typing.List[str] = []
+    def add(self, fields: tp.Dict[RealOrVirtualField, str],
+            answers: tp.List[str]):
+        row: tp.List[str] = []
         for column in self.field_columns:
             try:
                 row.append(fields[column].strip())
@@ -125,7 +125,7 @@ class OutputSheet():
             reader = csv.reader(file)
             names = next(reader)
             # The fields that correspond with the columns
-            keys: typing.List[typing.Union[RealOrVirtualField, None]] = []
+            keys: tp.List[tp.Union[RealOrVirtualField, None]] = []
             for name in names:
                 try:
                     key = next(key for key, value in COLUMN_NAMES.items()
@@ -175,7 +175,7 @@ class OutputSheet():
         # TODO: Validate arrangement file.
         # order_map will be a dict matching form code keys to a list where the
         # new index of question `i` in `key` is `order_map[key][i]`
-        order_map: typing.Dict[str, typing.List[int]] = {}
+        order_map: tp.Dict[str, tp.List[int]] = {}
         validate_order_map(order_map, self.num_questions)
 
         with open(str(arrangement_file), 'r', newline='') as file:

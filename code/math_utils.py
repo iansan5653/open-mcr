@@ -1,7 +1,7 @@
 """General mathematics utilities."""
 
 import enum
-import typing
+import typing as tp
 
 import list_utils
 
@@ -35,8 +35,8 @@ def is_within_tolerance(value_a: float, target: float,
     return value_a < target + tolerance and value_a > target - tolerance
 
 
-def all_approx_equal(values: typing.List[float],
-                     target: typing.Union[float, None] = None,
+def all_approx_equal(values: tp.List[float],
+                     target: tp.Union[float, None] = None,
                      tolerance: float = 0.15) -> bool:
     """Returns `True` if every element in `values` is within `tolerance` of `target`.
 
@@ -51,13 +51,13 @@ def all_approx_equal(values: typing.List[float],
         [is_approx_equal(value, target_, tolerance) for value in values])
 
 
-def mean(values: typing.Union[typing.List[int], typing.List[float], typing.
-                              List[bool]]) -> float:
+def mean(values: tp.Union[tp.List[int], tp.List[float], tp.List[bool]]
+         ) -> float:
     """Returns the average of the list of numeric values."""
     return sum(values) / len(values)
 
 
-def divide_some(values: typing.List[float], indexes: typing.List[int],
-                divisor: float) -> typing.List[float]:
+def divide_some(values: tp.List[float], indexes: tp.List[int],
+                divisor: float) -> tp.List[float]:
     """Returns a copy of `values` where items at `indices` are divided by `divisor`."""
     return list_utils.call_on_some(values, indexes, lambda x: x / divisor)

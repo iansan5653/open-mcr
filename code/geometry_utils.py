@@ -2,7 +2,7 @@
 
 import enum
 import math
-import typing
+import typing as tp
 
 import cv2
 import numpy as np
@@ -21,7 +21,7 @@ class Point:
         self.y = y
 
 
-Polygon = typing.List[Point]
+Polygon = tp.List[Point]
 
 
 class Line:
@@ -83,7 +83,7 @@ def calc_angle(end_a: Point, shared: Point, end_b: Point) -> float:
     return angle if angle <= 180 else angle - 180
 
 
-def calc_corner_angles(contour: Polygon) -> typing.List[float]:
+def calc_corner_angles(contour: Polygon) -> tp.List[float]:
     """For a list of points, returns a list of numbers, where each element with
     index `i` is the angle between points `i-1`, `i`, and `i+1`."""
     result = []
@@ -94,7 +94,7 @@ def calc_corner_angles(contour: Polygon) -> typing.List[float]:
     return result
 
 
-def calc_side_lengths(contour: Polygon) -> typing.List[float]:
+def calc_side_lengths(contour: Polygon) -> tp.List[float]:
     """For a list of points, returns a list of numbers, where each element with
     index `i` is the distance from point `i` to point `i+1`."""
     result = []
@@ -120,14 +120,14 @@ def line_from_points(point_a: Point, point_b: Point) -> Line:
 
 
 def get_perpendicular_line(line: Line,
-                           point: typing.Optional[Point] = None) -> Line:
+                           point: tp.Optional[Point] = None) -> Line:
     """Given a slope and a point, returns a line passing through the point with
     a perpendicular slope."""
     return rotate_line(line, math.pi / 2, point)
 
 
 def rotate_line(line: Line, theta: float,
-                point: typing.Optional[Point] = None) -> Line:
+                point: tp.Optional[Point] = None) -> Line:
     """Given a slope and a point, return the line with slope rotated `theta`
     radians CCW and passing through `point`.
 
@@ -148,11 +148,11 @@ def calc_angle_between(line_a: Line, line_b: Line) -> float:
     return abs(angle_a - angle_b)
 
 
-InequalityLine = typing.Tuple[Line, math_utils.InequalityTypes]
+InequalityLine = tp.Tuple[Line, math_utils.InequalityTypes]
 
 
 def is_in_inequalities(point: Point,
-                       inequalities: typing.List[InequalityLine]) -> bool:
+                       inequalities: tp.List[InequalityLine]) -> bool:
     """For a all provided inequality comparisons defined by lines, checks if
     the given point satisfies all of them."""
     for inequality in inequalities:
@@ -172,8 +172,8 @@ def is_in_inequalities(point: Point,
     return True
 
 
-def create_range_check_fn(*inequalities: typing.List[InequalityLine]
-                          ) -> typing.Callable[[Point], bool]:
+def create_range_check_fn(*inequalities: tp.List[InequalityLine]
+                          ) -> tp.Callable[[Point], bool]:
     return lambda point: is_in_inequalities(point, inequalities)
 
 
@@ -194,8 +194,7 @@ def extend_ray(a: Point, b: Point, distance: float):
 
 def create_change_of_basis(
         origin: Point, bottom_left: Point, bottom_right: Point
-) -> typing.Tuple[typing.Callable[[Point], Point], typing.
-                  Callable[[Point], Point]]:
+) -> tp.Tuple[tp.Callable[[Point], Point], tp.Callable[[Point], Point]]:
     """Returns functions that will convert points to/from the current coordinate
     system to a new one where the passed `origin` point becomes `0,0`, the
     `bottom_left` point becomes `0,1`, and the `bottom_right` point becomes `1,1`.
@@ -280,7 +279,7 @@ def get_corner(square: Polygon, corner: Corner) -> Point:
 
 
 def crop_rectangle(top_left_corner: Point, bottom_right_corner: Point,
-                   crop_fraction: float) -> typing.Tuple[Point, Point]:
+                   crop_fraction: float) -> tp.Tuple[Point, Point]:
     """Given a rectangle which aligns with the grid, crops away `crop_fraction`
     of the height and width from the edges, preserving the center.
 

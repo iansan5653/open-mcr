@@ -1,12 +1,12 @@
 """Functions and utilities related to importing and exporting files."""
 
 import pathlib
-import typing
+import typing as tp
 
 from image_utils import SUPPORTED_IMAGE_EXTENSIONS
 
 
-def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:
+def list_file_paths(directory: pathlib.Path) -> tp.List[pathlib.Path]:
     """Returns a list of full paths to all the files that are direct children.
 
     Does not include directories or files in subdirectories.
@@ -20,9 +20,8 @@ def list_file_paths(directory: pathlib.Path) -> typing.List[pathlib.Path]:
     return [item for item in directory.iterdir() if item.is_file()]
 
 
-def filter_by_extensions(files: typing.Sequence[pathlib.Path],
-                         extensions: typing.List[str]
-                         ) -> typing.List[pathlib.Path]:
+def filter_by_extensions(files: tp.Sequence[pathlib.Path],
+                         extensions: tp.List[str]) -> tp.List[pathlib.Path]:
     """Filter a list of Paths by a list of extensions.
 
     Params:
@@ -37,7 +36,6 @@ def filter_by_extensions(files: typing.Sequence[pathlib.Path],
     return [file for file in files if "".join(file.suffixes) in extensions]
 
 
-def filter_images(files: typing.Sequence[pathlib.Path]
-                  ) -> typing.List[pathlib.Path]:
+def filter_images(files: tp.Sequence[pathlib.Path]) -> tp.List[pathlib.Path]:
     """Filter a list of Paths and return only the images."""
     return filter_by_extensions(files, SUPPORTED_IMAGE_EXTENSIONS)

@@ -4,7 +4,7 @@
 
 import abc
 import pathlib
-import typing
+import typing as tp
 
 import cv2
 import numpy as np
@@ -31,17 +31,15 @@ Notes:
 GRID_CELL_CROP_FRACTION = 0.25
 
 # TODO: Import from geometry_utils when pyright#284 is fixed.
-Polygon = typing.List[geometry_utils.Point]
+Polygon = tp.List[geometry_utils.Point]
 
 
 class Grid:
     corners: Polygon
     horizontal_cells: int
     vertical_cells: int
-    _to_grid_basis: typing.Callable[[geometry_utils.Point], geometry_utils.
-                                    Point]
-    _from_grid_basis: typing.Callable[[geometry_utils.Point], geometry_utils.
-                                      Point]
+    _to_grid_basis: tp.Callable[[geometry_utils.Point], geometry_utils.Point]
+    _from_grid_basis: tp.Callable[[geometry_utils.Point], geometry_utils.Point]
     image: np.ndarray
 
     def __init__(self,
@@ -49,7 +47,7 @@ class Grid:
                  horizontal_cells: int,
                  vertical_cells: int,
                  image: np.ndarray,
-                 save_path: typing.Optional[pathlib.PurePath] = None):
+                 save_path: tp.Optional[pathlib.PurePath] = None):
         """Initiate a new Grid. Corners should be clockwise starting from the
         top left - if not, the grid will have unexpected behavior.
 
@@ -99,8 +97,8 @@ class Grid:
         y_range = (int(top_left_point.y), int(bottom_right_point.y) + 1)
         return self.image[y_range[0]:y_range[1], x_range[0]:x_range[1]]
 
-    def get_cell_circle(self, across: int, down: int
-                        ) -> typing.Tuple[geometry_utils.Point, float]:
+    def get_cell_circle(self, across: int,
+                        down: int) -> tp.Tuple[geometry_utils.Point, float]:
         [top_left_point, _, bottom_right_point,
          _] = self.get_cell_shape(across, down)
         x_range = int(bottom_right_point.x) + 1 - int(top_left_point.x)
@@ -158,20 +156,19 @@ class _GridField(abc.ABC):
         self.grid = grid
 
     @abc.abstractclassmethod
-    def read_value(self, threshold: float, fill_percents: typing.List[float]
-                   ) -> typing.Union[typing.List[str], typing.List[int]]:
+    def read_value(self, threshold: float, fill_percents: tp.List[float]
+                   ) -> tp.Union[tp.List[str], tp.List[int]]:
         ...
 
     def _read_value_indexes(self, threshold: float,
-                            fill_percents: typing.List[float]
-                            ) -> typing.List[int]:
+                            fill_percents: tp.List[float]) -> tp.List[int]:
         filled = [
             i for i in range(self.num_cells) if fill_percents[i] > threshold
         ]
         return filled
 
-    def get_cell_matrixes(self) -> typing.List[ma.MaskedArray]:
-        results: typing.List[ma.MaskedArray] = []
+    def get_cell_matrixes(self) -> tp.List[ma.MaskedArray]:
+        results: tp.List[ma.MaskedArray] = []
         is_vertical = self.orientation is geometry_utils.Orientation.VERTICAL
         for i in range(self.num_cells):
             x = self.horizontal_start if is_vertical else self.horizontal_start + i
@@ -184,7 +181,7 @@ class _GridField(abc.ABC):
             results.append(matrix)
         return results
 
-    def get_all_fill_percents(self) -> typing.List[float]:
+    def get_all_fill_percents(self) -> tp.List[float]:
         results = [
             image_utils.get_fill_percent(square)
             for square in self.get_cell_matrixes()
@@ -195,14 +192,14 @@ class _GridField(abc.ABC):
 class NumberGridField(_GridField):
     """A number grid field is one set of grid cells that represents a digit."""
     def read_value(self, threshold: float,
-                   fill_percents: typing.List[float]) -> typing.List[int]:
+                   fill_percents: tp.List[float]) -> tp.List[int]:
         return super()._read_value_indexes(threshold, fill_percents)
 
 
 class LetterGridField(_GridField):
     """A number grid field is one set of grid cells that represents a letter."""
     def read_value(self, threshold: float,
-                   fill_percents: typing.List[float]) -> typing.List[str]:
+                   fill_percents: tp.List[float]) -> tp.List[str]:
         return [
             alphabet.letters[i]
             for i in super()._read_value_indexes(threshold, fill_percents)
@@ -213,7 +210,7 @@ class _GridFieldGroup(abc.ABC):
     """A grid field group is a group of grid fields, ie a word. Do not use
     directly."""
 
-    fields: typing.Sequence[_GridField]
+    fields: tp.Sequence[_GridField]
 
     @abc.abstractclassmethod
     def __init__(self, grid: Grid, horizontal_start: int, vertical_start: int,
@@ -221,17 +218,16 @@ class _GridFieldGroup(abc.ABC):
                  field_orientation: geometry_utils.Orientation):
         ...
 
-    def read_value(
-            self, threshold: float,
-            fill_percents: typing.List[typing.List[float]]
-    ) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
+    def read_value(self, threshold: float,
+                   fill_percents: tp.List[tp.List[float]]
+                   ) -> tp.List[tp.Union[tp.List[str], tp.List[int]]]:
         """Calculate the field value using precalculated fill percents."""
         return [
             field.read_value(threshold, fill_percents[i])
             for i, field in enumerate(self.fields)
         ]
 
-    def get_all_fill_percents(self) -> typing.List[typing.List[float]]:
+    def get_all_fill_percents(self) -> tp.List[tp.List[float]]:
         return [field.get_all_fill_percents() for field in self.fields]
 
 
@@ -251,10 +247,10 @@ class NumberGridFieldGroup(_GridFieldGroup):
         ]
 
     def read_value(self, threshold: float,
-                   fill_percents: typing.List[typing.List[float]]
-                   ) -> typing.List[typing.List[int]]:
-        return typing.cast(typing.List[typing.List[int]],
-                           super().read_value(threshold, fill_percents))
+                   fill_percents: tp.List[tp.List[float]]
+                   ) -> tp.List[tp.List[int]]:
+        return tp.cast(tp.List[tp.List[int]],
+                       super().read_value(threshold, fill_percents))
 
 
 class LetterGridFieldGroup(_GridFieldGroup):
@@ -273,10 +269,10 @@ class LetterGridFieldGroup(_GridFieldGroup):
         ]
 
     def read_value(self, threshold: float,
-                   fill_percents: typing.List[typing.List[float]]
-                   ) -> typing.List[typing.List[str]]:
-        return typing.cast(typing.List[typing.List[str]],
-                           super().read_value(threshold, fill_percents))
+                   fill_percents: tp.List[tp.List[float]]
+                   ) -> tp.List[tp.List[str]]:
+        return tp.cast(tp.List[tp.List[str]],
+                       super().read_value(threshold, fill_percents))
 
 
 def get_group_from_info(info: grid_info.GridGroupInfo,
@@ -293,9 +289,8 @@ def get_group_from_info(info: grid_info.GridGroupInfo,
 
 def read_field(field: grid_info.Field, grid: Grid, threshold: float,
                form_variant: grid_info.FormVariant,
-               fill_percents: typing.List[typing.List[float]]
-               ) -> typing.Optional[typing.List[
-                   typing.Union[typing.List[str], typing.List[int]]]]:
+               fill_percents: tp.List[tp.List[float]]
+               ) -> tp.Optional[tp.List[tp.Union[tp.List[str], tp.List[int]]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
     grid_group_info = form_variant.fields[field]
     if grid_group_info is not None:
@@ -305,19 +300,18 @@ def read_field(field: grid_info.Field, grid: Grid, threshold: float,
         return None
 
 
-def read_answer(
-        question: int, grid: Grid, threshold: float,
-        form_variant: grid_info.FormVariant,
-        fill_percents: typing.List[typing.List[float]]
-) -> typing.List[typing.Union[typing.List[str], typing.List[int]]]:
+def read_answer(question: int, grid: Grid, threshold: float,
+                form_variant: grid_info.FormVariant,
+                fill_percents: tp.List[tp.List[float]]
+                ) -> tp.List[tp.Union[tp.List[str], tp.List[int]]]:
     """Shortcut to read a field given just the key for it and the grid object."""
     return get_group_from_info(form_variant.questions[question],
                                grid).read_value(threshold, fill_percents)
 
 
 def field_group_to_string(
-        values: typing.List[typing.Union[typing.List[str], typing.List[int]]]):
-    result_strings: typing.List[str] = []
+        values: tp.List[tp.Union[tp.List[str], tp.List[int]]]):
+    result_strings: tp.List[str] = []
     for value in values:
         if len(value) == 0:
             result_strings.append(' ')
@@ -331,8 +325,8 @@ def field_group_to_string(
 
 def read_field_as_string(field: grid_info.Field, grid: Grid, threshold: float,
                          form_variant: grid_info.FormVariant,
-                         fill_percents: typing.List[typing.List[float]]
-                         ) -> typing.Optional[str]:
+                         fill_percents: tp.List[tp.List[float]]
+                         ) -> tp.Optional[str]:
     """Shortcut to read a field and format it as a string, given just the key and
     the grid object. """
     field_group = read_field(field, grid, threshold, form_variant,
@@ -346,8 +340,7 @@ def read_field_as_string(field: grid_info.Field, grid: Grid, threshold: float,
 def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
                           threshold: float,
                           form_variant: grid_info.FormVariant,
-                          fill_percents: typing.List[typing.List[float]]
-                          ) -> str:
+                          fill_percents: tp.List[tp.List[float]]) -> str:
     """Shortcut to read a question's answer and format it as a string, given
     just the question number and the grid object. """
     answer = field_group_to_string(
@@ -359,11 +352,10 @@ def read_answer_as_string(question: int, grid: Grid, multi_answers_as_f: bool,
 
 
 def calculate_bubble_fill_threshold(
-        field_fill_percents: typing.Dict[grid_info.Field, typing.
-                                         List[typing.List[float]]],
-        answer_fill_percents: typing.List[typing.List[typing.List[float]]],
+        field_fill_percents: tp.Dict[grid_info.Field, tp.List[tp.List[float]]],
+        answer_fill_percents: tp.List[tp.List[tp.List[float]]],
         form_variant: grid_info.FormVariant,
-        save_path: typing.Optional[pathlib.PurePath] = None) -> float:
+        save_path: tp.Optional[pathlib.PurePath] = None) -> float:
     """Dynamically calculate the threshold to use for determining if a bubble is
     filled or unfilled.
 
