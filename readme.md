@@ -51,7 +51,7 @@ The multiple choice sheet that must be used with this software is available
 for printing here:
 
 * [75 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_75q.pdf)
-* [100 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_100q.pdf)
+* [150 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_150q.pdf)
 
 ## Usage Instructions
 
