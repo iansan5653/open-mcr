@@ -115,7 +115,7 @@ try:
                 field_fill_percents[form_code_field]) or ""
             keys_results.add(field_data, answers)
         else:
-            for field in grid_i.Field:
+            for field in form_variant.fields.keys():
                 field_value = grid_r.read_field_as_string(
                     field, grid, threshold, form_variant,
                     field_fill_percents[field])
