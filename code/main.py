@@ -11,6 +11,7 @@ import grid_reading as grid_r
 import image_utils
 import scoring
 import user_interface
+from data_exporting import save_mcta
 
 user_input = user_interface.MainWindow()
 input_folder = user_input.input_folder
@@ -29,10 +30,16 @@ answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
                                              form_variant.num_questions)
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE],
                                           form_variant.num_questions)
-
 progress = user_input.create_and_pack_progress(maximum=len(image_paths))
 
 files_timestamp = datetime.now().replace(microsecond=0)
+
+
+#mcta_keys = data_exporting.OutputSheet(["", "Answer", "Title", "Concept"],0)
+
+mcta_keys = []
+mcta_answers = []
+#mcta_results= data_exporting.OutputSheet([""], form_variant.num_questions)
 
 debug_dir = output_folder / (
     data_exporting.format_timestamp_for_file(files_timestamp) + "__debug")
@@ -114,6 +121,15 @@ try:
                 form_code_field, grid, threshold, form_variant,
                 field_fill_percents[form_code_field]) or ""
             keys_results.add(field_data, answers)
+            # create mcta keys
+            mcta_keys.append(["", "Answer", "Title", "Concept"])
+            counter = 0
+            for x in answers:
+                if (x):
+                    counter = counter + 1
+                    mcta_keys.append([f"Q{counter}", x, f"Q{counter}", "unknown"])
+            save_mcta(mcta_keys, output_folder, "AnswerKey", files_timestamp)   
+
         else:
             for field in form_variant.fields.keys():
                 field_value = grid_r.read_field_as_string(
@@ -130,6 +146,18 @@ try:
                          "results",
                          sort_results,
                          timestamp=files_timestamp)
+    
+    #create mcta_answers and write to csv
+    for row in answers_results.data:
+        mcta_answers.append(row[answers_results.first_question_column_index:])
+    first_col = []
+    first_col.append("")
+    for i in range(1, len(mcta_answers)):
+        first_col.append(f"Student{i}")
+    for x, y in zip(mcta_answers, first_col):
+        x.insert(0,y)
+    
+    save_mcta(mcta_answers, output_folder, "TestData", files_timestamp)  
 
     success_string = "✔️ All exams processed and saved.\n"
 
