@@ -34,12 +34,8 @@ progress = user_input.create_and_pack_progress(maximum=len(image_paths))
 
 files_timestamp = datetime.now().replace(microsecond=0)
 
-
-#mcta_keys = data_exporting.OutputSheet(["", "Answer", "Title", "Concept"],0)
-
-mcta_keys = []
+mcta_keys = [] 
 mcta_answers = []
-#mcta_results= data_exporting.OutputSheet([""], form_variant.num_questions)
 
 debug_dir = output_folder / (
     data_exporting.format_timestamp_for_file(files_timestamp) + "__debug")
@@ -121,12 +117,12 @@ try:
                 form_code_field, grid, threshold, form_variant,
                 field_fill_percents[form_code_field]) or ""
             keys_results.add(field_data, answers)
-            # create mcta keys
+            # create mcta keys and write to csv
             mcta_keys.append(["", "Answer", "Title", "Concept"])
             counter = 0
             for x in answers:
                 if (x):
-                    counter = counter + 1
+                    counter += 1
                     mcta_keys.append([f"Q{counter}", x, f"Q{counter}", "unknown"])
             save_mcta(mcta_keys, output_folder, "AnswerKey", files_timestamp)   
 
