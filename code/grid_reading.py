@@ -15,6 +15,7 @@ import geometry_utils
 import grid_info
 import image_utils
 import list_utils
+
 """ This is what determines the circle size of the grid cell mask. If it is 0,
 the circle touches all edges of the grid cell. If it is 0.5, the circle is 50%
 of the width and height of the cell (centered at the center of the cell.)
@@ -38,9 +39,8 @@ class Grid:
     corners: Polygon
     horizontal_cells: int
     vertical_cells: int
-    _to_grid_basis: tp.Callable[[geometry_utils.Point], geometry_utils.Point]
-    _from_grid_basis: tp.Callable[[geometry_utils.Point], geometry_utils.Point]
     image: np.ndarray
+    basis_transformer: geometry_utils.ChangeOfBasisTransformer
 
     def __init__(self,
                  corners: geometry_utils.Polygon,
@@ -56,7 +56,7 @@ class Grid:
         self.corners = corners
         self.horizontal_cells = horizontal_cells
         self.vertical_cells = vertical_cells
-        self._to_grid_basis, self._from_grid_basis = geometry_utils.create_change_of_basis(
+        self.basis_transformer = geometry_utils.ChangeOfBasisTransformer(
             corners[0], corners[3], corners[2])
 
         self.horizontal_cell_size = 1 / self.horizontal_cells
@@ -84,7 +84,7 @@ class Grid:
         """Get the shape of a cell using it's 0-based index. Returns the contour
         in CW direction starting with the top left cell."""
         return [
-            self._from_grid_basis(p)
+            self.basis_transformer.from_basis(p)
             for p in self._get_cell_shape_in_basis(across, down)
         ]
 

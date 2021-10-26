@@ -127,7 +127,7 @@ def find_corner_marks(image: np.ndarray,
         except WrongShapeError:
             continue
 
-        to_new_basis, _ = geometry_utils.create_change_of_basis(
+        basis_transformer = geometry_utils.ChangeOfBasisTransformer(
             l_mark.polygon[0], l_mark.polygon[5], l_mark.polygon[4])
         nominal_to_right_side = 50 - 0.5
         nominal_to_bottom = ((64 - 0.5) / 2)
@@ -143,7 +143,7 @@ def find_corner_marks(image: np.ndarray,
             except WrongShapeError:
                 continue
             centroid = geometry_utils.guess_centroid(square.polygon)
-            centroid_new_basis = to_new_basis(centroid)
+            centroid_new_basis = basis_transformer.to_basis(centroid)
 
             if math_utils.is_within_tolerance(
                     centroid_new_basis.x, nominal_to_right_side,
@@ -169,12 +169,12 @@ def find_corner_marks(image: np.ndarray,
         # choose closest to centroid
 
         top_left_corner = l_mark.polygon[0]
-        top_right_corner = geometry_utils.get_corner(
-            top_right_squares[0].polygon, geometry_utils.Corner.TR)
-        bottom_right_corner = geometry_utils.get_corner(
-            bottom_right_squares[0].polygon, geometry_utils.Corner.BR)
-        bottom_left_corner = geometry_utils.get_corner(
-            bottom_left_squares[0].polygon, geometry_utils.Corner.BL)
+        top_right_corner = geometry_utils.get_corner_wrt_basis(
+            top_right_squares[0].polygon, geometry_utils.Corner.TR, basis_transformer)
+        bottom_right_corner = geometry_utils.get_corner_wrt_basis(
+            bottom_right_squares[0].polygon, geometry_utils.Corner.BR, basis_transformer)
+        bottom_left_corner = geometry_utils.get_corner_wrt_basis(
+            bottom_left_squares[0].polygon, geometry_utils.Corner.BL, basis_transformer)
 
         return [
             top_left_corner, top_right_corner, bottom_right_corner,
