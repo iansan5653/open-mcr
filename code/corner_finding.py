@@ -180,4 +180,4 @@ def find_corner_marks(image: np.ndarray,
             top_left_corner, top_right_corner, bottom_right_corner,
             bottom_left_corner
         ]
-    raise RuntimeError("Couldn't find document corners.")
+    raise CornerFindingError("Couldn't find document corners.")
