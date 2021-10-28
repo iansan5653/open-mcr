@@ -43,8 +43,8 @@ def validate_order_map(order_map: tp.Dict[str, tp.List[int]],
                 f"Arrangement file entry for '{form_code}' is invalid. All arrangement file entries must contain one of each index from 1 to the number of questions."
             )
 
-# writing mcta csv files
-def save_mcta(data, path: pathlib.PurePath, basefilename, timestamp):
+# function to mcta csv files
+def save_mcta(data: tp.List[tp.List[str]], path: pathlib.PurePath, basefilename: str, timestamp: datetime):
     filename = path/f"{format_timestamp_for_file(timestamp)}__MCTestAnalysis_{basefilename}.csv"
     with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
