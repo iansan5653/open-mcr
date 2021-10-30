@@ -43,6 +43,12 @@ def validate_order_map(order_map: tp.Dict[str, tp.List[int]],
                 f"Arrangement file entry for '{form_code}' is invalid. All arrangement file entries must contain one of each index from 1 to the number of questions."
             )
 
+# function to mcta csv files
+def save_mcta(data: tp.List[tp.List[str]], path: pathlib.PurePath, basefilename: str, timestamp: datetime):
+    filename = path/f"{format_timestamp_for_file(timestamp)}__MCTestAnalysis_{basefilename}.csv"
+    with open(filename, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(data)
 
 class OutputSheet():
     """A lightweight matrix of data to be exported. Faster than a dataframe but
@@ -73,7 +79,7 @@ class OutputSheet():
             data = list_utils.transpose(data)
         with open(str(output_path), 'w+', newline='') as output_file:
             writer = csv.writer(output_file)
-            writer.writerows(data)
+            writer.writerows(data)     
         return output_path
 
     def delete_field_column(self, column: RealOrVirtualField):
