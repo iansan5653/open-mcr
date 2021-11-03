@@ -150,7 +150,7 @@ class OutputSheet():
         # of the first element in a row that is not blank from the length of the
         # header row.
         longest_length = len(self.data[0]) - min([
-            next(i for i, ans in enumerate(reversed(row)) if ans != "")
+            next((i for i, ans in enumerate(reversed(row)) if ans != ""), 0)
             for row in self.data[1:]
         ])
         self.data[0] = self.data[0][:longest_length]
