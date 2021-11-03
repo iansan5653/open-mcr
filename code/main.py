@@ -11,8 +11,12 @@ import image_utils
 from mcta_processing import transform_and_save_mcta_output
 import scoring
 import user_interface
+import sys
 
 user_input = user_interface.MainWindow()
+if (user_input.cancelled):
+    sys.exit(0)
+
 input_folder = user_input.input_folder
 image_paths = file_handling.filter_images(
     file_handling.list_file_paths(input_folder))
