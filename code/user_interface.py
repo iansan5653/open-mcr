@@ -469,17 +469,17 @@ class MainWindow:
 
         buttons_frame = tk.Frame(app)
 
-        # "Open Sheet" button
+        # "Open Help" Button
         pack(ttk.Button(buttons_frame,
-                        text="Open Sheet",
-                        command=self.__show_sheet),
+                        text="Help",
+                        command=self.__show_help),
              padx=XPADDING,
              pady=YPADDING,
              side=tk.LEFT)
-        # "Open Help" Button
+        # "Open Sheet" button
         pack(ttk.Button(buttons_frame,
-                        text="Open Help",
-                        command=self.__show_help),
+                        text="Print Form",
+                        command=self.__show_sheet),
              padx=XPADDING,
              pady=YPADDING,
              side=tk.LEFT)
