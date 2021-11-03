@@ -283,6 +283,7 @@ class InputFolderPickerWidget():
 class OutputFolderPickerWidget():
     folder: tp.Optional[Path]
     sort_results: bool
+    output_mcta: bool
     sort_toggle_count: int
 
     def __init__(self,
@@ -301,11 +302,15 @@ class OutputFolderPickerWidget():
         self.__sort_results_checkbox = CheckboxWidget(
             container, "Sort results by students' names.",
             self.__on_sort_update)
+        self.__output_mcta_checkbox = CheckboxWidget(
+            container, "Output additional files for MCTA.",
+            self.__on_update, reduce_padding_above=True)
 
         pack(container, fill=tk.X)
 
         self.folder = None
         self.sort_results = False
+        self.output_mcta = False
         self.sort_toggle_count = 0
 
     def __on_sort_update(self):
@@ -315,6 +320,7 @@ class OutputFolderPickerWidget():
     def __on_update(self):
         self.folder = self.__output_folder_picker.value
         self.sort_results = self.__sort_results_checkbox.value
+        self.output_mcta = self.__output_mcta_checkbox.value
 
         if self.__on_change is not None:
             self.__on_change()
@@ -322,6 +328,7 @@ class OutputFolderPickerWidget():
     def disable(self):
         self.__output_folder_picker.disable()
         self.__sort_results_checkbox.disable()
+        self.__output_mcta_checkbox.disable()
 
 
 class AnswerKeyPickerWidget():
@@ -443,6 +450,7 @@ class MainWindow:
     keys_file: tp.Optional[Path]
     arrangement_map: tp.Optional[Path]
     sort_results: bool
+    output_mcta: bool
     debug_mode: bool = False
     form_variant: FormVariantSelection
 
@@ -565,6 +573,11 @@ class MainWindow:
             new_status += f"Results will be sorted by name.\n"
         else:
             new_status += f"Input sort order will be maintained.\n"
+
+
+        self.output_mcta = self.__output_folder_picker.output_mcta
+        if self.output_mcta:
+            new_status += "Additional files will be output for use with analysis software."
 
         if self.__output_folder_picker.sort_toggle_count > 15:
             new_status += "WARNING: Debug mode enabled. Restart to disable."

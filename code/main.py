@@ -8,6 +8,7 @@ import file_handling
 import grid_info as grid_i
 import grid_reading as grid_r
 import image_utils
+from mcta_processing import transform_and_save_mcta_output
 import scoring
 import user_interface
 
@@ -21,6 +22,7 @@ empty_answers_as_g = user_input.empty_answers_as_g
 keys_file = user_input.keys_file
 arrangement_file = user_input.arrangement_map
 sort_results = user_input.sort_results
+output_mcta = user_input.output_mcta
 debug_mode_on = user_input.debug_mode
 form_variant = grid_i.form_150q if user_input.form_variant == user_interface.FormVariantSelection.VARIANT_150_Q else grid_i.form_75q
 
@@ -105,6 +107,7 @@ try:
                 form_code_field, grid, threshold, form_variant,
                 field_fill_percents[form_code_field]) or ""
             keys_results.add(field_data, answers)
+
         else:
             for field in form_variant.fields.keys():
                 field_value = grid_r.read_field_as_string(
@@ -146,6 +149,7 @@ try:
                           sort_results,
                           timestamp=files_timestamp,
                           transpose=True)
+
         success_string += "✔️ Key processed and saved.\n"
 
         scores = scoring.score_results(answers_results, keys_results,
@@ -170,6 +174,9 @@ try:
                     sort_results,
                     timestamp=files_timestamp)
         success_string += "✔️ All scored results processed and saved."
+
+    if (output_mcta):
+        transform_and_save_mcta_output(answers_results, keys_results, files_timestamp, output_folder)
 
     progress.set_status(success_string, False)
 except (RuntimeError, ValueError) as e:
