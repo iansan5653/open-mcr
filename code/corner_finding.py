@@ -125,16 +125,29 @@ def find_corner_marks(image: np.ndarray,
         image_utils.draw_polygons(image, hexagons, save_path / "all_hexagons.jpg")
         image_utils.draw_polygons(image, quadrilaterals, save_path / "all_quadrilaterals.jpg")
 
+    for i in range(len(hexagons)):
+        hexagon = hexagons[i]
+
         try:
             l_mark = LMark(hexagon)
         except WrongShapeError:
             continue
 
+        # To construct the basis, we use points 0, 4, 5 of the L. The points are in CW order from
+        # the top-left corner, so these are the top-left, bottom-left, and bottom-right-of-bottom-side
+        # points. 
         basis_transformer = geometry_utils.ChangeOfBasisTransformer(
             l_mark.polygon[0], l_mark.polygon[5], l_mark.polygon[4])
         nominal_to_right_side = 50 - 0.5
+        # Since the side of the L is twice as long as it is wide, divide y by two as the new-basis
+        # system will be squashed
         nominal_to_bottom = ((64 - 0.5) / 2)
-        tolerance = 0.1 * nominal_to_right_side
+        # We can afford to allow a decently large error margin here since we are just searching for
+        # reference points and the rough coordinate system established based on the L is very
+        # sensitive to noise.
+        x_tolerance = 0.2 * nominal_to_right_side
+        y_tolerance = 0.2 * nominal_to_bottom
+
 
         top_right_squares = []
         bottom_left_squares = []
@@ -169,7 +182,7 @@ def find_corner_marks(image: np.ndarray,
             image_utils.draw_polygons(
                 image,
                 polys,
-                save_path / f"grid_corner_tolerances.png",
+                save_path / f"grid_corner_tolerances_{i}.png",
                 thickness=2
             )
 
@@ -183,18 +196,18 @@ def find_corner_marks(image: np.ndarray,
 
             if math_utils.is_within_tolerance(
                     centroid_new_basis.x, nominal_to_right_side,
-                    tolerance) and math_utils.is_within_tolerance(
-                        centroid_new_basis.y, 0.5, tolerance):
+                    x_tolerance) and math_utils.is_within_tolerance(
+                        centroid_new_basis.y, 0.5, y_tolerance):
                 top_right_squares.append(square)
             elif math_utils.is_within_tolerance(
                     centroid_new_basis.x, 0.5,
-                    tolerance) and math_utils.is_within_tolerance(
-                        centroid_new_basis.y, nominal_to_bottom, tolerance):
+                    x_tolerance) and math_utils.is_within_tolerance(
+                        centroid_new_basis.y, nominal_to_bottom, y_tolerance):
                 bottom_left_squares.append(square)
             elif math_utils.is_within_tolerance(
                     centroid_new_basis.x, nominal_to_right_side,
-                    tolerance) and math_utils.is_within_tolerance(
-                        centroid_new_basis.y, nominal_to_bottom, tolerance):
+                    x_tolerance) and math_utils.is_within_tolerance(
+                        centroid_new_basis.y, nominal_to_bottom, y_tolerance):
                 bottom_right_squares.append(square)
 
         if len(top_right_squares) == 0 or len(bottom_left_squares) == 0 or len(

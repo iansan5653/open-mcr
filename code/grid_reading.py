@@ -80,36 +80,52 @@ class Grid:
                                  (down + 1) * self.vertical_cell_size),
         ]
 
+
+    def get_cell_range(self, across: int, down: int) -> tp.Tuple[tp.Tuple[float, float], tp.Tuple[float, float]]:
+        """Get the range of x and y-dimensions that this cell touches, in the basis that the cell
+        is given.
+        
+        Returns tuple of ((min_x, max_x), (min_y, max_y))"""
+        cell = self.get_cell_shape(across, down)
+        # Cannot just use the top-left and bottom-right points according to the polygon - what if
+        # the cell is rotated 30 degrees? We want to use the absolute max and min coordinates.
+        x_coords = [point.x for point in cell]
+        y_coords = [point.y for point in cell]
+        return (min(x_coords), max(x_coords)), (min(y_coords), max(y_coords))
+
     def get_cell_shape(self, across: int, down: int) -> geometry_utils.Polygon:
         """Get the shape of a cell using it's 0-based index. Returns the contour
         in CW direction starting with the top left cell."""
-        return [
-            self.basis_transformer.from_basis(p)
-            for p in self._get_cell_shape_in_basis(across, down)
-        ]
+        return self.basis_transformer.poly_from_basis(self._get_cell_shape_in_basis(across, down))
 
     def get_unmasked_cell_matrix(self, across: int, down: int) -> np.ndarray:
-        [top_left_point, _, bottom_right_point,
-         _] = self.get_cell_shape(across, down)
-        # +1 because indexing doesn't include the last number (ie, [1,2,3,4][1:3] ->
-        # [2,3]) and we want that last row / column.
-        x_range = (int(top_left_point.x), int(bottom_right_point.x) + 1)
-        y_range = (int(top_left_point.y), int(bottom_right_point.y) + 1)
-        return self.image[y_range[0]:y_range[1], x_range[0]:x_range[1]]
+        """Get the matrix of pixels in the grid cell area. Note if the grid is rotated, this will
+        include pixels outside the cell since the cell will be a diamond and this will be a
+        rectangle."""
+        ((min_x, max_x), (min_y, max_y)) = self.get_cell_range(across, down)
+        # Add 1 for inclusive indexing. Numpy will not accept even rounded floats as indexes.
+        return self.image[
+            int(round(min_y)):int(round(max_y + 1)),
+            int(round(min_x)):int(round(max_x + 1))
+]
+
+    def get_cell_center(self, across: int, down: int) -> geometry_utils.Point:
+        """Get the center point of the cell."""
+        ((min_x, max_x), (min_y, max_y)) = self.get_cell_range(across, down)
+        return geometry_utils.Point(min_x + ((max_x - min_x) / 2),
+                                    min_y + ((max_y - min_y) / 2))
 
     def get_cell_circle(self, across: int,
                         down: int) -> tp.Tuple[geometry_utils.Point, float]:
-        [top_left_point, _, bottom_right_point,
-         _] = self.get_cell_shape(across, down)
-        x_range = int(bottom_right_point.x) + 1 - int(top_left_point.x)
-        y_range = int(bottom_right_point.y) + 1 - int(top_left_point.y)
-        center = geometry_utils.Point(top_left_point.x + x_range / 2,
-                                      top_left_point.y + y_range / 2)
-        radius = (
-            (x_range + y_range) / 2) / 2 * (1 - (GRID_CELL_CROP_FRACTION / 2))
-        return (center, radius)
+        ((min_x, max_x), (min_y, max_y)) = self.get_cell_range(across, down)
+        # If the cell is not perfectly square, base the circle size on the average dimension
+        average_dimension = ((max_x - min_x) + (max_y - min_y)) / 2
+        diameter = average_dimension * (1 - GRID_CELL_CROP_FRACTION)
+        center = self.get_cell_center(across, down)
+        return (center, diameter / 2)
 
     def get_masked_cell_matrix(self, across: int, down: int) -> ma.MaskedArray:
+        """Get the matrix of pixels in the cell area, masked down to just the cell circle."""
         unmasked = self.get_unmasked_cell_matrix(across, down)
         mask = np.ones(unmasked.shape)
         unit_dimension = sum(mask.shape) / 2
@@ -123,7 +139,7 @@ class Grid:
     def draw_grid(self):
         """Draws the grid on the image, returning a copy with red dots at grid
         points."""
-        image = cv2.cvtColor(self.image.copy(), cv2.COLOR_GRAY2BGR)
+        image = image_utils.bw_to_bgr(self.image)
         for x in range(self.horizontal_cells):
             for y in range(self.vertical_cells):
                 points = self.get_cell_shape(x, y)
