@@ -23,6 +23,7 @@ empty_answers_as_g = user_input.empty_answers_as_g
 keys_file = user_input.keys_file
 arrangement_file = user_input.arrangement_map
 sort_results = user_input.sort_results
+output_mcta = user_input.output_mcta
 debug_mode_on = user_input.debug_mode
 form_variant = grid_i.form_150q if user_input.form_variant == user_interface.FormVariantSelection.VARIANT_150_Q else grid_i.form_75q
 
@@ -183,7 +184,7 @@ try:
                     timestamp=files_timestamp)
         success_string += "✔️ All scored results processed and saved."
 
-    if (keys_results.row_count != 0):
+    if (output_mcta):
         transform_and_save_mcta_output(answers_results, keys_results, files_timestamp, output_folder)
 
     progress.set_status(success_string, False)
