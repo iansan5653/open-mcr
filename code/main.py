@@ -9,10 +9,9 @@ import file_handling
 import grid_info as grid_i
 import grid_reading as grid_r
 import image_utils
-from mcta_processing import calc_mcta_keys, calc_mcta_answers, get_form_code_column
+from mcta_processing import transform_and_save_mcta_output
 import scoring
 import user_interface
-from data_exporting import save_mcta
 
 user_input = user_interface.MainWindow()
 input_folder = user_input.input_folder
@@ -31,13 +30,10 @@ answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
                                              form_variant.num_questions)
 keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE],
                                           form_variant.num_questions)
+
 progress = user_input.create_and_pack_progress(maximum=len(image_paths))
 
 files_timestamp = datetime.now().replace(microsecond=0)
-
-mcta_keys = [] 
-mcta_answers = []
-form_codes= []
 
 debug_dir = output_folder / (
     data_exporting.format_timestamp_for_file(files_timestamp) + "__debug")
@@ -119,7 +115,7 @@ try:
                 form_code_field, grid, threshold, form_variant,
                 field_fill_percents[form_code_field]) or ""
             keys_results.add(field_data, answers)
-            
+
         else:
             for field in form_variant.fields.keys():
                 field_value = grid_r.read_field_as_string(
@@ -136,11 +132,11 @@ try:
                          "results",
                          sort_results,
                          timestamp=files_timestamp)
-    
+
     success_string = "✔️ All exams processed and saved.\n"
 
     if keys_file:
-        keys_results.add_file(keys_file)          
+        keys_results.add_file(keys_file)
 
     if (keys_results.row_count == 0):
         success_string += "No exam keys were found, so no scoring was performed."
@@ -160,8 +156,8 @@ try:
                           "key",
                           sort_results,
                           timestamp=files_timestamp,
-                          transpose=True)       
-        
+                          transpose=True)
+
         success_string += "✔️ Key processed and saved.\n"
 
         scores = scoring.score_results(answers_results, keys_results,
@@ -187,19 +183,9 @@ try:
                     timestamp=files_timestamp)
         success_string += "✔️ All scored results processed and saved."
 
-    # create mcta keys and write to csv
-    for row in keys_results.data:
-        if row[0] != 'Test Form Code':
-            mcta_keys = calc_mcta_keys(row)
-            form_codes.append(row[0])
-            save_mcta(mcta_keys, output_folder, f"AnswerKey{row[0]}", files_timestamp)
-    
-    #create mcta_answers and write to csv
-    formCodeCol = get_form_code_column(answers_results.field_columns)
-    for code in form_codes:
-        mcta_answers = calc_mcta_answers(code, answers_results.first_question_column_index, formCodeCol, answers_results.data)
-        save_mcta(mcta_answers, output_folder, f"TestData{code}", files_timestamp)
-    
+    if (keys_results.row_count != 0):
+        transform_and_save_mcta_output(answers_results, keys_results, files_timestamp, output_folder)
+
     progress.set_status(success_string, False)
 except Exception as e:
     wrapped_err = "\n".join(textwrap.wrap(str(e), 70))

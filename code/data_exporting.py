@@ -43,10 +43,8 @@ def validate_order_map(order_map: tp.Dict[str, tp.List[int]],
                 f"Arrangement file entry for '{form_code}' is invalid. All arrangement file entries must contain one of each index from 1 to the number of questions."
             )
 
-# function to mcta csv files
-def save_mcta(data: tp.List[tp.List[str]], path: pathlib.PurePath, basefilename: str, timestamp: datetime):
-    filename = path/f"{format_timestamp_for_file(timestamp)}__MCTestAnalysis_{basefilename}.csv"
-    with open(filename, "w", newline="") as f:
+def save_csv(data: tp.List[tp.List[str]], path: pathlib.PurePath):
+    with open(path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(data)
 
@@ -59,6 +57,7 @@ class OutputSheet():
     num_questions: int
     row_count: int
     first_question_column_index: int
+    form_code_column_index: int
 
     def __init__(self, columns: tp.List[RealOrVirtualField], num_questions: int):
         self.field_columns = columns
@@ -66,6 +65,7 @@ class OutputSheet():
         field_column_names = [COLUMN_NAMES[column] for column in columns]
         answer_columns = [f"Q{i + 1}" for i in range(self.num_questions)]
         self.first_question_column_index = len(field_column_names)
+        self.form_code_column_index = self.field_columns.index(Field.TEST_FORM_CODE)
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
 
@@ -77,9 +77,7 @@ class OutputSheet():
         data = self.data
         if(transpose):
             data = list_utils.transpose(data)
-        with open(str(output_path), 'w+', newline='') as output_file:
-            writer = csv.writer(output_file)
-            writer.writerows(data)     
+        save_csv(data, output_path)
         return output_path
 
     def delete_field_column(self, column: RealOrVirtualField):
