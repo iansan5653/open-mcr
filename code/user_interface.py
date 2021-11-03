@@ -453,6 +453,7 @@ class MainWindow:
     output_mcta: bool
     debug_mode: bool = False
     form_variant: FormVariantSelection
+    cancelled: bool = False
 
     def __init__(self):
         app: tk.Tk = tk.Tk()
@@ -461,6 +462,8 @@ class MainWindow:
 
         iconpath = str(Path(__file__).parent / "assets" / "icon.ico")
         app.iconbitmap(iconpath)
+
+        app.protocol("WM_DELETE_WINDOW", self.__on_close)
 
         self.__input_folder_picker = InputFolderPickerWidget(
             app, self.__on_update)
@@ -615,6 +618,11 @@ class MainWindow:
                 Path(__file__).parent / "assets" /
                 "multiple_choice_sheet_150q.pdf")
             subprocess.Popen([helpfile], shell=True)
+
+    def __on_close(self):
+        self.__app.destroy()
+        self.__ready_to_continue.set(1)
+        self.cancelled = True
 
     def create_and_pack_progress(self, maximum: int) -> ProgressTrackerWidget:
         return ProgressTrackerWidget(self.__app, maximum)
