@@ -158,3 +158,19 @@ def dilate(image: np.ndarray,
     if save_path:
         save_image(save_path / "dilated.jpg", result)
     return result
+
+
+def bw_to_bgr(image: np.ndarray) -> np.ndarray:
+    return cv2.cvtColor(image.copy(), cv2.COLOR_GRAY2BGR)
+
+
+def draw_polygons(image: np.ndarray,
+                  polygons: tp.List[geometry_utils.Polygon],
+                  full_save_path: tp.Optional[pathlib.PurePath] = None,
+                  thickness: int = 1) -> np.ndarray:
+    """Draw all the polygons on the image (for debugging) and return or save the result."""
+    points = [np.array([[p.x, p.y] for p in poly], np.int32).reshape((-1, 1, 2)) for poly in polygons]
+    result = cv2.polylines(bw_to_bgr(image), points, True, (0, 0, 255), thickness)
+    if full_save_path:
+        save_image(full_save_path, result)
+    return result

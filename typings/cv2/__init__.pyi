@@ -2,8 +2,9 @@
 Types for OpenCV.
 """
 
-from numpy import ndarray
 import typing
+
+from numpy import ndarray
 
 
 def imshow(title: str, image: ndarray):
@@ -64,6 +65,11 @@ def contourArea(a: ndarray, b: bool) -> ndarray:
 
 def circle(img: ndarray, center: typing.Tuple[int, int], radius: int,
            color: typing.Tuple[int, int, int], thickness: int) -> ndarray:
+    ...
+
+
+def polylines(image: ndarray, polygons: typing.List[ndarray], isClosed: bool,
+              color: typing.Tuple[int, int, int], thickness: int) -> ndarray:
     ...
 
 

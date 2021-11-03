@@ -1,5 +1,4 @@
 import textwrap
-import time
 import typing as tp
 from datetime import datetime
 
@@ -52,16 +51,8 @@ try:
         prepared_image = image_utils.prepare_scan_for_processing(
             image, save_path=debug_path)
 
-        # Find the corners, skipping the image on failure
-        try:
-            corners = corner_finding.find_corner_marks(prepared_image,
-                                                       save_path=debug_path)
-        except corner_finding.CornerFindingError:
-            progress.set_status(
-                f"Error with '{image_path.name}': couldn't find corners. Skipping..."
-            )
-            time.sleep(1)
-            continue
+        corners = corner_finding.find_corner_marks(prepared_image,
+                                                    save_path=debug_path)
 
         # Dilates the image - removes black pixels from edges, which preserves
         # solid shapes while destroying nonsolid ones. By doing this after noise
@@ -181,7 +172,7 @@ try:
         success_string += "✔️ All scored results processed and saved."
 
     progress.set_status(success_string, False)
-except Exception as e:
+except (RuntimeError, ValueError) as e:
     wrapped_err = "\n".join(textwrap.wrap(str(e), 70))
     progress.set_status(f"Error: {wrapped_err}", False)
     if debug_mode_on:

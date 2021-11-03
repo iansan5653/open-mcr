@@ -123,9 +123,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# VSCode
-/.vscode
-
 # Virtual Environment
 scantron-reader
 

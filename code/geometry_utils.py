@@ -192,52 +192,49 @@ def extend_ray(a: Point, b: Point, distance: float):
     return Point(b.x + dx, b.y + dy)
 
 
-def create_change_of_basis(
-        origin: Point, bottom_left: Point, bottom_right: Point
-) -> tp.Tuple[tp.Callable[[Point], Point], tp.Callable[[Point], Point]]:
-    """Returns functions that will convert points to/from the current coordinate
-    system to a new one where the passed `origin` point becomes `0,0`, the
-    `bottom_left` point becomes `0,1`, and the `bottom_right` point becomes `1,1`.
+class ChangeOfBasisTransformer():
+    """Transforms points to/from their 2D coordinate system into a new one, such that the passed
+    `origin` point becomes `0.0`, the `bottom_left` point becomes `0,1`, and the `bottom_right`
+    point because `1,1`."""
+    def __init__(self, origin: Point, bottom_left: Point, bottom_right: Point):
+        target_origin = Point(0, 0)
+        target_bl = Point(0, 1)
+        target_br = Point(1, 1)
+        target_matrix = np.array([[target_origin.x], [target_bl.x], [target_br.x],
+                                [target_origin.y], [target_bl.y], [target_br.y]],
+                                float)
 
-    Returns:
-        A tuple where the first element is a function that converts
-            points _to_ the new system, and the second is a function that converts
-            them back.
-    """
-    target_origin = Point(0, 0)
-    target_bl = Point(0, 1)
-    target_br = Point(1, 1)
-    target_matrix = np.array([[target_origin.x], [target_bl.x], [target_br.x],
-                              [target_origin.y], [target_bl.y], [target_br.y]],
-                             float)
+        from_matrix = np.array([[origin.x, origin.y, 1, 0, 0, 0],
+                                [bottom_left.x, bottom_left.y, 1, 0, 0, 0],
+                                [bottom_right.x, bottom_right.y, 1, 0, 0, 0],
+                                [0, 0, 0, origin.x, origin.y, 1],
+                                [0, 0, 0, bottom_left.x, bottom_left.y, 1],
+                                [0, 0, 0, bottom_right.x, bottom_right.y, 1]],
+                            float)
 
-    from_matrix = np.array([[origin.x, origin.y, 1, 0, 0, 0],
-                            [bottom_left.x, bottom_left.y, 1, 0, 0, 0],
-                            [bottom_right.x, bottom_right.y, 1, 0, 0, 0],
-                            [0, 0, 0, origin.x, origin.y, 1],
-                            [0, 0, 0, bottom_left.x, bottom_left.y, 1],
-                            [0, 0, 0, bottom_right.x, bottom_right.y, 1]],
-                           float)
+        result = np.matmul(np.linalg.inv(from_matrix), target_matrix)
+        self._transformation_matrix = np.array([[result[0][0], result[1][0]],
+                                        [result[3][0], result[4][0]]])
+        self._transformation_matrix_inv = np.linalg.inv(self._transformation_matrix)
+        self._rotation_matrix = np.array([[result[2][0]], [result[5][0]]])
 
-    result = np.matmul(np.linalg.inv(from_matrix), target_matrix)
-    transformation_matrix = np.array([[result[0][0], result[1][0]],
-                                      [result[3][0], result[4][0]]])
-    transformation_matrix_inv = np.linalg.inv(transformation_matrix)
-    rotation_matrix = np.array([[result[2][0]], [result[5][0]]])
-
-    def to_basis(point: Point) -> Point:
+    def to_basis(self, point: Point) -> Point:
         point_vector = np.array([[point.x], [point.y]], float)
-        result = np.matmul(transformation_matrix,
-                           point_vector) + rotation_matrix
+        result = np.matmul(self._transformation_matrix,
+                           point_vector) + self._rotation_matrix
         return Point(result[0][0], result[1][0])
 
-    def from_basis(point: Point) -> Point:
+    def from_basis(self, point: Point) -> Point:
         point_vector = np.array([[point.x], [point.y]], float)
-        result = np.matmul(transformation_matrix_inv,
-                           (point_vector - rotation_matrix))
+        result = np.matmul(self._transformation_matrix_inv,
+                           (point_vector - self._rotation_matrix))
         return Point(result[0][0], result[1][0])
 
-    return to_basis, from_basis
+    def poly_to_basis(self, polygon: Polygon) -> Polygon:
+        return [self.to_basis(point) for point in polygon]
+
+    def poly_from_basis(self, polygon: Polygon) -> Polygon:
+        return [self.from_basis(point) for point in polygon]
 
 
 def guess_centroid(quadrilateral: Polygon) -> Point:
@@ -276,6 +273,17 @@ def get_corner(square: Polygon, corner: Corner) -> Point:
         corner.value[0] == 0) else side_points[list_utils.next_index(
             side_points, highest_y)]
     return corner_point
+
+def get_corner_wrt_basis(square: Polygon, corner: Corner, basis: ChangeOfBasisTransformer) -> Point:
+    """Gets the point representing the given corner of the square with respect to the basis
+    provided. For example, if the change in basis involes a 180deg rotation, the point returned will
+    be the opposite point from the requested point in the origin coordinate system.
+    
+    Returns the requested untransformed point of the square.
+    """
+    transformed_square = basis.poly_to_basis(square)
+    transformed_corner = get_corner(transformed_square, corner)
+    return basis.from_basis(transformed_corner)
 
 
 def crop_rectangle(top_left_corner: Point, bottom_right_corner: Point,
