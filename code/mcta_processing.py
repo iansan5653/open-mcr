@@ -31,7 +31,7 @@ def create_keys_files(keys_results: OutputSheet, output_folder: pathlib.Path, fi
     for row in keys_results.data[1:]:
         code = row[form_code_col]
         csv_data = build_key_csv(row[keys_results.first_question_column_index:])
-        save_mcta_csv(csv_data, output_folder, f"AnswerKey{code}", files_timestamp)
+        save_mcta_csv(csv_data, output_folder, f"{code}_key", files_timestamp)
 
 
 def create_answers_files(answers_results: OutputSheet,
@@ -61,7 +61,7 @@ def create_answers_files(answers_results: OutputSheet,
         csv_data = build_answers_csv(group_data)
         # Test form code can be in [A|B] form if student selects A and B. The [|] are not safe for filename.
         file_safe_code = code.replace("[", "").replace("]", "").replace("|", "")
-        save_mcta_csv(csv_data, output_folder, f"TestData{file_safe_code}", files_timestamp)
+        save_mcta_csv(csv_data, output_folder, f"{file_safe_code}_results", files_timestamp)
 
 
 def build_key_csv(answers: tp.List[str]) -> tp.List[tp.List[str]]:
@@ -92,5 +92,5 @@ def save_mcta_csv(data: tp.List[tp.List[str]],
                   path: pathlib.PurePath,
                   basefilename: str,
                   timestamp: datetime):
-    filename = path / f"{format_timestamp_for_file(timestamp)}__MCTestAnalysis_{basefilename}.csv"
+    filename = path / f"{format_timestamp_for_file(timestamp)}__mcta_{basefilename}.csv"
     save_csv(data, filename)
