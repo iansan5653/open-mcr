@@ -172,7 +172,7 @@ try:
         success_string += "✔️ All scored results processed and saved."
 
     progress.set_status(success_string, False)
-except Exception as e:
+except (RuntimeError, ValueError) as e:
     wrapped_err = "\n".join(textwrap.wrap(str(e), 70))
     progress.set_status(f"Error: {wrapped_err}", False)
     if debug_mode_on:
