@@ -119,6 +119,7 @@ try:
                     field_fill_percents[field])
                 if field_value is not None:
                     field_data[field] = field_value
+            field_data[grid_i.Field.IMAGE_FILE] = image_path.name
             answers_results.add(field_data, answers)
         progress.step_progress()
 
