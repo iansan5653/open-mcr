@@ -15,6 +15,10 @@ corresponding multiple choice sheet were developed as an independent study
 project by Ian Sanders, a mechanical engineering student at the University of
 South Florida, under the direction of Dr. Autar Kaw.
 
+For a detailed discussion of the algorithm and features in use, please
+[read the report](https://github.com/iansan5653/open-mcr-report/releases/tag/1.0.0)
+as submitted for the original independent study course.
+
 ## Installation Instructions
 
 Currently, installers are only provided for Windows. For other operating
