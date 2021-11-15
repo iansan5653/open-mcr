@@ -130,3 +130,8 @@ def transpose(matrix: tp.List[tp.List[T]]) -> tp.List[tp.List[T]]:
             "Input matrix rows must all have the same length for transposing.")
     return [[row[col_index] for row in matrix]
             for col_index in range(len(matrix[0]))]
+
+
+def count_trailing_empty_elements(items: tp.List[tp.Any]) -> int:
+    """Returns the number of trailing empty elements in the list."""
+    return next((i for i, x in enumerate(reversed(items)) if x != ""), len(items))
