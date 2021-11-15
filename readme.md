@@ -41,13 +41,15 @@ does not require administrator priveleges.
 
 If you wish to customize the software or you need to run it on a non-Windows
 device, you can run the Python program directly from the source files. This
-requires Python to be installed on your machine. Download
-the latest `Source code (zip)` file from [releases](https://github.com/iansan5653/open-mcr/releases).
-Extract the file and open a terminal / command prompt in the extracted directory.
-Run the command `python code/main.py`.
+requires Python and Pip to be installed on your machine.
 
-_Note_: This software has not been tested on other operating systems and support
-is not guarunteed. If you find a bug, please file an [issue](https://github.com/iansan5653/open-mcr/issues).
+1. Clone the reposotory using Git, or download and extract the latest `Source code (zip)` file from
+  [releases](https://github.com/iansan5653/open-mcr/releases).
+2. Open a terminal / command prompt in the extracted directory.
+3. Run `pip3 install -r requirements.txt` (or `pip` if that's the name of Python 3 Pip on your
+  machine).
+4. If you are using linux, you may also need to `apt install` `python3-opencv` and `python3-tk`.
+5. Run `python3 code/main.py` (or `python code/main.py`).
 
 ## Printable Multiple Choice Sheet
 
