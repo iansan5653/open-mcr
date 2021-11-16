@@ -8,9 +8,7 @@ from process_input import process_input
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser('OMCR',
-                                     usage='python cli.py [options] INPUT OUTPUT',
-                                     description='OpenMCR: An accurate and simple exam bubble sheet reading tool.\n'
+    parser = argparse.ArgumentParser(description='OpenMCR: An accurate and simple exam bubble sheet reading tool.\n'
                                                  'Reads sheets from input folder, process and saves result in output folder.',
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('input_folder',
