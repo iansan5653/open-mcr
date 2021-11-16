@@ -25,6 +25,12 @@ def process_input(
         debug_mode_on: bool,
         form_variant: grid_i.FormVariant,
         progress_tracker: tp.Optional[ProgressTrackerWidget]):
+    """Takes input as parameters and process it for either gui or cli.
+    
+    Parameter progress_tracker determines whith interface in use.
+    If progress_tracker is given, function runs in gui mode.
+    If progress_tracker parameter is None, prints all progress statuses to stdout.
+    """
 
     answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
                                                  form_variant.num_questions)
