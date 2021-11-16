@@ -32,7 +32,7 @@ form_variant = grid_i.form_150q if user_input.form_variant == user_interface.For
 
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
                                              form_variant.num_questions)
-keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE],
+keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE, grid_i.Field.IMAGE_FILE],
                                           form_variant.num_questions)
 
 progress = user_input.create_and_pack_progress(maximum=len(image_paths))
@@ -110,6 +110,7 @@ try:
             field_data[form_code_field] = grid_r.read_field_as_string(
                 form_code_field, grid, threshold, form_variant,
                 field_fill_percents[form_code_field]) or ""
+            field_data[grid_i.Field.IMAGE_FILE] = image_path.name
             keys_results.add(field_data, answers)
 
         else:
