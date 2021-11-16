@@ -44,7 +44,7 @@ device, you can run the Python program directly from the source files. This
 requires Python to be installed on your machine. Download
 the latest `Source code (zip)` file from [releases](https://github.com/iansan5653/open-mcr/releases).
 Extract the file and open a terminal / command prompt in the extracted directory.
-Run the command `python code/main.py`.
+Run the command `python code/main.py` to invoke command line interface or `python code/main_gui.py` to open user interface.
 
 _Note_: This software has not been tested on other operating systems and support
 is not guarunteed. If you find a bug, please file an [issue](https://github.com/iansan5653/open-mcr/issues).
