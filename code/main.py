@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('--variant',
                         default='75',
                         choices=['75', '150'],
-                        help='Form variant either 75 questions(default) or 150 questions.')
+                        help='Form variant either 75 questions (default) or 150 questions.')
     parser.add_argument('-ml', '--multiple',
                         action='store_true',
                         help='Convert multiple answers in a question to F, instead of [A|B].')
