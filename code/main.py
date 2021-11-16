@@ -35,7 +35,7 @@ if __name__ == '__main__':
                         help='Convert multiple answers in a question to F, instead of [A|B].')
     parser.add_argument('-e', '--empty',
                         action='store_true',
-                        help='Save empty answers as G, blank default.')
+                        help='Save empty answers as G. By default, they will be saved as blank values.')
     parser.add_argument('-s', '--sort',
                         action='store_true',
                         help="Sort output by students' name.")
