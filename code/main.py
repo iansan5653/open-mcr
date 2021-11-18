@@ -100,6 +100,7 @@ try:
         ]
 
         field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {}
+        field_data[grid_i.Field.IMAGE_FILE] = image_path.name
 
         # Read the Student ID. If it indicates this exam is a key, treat it as such
         student_id = grid_r.read_field_as_string(
@@ -110,7 +111,6 @@ try:
             field_data[form_code_field] = grid_r.read_field_as_string(
                 form_code_field, grid, threshold, form_variant,
                 field_fill_percents[form_code_field]) or ""
-            field_data[grid_i.Field.IMAGE_FILE] = image_path.name
             keys_results.add(field_data, answers)
 
         else:
@@ -120,7 +120,6 @@ try:
                     field_fill_percents[field])
                 if field_value is not None:
                     field_data[field] = field_value
-            field_data[grid_i.Field.IMAGE_FILE] = image_path.name
             answers_results.add(field_data, answers)
         progress.step_progress()
 
