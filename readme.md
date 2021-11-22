@@ -37,17 +37,20 @@ ZIP file packages are also available for each [release](https://github.com/iansa
 extract it anywhere on your machine, and run the `main.exe` file. This method
 does not require administrator priveleges.
 
-### Running From Source
+### Running From Source / CLI
 
-If you wish to customize the software or you need to run it on a non-Windows
-device, you can run the Python program directly from the source files. This
-requires Python to be installed on your machine. Download
-the latest `Source code (zip)` file from [releases](https://github.com/iansan5653/open-mcr/releases).
-Extract the file and open a terminal / command prompt in the extracted directory.
-Run the command `python code/main.py` to invoke command line interface or `python code/main_gui.py` to open user interface.
+If you wish to customize the software, use the command line interface, or run it
+on a non-Windows device, you can run the Python program directly from the source files. This
+requires Python and Pip to be installed on your machine.
 
-_Note_: This software has not been tested on other operating systems and support
-is not guarunteed. If you find a bug, please file an [issue](https://github.com/iansan5653/open-mcr/issues).
+1. Clone the reposotory using Git, or download and extract the latest `Source code (zip)` file from
+  [releases](https://github.com/iansan5653/open-mcr/releases).
+2. Open a terminal / command prompt in the extracted directory.
+3. Run `pip3 install -r requirements.txt` (or `pip` if that's the name of Python 3 Pip on your
+  machine).
+4. If you are using linux, you may also need to `apt install` `python3-opencv` and `python3-tk`.
+5. Run `python3 code/main.py` (or `python code/main.py`) for the CLI interface, or execute `code/main_gui.py`
+  for the user interface.
 
 ## Printable Multiple Choice Sheet
 
