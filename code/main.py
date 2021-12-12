@@ -32,7 +32,7 @@ form_variant = grid_i.form_150q if user_input.form_variant == user_interface.For
 
 answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
                                              form_variant.num_questions)
-keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE],
+keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE, grid_i.Field.IMAGE_FILE],
                                           form_variant.num_questions)
 
 progress = user_input.create_and_pack_progress(maximum=len(image_paths))
@@ -100,6 +100,7 @@ try:
         ]
 
         field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {}
+        field_data[grid_i.Field.IMAGE_FILE] = image_path.name
 
         # Read the Student ID. If it indicates this exam is a key, treat it as such
         student_id = grid_r.read_field_as_string(
