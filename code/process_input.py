@@ -103,8 +103,9 @@ def process_input(
                 for i in range(form_variant.num_questions)
             ]
 
-            field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {}
-            field_data[grid_i.Field.IMAGE_FILE] = image_path.name
+            field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {
+                grid_i.Field.IMAGE_FILE: image_path.name,
+            }
 
             # Read the Student ID. If it indicates this exam is a key, treat it as such
             student_id = grid_r.read_field_as_string(
