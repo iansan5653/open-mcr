@@ -12,5 +12,5 @@ file that can be run to install the software.
    system's PATH variable.
 5. Run the build command:
    ```sh
-   pyinstaller -p code --add-data="code;." -y -w --icon=code/assets/icon.ico code/main.py; makensis installer.nsi
+   pyinstaller -p code --add-data="code;." -y -w --icon=code/assets/icon.ico code/main_gui.py; makensis installer.nsi
    ```
