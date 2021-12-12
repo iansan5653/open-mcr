@@ -24,7 +24,8 @@ def process_input(
         output_mcta: bool,
         debug_mode_on: bool,
         form_variant: grid_i.FormVariant,
-        progress_tracker: tp.Optional[ProgressTrackerWidget]):
+        progress_tracker: tp.Optional[ProgressTrackerWidget],
+        files_timestamp: tp.Optional[datetime]):
     """Takes input as parameters and process it for either gui or cli.
     
     Parameter progress_tracker determines whith interface in use.
@@ -39,10 +40,8 @@ def process_input(
 
     rejected_files = data_exporting.OutputSheet([grid_i.Field.IMAGE_FILE], 0)
 
-    files_timestamp = datetime.now().replace(microsecond=0)
-
     debug_dir = output_folder / (
-            data_exporting.format_timestamp_for_file(files_timestamp) + "__debug")
+            data_exporting.format_timestamp_for_file(files_timestamp) + "debug")
     if debug_mode_on:
         data_exporting.make_dir_if_not_exists(debug_dir)
 

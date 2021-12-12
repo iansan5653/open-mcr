@@ -3,6 +3,7 @@ import grid_info as grid_i
 import user_interface
 import sys
 from process_input import process_input
+from datetime import datetime
 
 user_input = user_interface.MainWindow()
 if (user_input.cancelled):
@@ -21,6 +22,7 @@ output_mcta = user_input.output_mcta
 debug_mode_on = user_input.debug_mode
 form_variant = grid_i.form_150q if user_input.form_variant == user_interface.FormVariantSelection.VARIANT_150_Q else grid_i.form_75q
 progress_tracker = user_input.create_and_pack_progress(maximum=len(image_paths))
+files_timestamp = datetime.now().replace(microsecond=0)
 
 process_input(image_paths,
               output_folder,
@@ -32,4 +34,5 @@ process_input(image_paths,
               output_mcta,
               debug_mode_on,
               form_variant,
-              progress_tracker)
+              progress_tracker,
+              files_timestamp)

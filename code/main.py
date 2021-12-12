@@ -1,5 +1,6 @@
 import argparse
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import file_handling
@@ -43,6 +44,9 @@ if __name__ == '__main__':
     parser.add_argument('--mcta',
                         action='store_true',
                         help='Output additional files for Multiple Choice Test Analysis.')
+    parser.add_argument('--disable-timestamps',
+                        action='store_true',
+                        help='Disable timestamps in file names. Useful when consistent file names are required. Existing files will be overwritten without warning!')
 
     # prints help and exits when called w/o arguments
     if len(sys.argv) == 1:
@@ -61,6 +65,8 @@ if __name__ == '__main__':
     output_mcta = args.mcta
     debug_mode_on = args.debug
     form_variant = grid_i.form_150q if args.variant == '150' else grid_i.form_75q
+    files_timestamp = datetime.now().replace(microsecond=0) if not args.disable_timestamps else None
+
     process_input(image_paths,
                   output_folder,
                   multi_answers_as_f,
@@ -71,4 +77,5 @@ if __name__ == '__main__':
                   output_mcta,
                   debug_mode_on,
                   form_variant,
-                  None)
+                  None,
+                  files_timestamp)
