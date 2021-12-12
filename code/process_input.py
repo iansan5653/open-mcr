@@ -14,7 +14,7 @@ from mcta_processing import transform_and_save_mcta_output
 
 
 def process_input(
-        image_paths: [Path],
+        image_paths: tp.List[Path],
         output_folder: Path,
         multi_answers_as_f: bool,
         empty_answers_as_g: bool,
