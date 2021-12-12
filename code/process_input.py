@@ -37,6 +37,8 @@ def process_input(
     keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE, grid_i.Field.IMAGE_FILE],
                                               form_variant.num_questions)
 
+    rejected_files = data_exporting.OutputSheet([grid_i.Field.IMAGE_FILE], 0)
+
     files_timestamp = datetime.now().replace(microsecond=0)
 
     debug_dir = output_folder / (
@@ -61,8 +63,12 @@ def process_input(
             prepared_image = image_utils.prepare_scan_for_processing(
                 image, save_path=debug_path)
 
-            corners = corner_finding.find_corner_marks(prepared_image,
+            try:
+                corners = corner_finding.find_corner_marks(prepared_image,
                                                        save_path=debug_path)
+            except corner_finding.CornerFindingError:
+                rejected_files.add({grid_i.Field.IMAGE_FILE: image_path.name}, [])
+                continue
 
             # Dilates the image - removes black pixels from edges, which preserves
             # solid shapes while destroying nonsolid ones. By doing this after noise
@@ -136,7 +142,11 @@ def process_input(
                              sort_results,
                              timestamp=files_timestamp)
 
-        success_string = "✔️ All exams processed and saved.\n"
+        if rejected_files.row_count == 0:
+            success_string = "✔️ All exams processed and saved.\n"
+        else:
+            success_string = "❗ Some files could not be processed (see rejected_files output).\nAll other exams were processed and saved.\n"
+            rejected_files.save(output_folder, "rejected_files", sort=False, timestamp=files_timestamp)
 
         if keys_file:
             keys_results.add_file(keys_file)
