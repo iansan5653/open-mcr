@@ -17,6 +17,7 @@ class Field(enum.Enum):
     TEST_FORM_CODE = enum.auto()
     STUDENT_ID = enum.auto()
     COURSE_ID = enum.auto()
+    IMAGE_FILE = enum.auto()
 
 
 class VirtualField(enum.Enum):

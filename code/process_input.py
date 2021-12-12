@@ -14,7 +14,7 @@ from mcta_processing import transform_and_save_mcta_output
 
 
 def process_input(
-        image_paths: [Path],
+        image_paths: tp.List[Path],
         output_folder: Path,
         multi_answers_as_f: bool,
         empty_answers_as_g: bool,
@@ -34,7 +34,7 @@ def process_input(
 
     answers_results = data_exporting.OutputSheet([x for x in grid_i.Field],
                                                  form_variant.num_questions)
-    keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE],
+    keys_results = data_exporting.OutputSheet([grid_i.Field.TEST_FORM_CODE, grid_i.Field.IMAGE_FILE],
                                               form_variant.num_questions)
 
     files_timestamp = datetime.now().replace(microsecond=0)
@@ -103,7 +103,9 @@ def process_input(
                 for i in range(form_variant.num_questions)
             ]
 
-            field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {}
+            field_data: tp.Dict[grid_i.RealOrVirtualField, str] = {
+                grid_i.Field.IMAGE_FILE: image_path.name,
+            }
 
             # Read the Student ID. If it indicates this exam is a key, treat it as such
             student_id = grid_r.read_field_as_string(
