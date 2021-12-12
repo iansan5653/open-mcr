@@ -17,6 +17,7 @@ COLUMN_NAMES: tp.Dict[RealOrVirtualField, str] = {
     Field.TEST_FORM_CODE: "Test Form Code",
     Field.STUDENT_ID: "Student ID",
     Field.COURSE_ID: "Course ID",
+    Field.IMAGE_FILE: 'Source File',
     VirtualField.SCORE: "Total Score (%)",
     VirtualField.POINTS: "Total Points"
 }
@@ -57,7 +58,7 @@ class OutputSheet():
     num_questions: int
     row_count: int
     first_question_column_index: int
-    form_code_column_index: int
+    form_code_column_index: tp.Optional[int]
 
     def __init__(self, columns: tp.List[RealOrVirtualField], num_questions: int):
         self.field_columns = columns
@@ -65,7 +66,8 @@ class OutputSheet():
         field_column_names = [COLUMN_NAMES[column] for column in columns]
         answer_columns = [f"Q{i + 1}" for i in range(self.num_questions)]
         self.first_question_column_index = len(field_column_names)
-        self.form_code_column_index = self.field_columns.index(Field.TEST_FORM_CODE)
+        self.form_code_column_index = self.field_columns.index(
+            Field.TEST_FORM_CODE) if (Field.TEST_FORM_CODE in self.field_columns) else None
         self.data = [field_column_names + answer_columns]
         self.row_count = 0
 

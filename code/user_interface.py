@@ -6,6 +6,7 @@ import sys
 import tkinter as tk
 from tkinter import filedialog, ttk
 import typing as tp
+import platform
 
 import file_handling
 import scoring
@@ -460,8 +461,12 @@ class MainWindow:
         self.__app = app
         app.title(f"{APP_NAME} - Select Inputs")
 
-        iconpath = str(Path(__file__).parent / "assets" / "icon.ico")
-        app.iconbitmap(iconpath)
+        # Only windows supports ICO files. Linux and macOS support XBM files, but they are single-
+        # color and not that pretty so we just don't set an icon on other platforms. It's a minor
+        # UX thing that most people will never notice.
+        if platform.system() == "Windows":
+            iconpath = str(Path(__file__).parent / "assets" / "icon.ico")
+            app.iconbitmap(iconpath)
 
         app.protocol("WM_DELETE_WINDOW", self.__on_close)
 
