@@ -33,7 +33,7 @@
   "reportUnnecessaryCast": true,
   "executionEnvironments": [
     {
-      "root": "code"
+      "root": "src"
     }
   ]
 }
