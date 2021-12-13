@@ -4,6 +4,7 @@ import pathlib
 import typing as tp
 
 from image_utils import SUPPORTED_IMAGE_EXTENSIONS
+from str_utils import strip_double_quotes
 
 
 def list_file_paths(directory: pathlib.Path) -> tp.List[pathlib.Path]:
@@ -39,3 +40,10 @@ def filter_by_extensions(files: tp.Sequence[pathlib.Path],
 def filter_images(files: tp.Sequence[pathlib.Path]) -> tp.List[pathlib.Path]:
     """Filter a list of Paths and return only the images."""
     return filter_by_extensions(files, SUPPORTED_IMAGE_EXTENSIONS)
+
+
+
+def parse_path_arg(path_arg: str) -> pathlib.Path:
+    """Parse a path argument into a Path object, stripping quotes if present.
+    """
+    return pathlib.Path(strip_double_quotes(path_arg))

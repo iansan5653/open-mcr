@@ -1,6 +1,6 @@
 import typing as tp
 import pathlib
-import datetime
+from datetime import datetime
 import itertools
 
 from data_exporting import format_timestamp_for_file, save_csv, OutputSheet
@@ -10,7 +10,7 @@ import list_utils
 
 def transform_and_save_mcta_output(answers_results: OutputSheet,
                                    keys_results: OutputSheet,
-                                   files_timestamp: datetime,
+                                   files_timestamp: tp.Optional[datetime],
                                    output_folder: pathlib.Path):
     """Generate and save files that are specific to a downstream Multiple Choice Test Analysis
     software. The format of these files is dependend on the downstream software, so they are not
@@ -19,7 +19,7 @@ def transform_and_save_mcta_output(answers_results: OutputSheet,
     create_answers_files(answers_results, output_folder, files_timestamp)
 
 
-def create_keys_files(keys_results: OutputSheet, output_folder: pathlib.Path, files_timestamp: datetime):
+def create_keys_files(keys_results: OutputSheet, output_folder: pathlib.Path, files_timestamp: tp.Optional[datetime]):
     """Create the key files for the Multiple Choice Test Analysis software.
 
     Params:
@@ -37,7 +37,7 @@ def create_keys_files(keys_results: OutputSheet, output_folder: pathlib.Path, fi
 
 def create_answers_files(answers_results: OutputSheet,
                          output_folder: pathlib.Path,
-                         files_timestamp: datetime):
+                         files_timestamp: tp.Optional[datetime]):
     """Create the answer files for the Multiple Choice Test Analysis software.
 
     Params:
@@ -93,6 +93,6 @@ def build_answers_csv(data: tp.List[tp.Tuple[int, tp.List[str]]]) -> tp.List[tp.
 def save_mcta_csv(data: tp.List[tp.List[str]],
                   path: pathlib.PurePath,
                   basefilename: str,
-                  timestamp: datetime):
-    filename = path / f"{format_timestamp_for_file(timestamp)}__mcta_{basefilename}.csv"
+                  timestamp: tp.Optional[datetime]):
+    filename = path / f"{format_timestamp_for_file(timestamp)}mcta_{basefilename}.csv"
     save_csv(data, filename)

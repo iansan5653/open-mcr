@@ -1,0 +1,25 @@
+name: Continuous Integration
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2.3.1
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          # cache: 'pip' # uncomment when https://github.com/actions/cache/issues/698 fixed
+
+      - run: pip install -r requirements.txt
+
+      - run: python -m pytest

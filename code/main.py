@@ -1,8 +1,9 @@
 import argparse
 import sys
-from pathlib import Path
+from datetime import datetime
 
 import file_handling
+from file_handling import parse_path_arg
 import grid_info as grid_i
 from process_input import process_input
 
@@ -14,16 +15,16 @@ if __name__ == '__main__':
     parser.add_argument('input_folder',
                         help='Path to a folder containing scanned input sheets.\n'
                              'Sheets with student ID of "9999999999" treated as keys. Ignores subfolders.',
-                        type=Path)
+                        type=parse_path_arg)
     parser.add_argument('output_folder',
                         help='Path to a folder to save result to.',
-                        type=Path)
+                        type=parse_path_arg)
     parser.add_argument('--anskeys',
                         help='Answer Keys CSV file path. If given, will be used over other keys.',
-                        type=Path)
+                        type=parse_path_arg)
     parser.add_argument('--formmap',
                         help='Form Arrangement Map CSV file path. If given, only one answer key may be provided.',
-                        type=Path)
+                        type=parse_path_arg)
     parser.add_argument('--variant',
                         default='75',
                         choices=['75', '150'],
@@ -43,6 +44,9 @@ if __name__ == '__main__':
     parser.add_argument('--mcta',
                         action='store_true',
                         help='Output additional files for Multiple Choice Test Analysis.')
+    parser.add_argument('--disable-timestamps',
+                        action='store_true',
+                        help='Disable timestamps in file names. Useful when consistent file names are required. Existing files will be overwritten without warning!')
 
     # prints help and exits when called w/o arguments
     if len(sys.argv) == 1:
@@ -61,6 +65,8 @@ if __name__ == '__main__':
     output_mcta = args.mcta
     debug_mode_on = args.debug
     form_variant = grid_i.form_150q if args.variant == '150' else grid_i.form_75q
+    files_timestamp = datetime.now().replace(microsecond=0) if not args.disable_timestamps else None
+    print(arrangement_file)
     process_input(image_paths,
                   output_folder,
                   multi_answers_as_f,
@@ -71,4 +77,5 @@ if __name__ == '__main__':
                   output_mcta,
                   debug_mode_on,
                   form_variant,
-                  None)
+                  None,
+                  files_timestamp)

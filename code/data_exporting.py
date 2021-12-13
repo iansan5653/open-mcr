@@ -25,8 +25,8 @@ COLUMN_NAMES: tp.Dict[RealOrVirtualField, str] = {
 KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
 
 
-def format_timestamp_for_file(timestamp: datetime) -> str:
-    return timestamp.isoformat(sep="_").replace(":", "-")
+def format_timestamp_for_file(timestamp: tp.Optional[datetime]) -> str:
+    return timestamp.isoformat(sep="_").replace(":", "-") + "__" if timestamp else ""
 
 
 def make_dir_if_not_exists(path: pathlib.Path):
@@ -72,10 +72,10 @@ class OutputSheet():
         self.row_count = 0
 
     def save(self, path: pathlib.PurePath, filebasename: str, sort: bool,
-             timestamp: datetime, transpose: bool = False) -> pathlib.PurePath:
+             timestamp: tp.Optional[datetime], transpose: bool = False) -> pathlib.PurePath:
         if sort:
             self.sortByName()
-        output_path = path / f"{format_timestamp_for_file(timestamp)}__{filebasename}.csv"
+        output_path = path / f"{format_timestamp_for_file(timestamp)}{filebasename}.csv"
         data = self.data
         if(transpose):
             data = list_utils.transpose(data)
