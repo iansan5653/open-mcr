@@ -4,7 +4,7 @@ import sys
 import pytest
 
 current_dir = Path(__file__).parent
-open_mcr_path = current_dir.parent.parent / "code" / "main.py"
+open_mcr_path = current_dir.parent.parent / "src" / "main.py"
 
 @pytest.mark.parametrize("path", [path for path in current_dir.iterdir() if path.is_dir() and path.name != "__pycache__"])
 def test_e2e(path: Path):

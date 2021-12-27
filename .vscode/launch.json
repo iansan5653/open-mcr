@@ -8,7 +8,7 @@
       "name": "Python: main_gui.py",
       "type": "python",
       "request": "launch",
-      "program": "code/main_gui.py",
+      "program": "src/main_gui.py",
       "console": "integratedTerminal"
     }
   ]

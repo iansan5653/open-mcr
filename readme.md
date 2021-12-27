@@ -1,4 +1,4 @@
-## ![OpenMCR](code/assets/wordmark.png)
+## ![OpenMCR](src/assets/wordmark.png)
 
 ### _Free and Open-Source Multiple Choice Exam Reader_
 
@@ -49,7 +49,7 @@ requires Python and Pip to be installed on your machine.
 3. Run `pip3 install -r requirements.txt` (or `pip` if that's the name of Python 3 Pip on your
   machine).
 4. If you are using linux, you may also need to `apt install` `python3-opencv` and `python3-tk`.
-5. Run `python3 code/main.py` (or `python code/main.py`) for the CLI interface, or execute `code/main_gui.py`
+5. Run `python3 src/main.py` (or `python src/main.py`) for the CLI interface, or execute `src/main_gui.py`
   for the user interface.
 
 ## Printable Multiple Choice Sheet
@@ -57,14 +57,14 @@ requires Python and Pip to be installed on your machine.
 The multiple choice sheet that must be used with this software is available
 for printing here:
 
-* [75 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_75q.pdf)
-* [150 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_150q.pdf)
+* [75 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/src/assets/multiple_choice_sheet_75q.pdf)
+* [150 Question Variant](https://github.com/iansan5653/open-mcr/raw/master/src/assets/multiple_choice_sheet_150q.pdf)
 
 ## Usage Instructions
 
 Run the program by finding it in your Start menu after installing.
 
-For full operating instructions, see the [Manual](code/assets/manual.md) or
+For full operating instructions, see the [Manual](src/assets/manual.md) or
 click the <kbd>Open Help</kbd> button in the software.
 
 ## Feedback / Bug Reports

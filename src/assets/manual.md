@@ -17,8 +17,8 @@ https://github.com/iansan5653/open-mcr
 In order to use the OpenMCR software, students must use the provided multiple-
 choice sheets. Two options are available (click the names to print PDFs):
 
-- `multiple_choice_sheet_75q` (https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_75q.pdf): Has 75 questions as well as space for students' full names, course ID, student ID, and test form code.
-- `multiple_choice_sheet_150q` (https://github.com/iansan5653/open-mcr/raw/master/code/assets/multiple_choice_sheet_150q.pdf):
+- `multiple_choice_sheet_75q` (https://github.com/iansan5653/open-mcr/raw/master/src/assets/multiple_choice_sheet_75q.pdf): Has 75 questions as well as space for students' full names, course ID, student ID, and test form code.
+- `multiple_choice_sheet_150q` (https://github.com/iansan5653/open-mcr/raw/master/src/assets/multiple_choice_sheet_150q.pdf):
   Doubles the number of questions to 150, but removes the bubbles for student name. Instead, a non-processed write-in name field is provided.
 
 The program is robust and should work with most printers and scanners, however
