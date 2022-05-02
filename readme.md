@@ -2,6 +2,8 @@
 
 ### _Free and Open-Source Multiple Choice Exam Reader_
 
+[![Continuous Integration](https://github.com/iansan5653/open-mcr/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/iansan5653/open-mcr/actions/workflows/continuous_integration.yml)
+
 ## Background
 
 Commercially available OMR (optical mark recognition) exam sheets, scanners, and
