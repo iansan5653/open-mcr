@@ -4,6 +4,11 @@
 
 [![Continuous Integration](https://github.com/iansan5653/open-mcr/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/iansan5653/open-mcr/actions/workflows/continuous_integration.yml)
 
+> **Warning**
+> This software is imperfect and, as per the license, no warranty is implied. It
+> usually works well, but there may be bugs. Please be sure to double check
+> the results, particularly when working with low-quality scans.
+
 ## Background
 
 Commercially available OMR (optical mark recognition) exam sheets, scanners, and
