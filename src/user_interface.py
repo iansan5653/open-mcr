@@ -617,8 +617,8 @@ class MainWindow(tk.Frame):
             self.__ready_to_continue.set(1)
 
     def __show_help(self):
-        helpfile = str(Path(__file__).parent / "assets" / "manual.md")
-        if platform.system() == 'Darwin':
+        helpfile = str(Path(__file__).parent / "assets" / "manual.pdf")
+        if platform.system() in ('Darwin','Linux'):
             subprocess.Popen(['open',helpfile])
         else:
             subprocess.Popen([helpfile], shell=True)
@@ -628,7 +628,7 @@ class MainWindow(tk.Frame):
             helpfile = str(
                 Path(__file__).parent / "assets" /
                 "multiple_choice_sheet_75q.pdf")
-            if platform.system() == 'Darwin':
+            if platform.system() in ('Darwin','Linux'):
                 subprocess.Popen(['open', helpfile])
             else:
                 subprocess.Popen([helpfile], shell=True)
@@ -636,7 +636,7 @@ class MainWindow(tk.Frame):
             helpfile = str(
                 Path(__file__).parent / "assets" /
                 "multiple_choice_sheet_150q.pdf")
-            if platform.system() == 'Darwin':
+            if platform.system() in ('Darwin','Linux'):
                 subprocess.Popen(['open', helpfile])
             else:
                 subprocess.Popen([helpfile], shell=True)
