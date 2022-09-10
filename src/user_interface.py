@@ -470,6 +470,7 @@ class MainWindow(tk.Frame):
             app.iconbitmap(iconpath)
 
         app.protocol("WM_DELETE_WINDOW", self.__on_close)
+        app.minsize(500,600)
 
         # Scrollable Inner Frame
         self.scroll = ScrollFrame(app)
