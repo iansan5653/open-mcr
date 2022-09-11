@@ -14,3 +14,9 @@ file that can be run to install the software.
    ```sh
    pyinstaller -p src --add-data="src;." -y -w --icon=src/assets/icon.ico --name=open-mcr src/main_gui.py; makensis installer.nsi
    ```
+   
+## MacOS
+Use the following command:
+``` sh
+pyinstaller -p src --clean --onefile -y -w --icon=src/assets/icon.ico --name=open-mcr src/main_gui.py --add-data="src/assets/*.pdf:./assets"
+```
