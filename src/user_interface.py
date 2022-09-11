@@ -1,10 +1,12 @@
 import abc
 import enum
+import os.path
 from pathlib import Path
 import subprocess
 import sys
 import tkinter as tk
 from tkinter import filedialog, ttk
+from tk_scrollable_frame import ScrollFrame
 import typing as tp
 import platform
 
@@ -442,7 +444,7 @@ class ProgressTrackerWidget:
         sys.exit(0)
 
 
-class MainWindow:
+class MainWindow(tk.Frame):
     root: tk.Tk
     input_folder: Path
     output_folder: Path
@@ -469,21 +471,25 @@ class MainWindow:
             app.iconbitmap(iconpath)
 
         app.protocol("WM_DELETE_WINDOW", self.__on_close)
+        app.minsize(500,600)
+
+        # Scrollable Inner Frame
+        self.scroll = ScrollFrame(app)
 
         self.__input_folder_picker = InputFolderPickerWidget(
-            app, self.__on_update)
-        self.__answer_key_picker = AnswerKeyPickerWidget(app, self.__on_update)
+            self.scroll.viewPort, self.__on_update)
+        self.__answer_key_picker = AnswerKeyPickerWidget(self.scroll.viewPort, self.__on_update)
         self.__arrangement_map_picker = ArrangementMapPickerWidget(
-            app, self.__on_update)
+            self.scroll.viewPort, self.__on_update)
         self.__output_folder_picker = OutputFolderPickerWidget(
-            app, self.__on_update)
+            self.scroll.viewPort, self.__on_update)
 
         self.__status_text = tk.StringVar()
-        status = tk.Label(app, textvariable=self.__status_text)
+        status = tk.Label(self.scroll.viewPort, textvariable=self.__status_text)
         status.pack(fill=tk.X, expand=1, pady=(YPADDING * 2, 0))
         self.__on_update()
 
-        buttons_frame = tk.Frame(app)
+        buttons_frame = tk.Frame(self.scroll.viewPort)
 
         # "Open Help" Button
         pack(ttk.Button(buttons_frame,
@@ -508,6 +514,9 @@ class MainWindow:
                                      pady=YPADDING,
                                      side=tk.RIGHT)
         pack(buttons_frame, fill=tk.X, expand=1)
+
+        # when packing the scrollframe, we pack scrollFrame itself (NOT the viewPort)
+        self.scroll.pack(side="top", fill="both", expand=True)
 
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
@@ -609,20 +618,28 @@ class MainWindow:
             self.__ready_to_continue.set(1)
 
     def __show_help(self):
-        helpfile = str(Path(__file__).parent / "assets" / "manual.pdf")
-        subprocess.Popen([helpfile], shell=True)
+        helpfile = helpfile = os.path.join(Path(__file__).parent, "assets",
+                "manual.pdf")
+        if platform.system() in ('Darwin','Linux'):
+            subprocess.Popen(['open',helpfile])
+        else:
+            subprocess.Popen([helpfile], shell=True)
 
     def __show_sheet(self):
         if (self.form_variant == FormVariantSelection.VARIANT_75_Q):
-            helpfile = str(
-                Path(__file__).parent / "assets" /
+            helpfile = os.path.join(Path(__file__).parent, "assets",
                 "multiple_choice_sheet_75q.pdf")
-            subprocess.Popen([helpfile], shell=True)
+            if platform.system() in ('Darwin','Linux'):
+                subprocess.Popen(['open', helpfile])
+            else:
+                subprocess.Popen([helpfile], shell=True)
         elif (self.form_variant == FormVariantSelection.VARIANT_150_Q):
-            helpfile = str(
-                Path(__file__).parent / "assets" /
-                "multiple_choice_sheet_150q.pdf")
-            subprocess.Popen([helpfile], shell=True)
+            helpfile = os.path.join(Path(__file__).parent, "assets",
+                                    "multiple_choice_sheet_150q.pdf")
+            if platform.system() in ('Darwin','Linux'):
+                subprocess.Popen(['open', helpfile])
+            else:
+                subprocess.Popen([helpfile], shell=True)
 
     def __on_close(self):
         self.__app.destroy()
