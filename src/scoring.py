@@ -67,6 +67,8 @@ def score_results(results: data_exporting.OutputSheet,
     ]
     columns = results.field_columns + virtual_fields
     scored_results = data_exporting.OutputSheet(columns, num_questions)
+    key_length = 0
+    answers_end_index = 0
 
     for exam in answers[1:]:  # Skip header row
         fields = {
@@ -86,14 +88,18 @@ def score_results(results: data_exporting.OutputSheet,
                    POINTS] = data_exporting.KEY_NOT_FOUND_MESSAGE
             scored_answers = []
         else:
+            key_length = len(key) - \
+                         list_utils.count_trailing_empty_elements(key)
+            answers_end_index = answers_start_index + key_length
             scored_answers = [
                 int(actual == correct)
-                for actual, correct in zip(exam[answers_start_index:], key)
+                for actual, correct in zip(exam[answers_start_index:answers_end_index], key)
             ]
             fields[grid_info.VirtualField.SCORE] = str(
                 round(math_utils.mean(scored_answers) * 100, 2))
             fields[grid_info.VirtualField.POINTS] = str(sum(scored_answers))
-        string_scored_answers = [str(s) for s in scored_answers]
+        string_scored_answers = [str(s) for s in scored_answers] + \
+            exam[answers_end_index:]
         scored_results.add(fields, string_scored_answers)
 
     return scored_results
