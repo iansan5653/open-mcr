@@ -7,6 +7,8 @@ import grid_info
 import list_utils
 import math_utils
 
+import re
+
 
 def get_key_form_code(answer_keys: data_exporting.OutputSheet,
                       index: int) -> str:
@@ -100,6 +102,12 @@ def score_results(results: data_exporting.OutputSheet,
             fields[grid_info.VirtualField.POINTS] = str(sum(scored_answers))
         string_scored_answers = [str(s) for s in scored_answers] + \
             exam[answers_end_index:]
+        extra_answers = False
+        for k in exam[answers_end_index+1:]:
+            if (re.search(r'[A-E]*', k)) and k !='':
+                extra_answers = True
+        if extra_answers:
+            fields[grid_info.VirtualField.POINTS] += data_exporting.EXTRA_ANSWERS_FOUND_MESSAGE
         scored_results.add(fields, string_scored_answers)
 
     return scored_results
