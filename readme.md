@@ -28,8 +28,8 @@ as submitted for the original independent study course.
 
 ## Installation Instructions
 
-Currently, installers are only provided for Windows. For other operating
-systems, see [Running From Source](#running-from-source).
+Currently, packaged executables are only provided for Windows. For other operating
+systems, see [Running From Source](#running-from-source--cli).
 
 ### Windows Installation
 
@@ -53,11 +53,13 @@ requires Python and Pip to be installed on your machine.
 1. Clone the reposotory using Git, or download and extract the latest `Source code (zip)` file from
   [releases](https://github.com/iansan5653/open-mcr/releases).
 2. Open a terminal / command prompt in the extracted directory.
-3. Run `pip3 install -r requirements.txt` (or `pip` if that's the name of Python 3 Pip on your
-  machine).
-4. If you are using linux, you may also need to `apt install` `python3-opencv` and `python3-tk`.
-5. Run `python3 src/main.py` (or `python src/main.py`) for the CLI interface, or execute `src/main_gui.py`
-  for the user interface.
+3. On Mac machines with fresh Python installations, you will to update TKinter from the default.
+4. Run `pip3 install -r requirements.txt` to install dependencies.
+5. On Linux machines, install OpenCV and TKinter: `sudo apt-get install python3-opencv python3-tk`.
+6. Run `python3 src/main.py` for the CLI interface or `python3 src/main_gui.py` for the graphical interface.
+
+> **Note**: On MacOS, if you see a black screen when running the GUI, you need to uninstall Python, install TKinter, and
+> then reinstall Python. The easiest way to do this is to manage your installation with Homebrew as described [here](https://apple.stackexchange.com/a/315121).
 
 ## Printable Multiple Choice Sheet
 
