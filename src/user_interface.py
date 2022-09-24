@@ -617,7 +617,7 @@ class MainWindow(tk.Frame):
             self.__ready_to_continue.set(1)
 
     def __show_help(self):
-        helpfile = str(Path(__file__).parent / "assets" / "manual.md")
+        helpfile = str(Path(__file__).parent / "assets" / "manual.pdf")
         subprocess.Popen([helpfile], shell=True)
 
     def __show_sheet(self):
