@@ -5,13 +5,13 @@ with open("readme.md", "r") as f:
 
 setuptools.setup(
     name="open-mcr",
-    url = "https://github.com/gutow/open-mcr",
+    url = "https://github.com/iansan5653/open-mcr",
     version="1.3.0dev",
     description="Graphical tool for optical mark recognition for test scoring.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Ian Sanders",
-    author_email="iansan5653@github.com",
+    author_email="iansan5653@gmail.com",
     keywords="omr, optical-mark-recognition, open-educational-resources, " \
              "exam-sheets, exam-scoring",
     license="GPL-3.0+",
