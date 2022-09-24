@@ -509,9 +509,6 @@ class MainWindow:
                                      side=tk.RIGHT)
         pack(buttons_frame, fill=tk.X, expand=1)
 
-        # when packing the scrollframe, we pack scrollFrame itself (NOT the viewPort)
-        self.scroll.pack(side="top", fill="both", expand=True)
-
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
 
