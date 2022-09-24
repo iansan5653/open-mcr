@@ -7,7 +7,7 @@ import platform
 # ************************
 class ScrollFrame(tk.Frame):
     """
-    This is based on the code from this GIST: ttps://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01
+    This is based on the code from this GIST: https://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01
 
     This class provides a scrollable frame as a nearly drop-in replacement for a tkframe.
 
