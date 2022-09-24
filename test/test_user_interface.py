@@ -1,4 +1,5 @@
-# TODO the following need tests
+"""STUB File for tests"""
+#  The following need tests
 #   pack
 #   create_and_pack_label
 #   PickerWidget

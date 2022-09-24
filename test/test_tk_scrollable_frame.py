@@ -1,3 +1,4 @@
+"""STUB file for tests"""
 import tkinter as tk
 # This standard testing will not work because open-mcr is
 #  is not built as a python package.
@@ -7,5 +8,3 @@ import tkinter as tk
 #     tstframe = ScrollFrame(root)
 #     assert (isinstance(tstframe,ScrollFrame))
 #     assert (isinstance(tstframe,tk.Frame))
-
-# TODO more tests
