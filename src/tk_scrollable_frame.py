@@ -9,9 +9,9 @@ class ScrollFrame(tk.Frame):
     """
     This is based on the code from this GIST: https://gist.github.com/mp035/9f2027c3ef9172264532fcd6262f3b01
 
-    This program is free software: you can redistribute it and/or modify it under the terms of the
-    GNU General Public License as published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     This class provides a scrollable frame as a nearly drop-in replacement for a tkframe.
 
