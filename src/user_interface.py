@@ -12,6 +12,9 @@ import file_handling
 import scoring
 import str_utils
 
+# Import tkinter.scrolledtext module
+import tkinter.scrolledtext
+
 YPADDING = 4
 XPADDING = 7
 APP_NAME = "OpenMCR"
@@ -470,20 +473,25 @@ class MainWindow:
 
         app.protocol("WM_DELETE_WINDOW", self.__on_close)
 
+        # Replace tk.Frame with tkinter.scrolledtext.ScrolledText for the main window container
+        # Set the height option of the container to a reasonable value, e.g. 30
+        container = tkinter.scrolledtext.ScrolledText(app, height=30, state=tk.DISABLED)
+        container.pack(fill=tk.BOTH, expand=1)
+
         self.__input_folder_picker = InputFolderPickerWidget(
-            app, self.__on_update)
-        self.__answer_key_picker = AnswerKeyPickerWidget(app, self.__on_update)
+            container, self.__on_update)
+        self.__answer_key_picker = AnswerKeyPickerWidget(container, self.__on_update)
         self.__arrangement_map_picker = ArrangementMapPickerWidget(
-            app, self.__on_update)
+            container, self.__on_update)
         self.__output_folder_picker = OutputFolderPickerWidget(
-            app, self.__on_update)
+            container, self.__on_update)
 
         self.__status_text = tk.StringVar()
-        status = tk.Label(app, textvariable=self.__status_text)
+        status = tk.Label(container, textvariable=self.__status_text)
         status.pack(fill=tk.X, expand=1, pady=(YPADDING * 2, 0))
         self.__on_update()
 
-        buttons_frame = tk.Frame(app)
+        buttons_frame = tk.Frame(container)
 
         # "Open Help" Button
         pack(ttk.Button(buttons_frame,
