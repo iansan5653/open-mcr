@@ -63,6 +63,17 @@ requires Python and Pip to be installed on your machine.
 > **Note**: On Linux machines, you may see an error message that `opencv` or `tkinter` are not found.
 > If you see this, install those dependencies by running `sudo apt-get install python3-opencv python3-tk` and then try again.
 
+### Codespaces
+
+For development, a pre-made environment is available in [Codespaces](https://github.com/features/codespaces):
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/iansan5653/open-mcr?quickstart=1)
+
+> [!NOTE]
+> The configuration auomatically installs the [`desktop-lite`](https://github.com/devcontainers/features/tree/main/src/desktop-lite)
+> feature for running the GUI. This environment can be accessed in your browser through the forwarded `6080` port. The
+> desktop password is `vscode`.
+
 ## Printable Multiple Choice Sheet
 
 The multiple choice sheet that must be used with this software is available
