@@ -12,6 +12,9 @@ import file_handling
 import scoring
 import str_utils
 
+# Import tkinter.scrolledtext module
+import tkinter.scrolledtext as scrolledtext
+
 YPADDING = 4
 XPADDING = 7
 APP_NAME = "OpenMCR"
@@ -254,7 +257,7 @@ class InputFolderPickerWidget():
             container, "Form Variant:", ["75 questions", "150 questions"],
             self.__on_update)
 
-        pack(container, fill=tk.X)
+        pack(container, fill=tk.X, expand=1)
 
         self.folder = None
         self.multi_answers_as_f = False
@@ -307,7 +310,7 @@ class OutputFolderPickerWidget():
             container, "Output additional files for MCTA.",
             self.__on_update, reduce_padding_above=True)
 
-        pack(container, fill=tk.X)
+        pack(container, fill=tk.X, expand=1)
 
         self.folder = None
         self.sort_results = False
@@ -354,7 +357,7 @@ class AnswerKeyPickerWidget():
                                                     [("CSV Files", "*.csv")],
                                                     self.__on_update)
 
-        pack(container, fill=tk.X)
+        pack(container, fill=tk.X, expand=1)
 
         self.file = None
 
@@ -388,7 +391,7 @@ class ArrangementMapPickerWidget():
         self.__arrangement_map_picker = FilePickerWidget(
             container, [("CSV Files", "*.csv")], self.__on_update)
 
-        pack(container, fill=tk.X)
+        pack(container, fill=tk.X, expand=1)
 
         self.file = None
 
@@ -470,20 +473,27 @@ class MainWindow:
 
         app.protocol("WM_DELETE_WINDOW", self.__on_close)
 
+        # Replace tk.Frame with tkinter.scrolledtext.ScrolledText for the root window
+        # Set the height option of the root window to 500
+        # Remove the pack call for the root window and use grid instead
+        # Adjust the grid options for the child widgets to fit the new layout
+        root = scrolledtext.ScrolledText(app, height=500, state=tk.DISABLED)
+        self.__root = root
+
         self.__input_folder_picker = InputFolderPickerWidget(
-            app, self.__on_update)
-        self.__answer_key_picker = AnswerKeyPickerWidget(app, self.__on_update)
+            root, self.__on_update)
+        self.__answer_key_picker = AnswerKeyPickerWidget(root, self.__on_update)
         self.__arrangement_map_picker = ArrangementMapPickerWidget(
-            app, self.__on_update)
+            root, self.__on_update)
         self.__output_folder_picker = OutputFolderPickerWidget(
-            app, self.__on_update)
+            root, self.__on_update)
 
         self.__status_text = tk.StringVar()
-        status = tk.Label(app, textvariable=self.__status_text)
-        status.pack(fill=tk.X, expand=1, pady=(YPADDING * 2, 0))
+        status = tk.Label(root, textvariable=self.__status_text)
+        status.grid(row=4, column=0, sticky=tk.W, pady=(YPADDING * 2, 0))
         self.__on_update()
 
-        buttons_frame = tk.Frame(app)
+        buttons_frame = tk.Frame(root)
 
         # "Open Help" Button
         pack(ttk.Button(buttons_frame,
@@ -507,7 +517,7 @@ class MainWindow:
                                      padx=XPADDING,
                                      pady=YPADDING,
                                      side=tk.RIGHT)
-        pack(buttons_frame, fill=tk.X, expand=1)
+        buttons_frame.grid(row=5, column=0, sticky=tk.EW)
 
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
