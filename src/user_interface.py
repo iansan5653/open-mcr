@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import filedialog, ttk
+from tk_scrollable_frame import ScrollFrame
 import typing as tp
 import platform
 
@@ -442,7 +443,7 @@ class ProgressTrackerWidget:
         sys.exit(0)
 
 
-class MainWindow:
+class MainWindow(tk.Frame):
     root: tk.Tk
     input_folder: Path
     output_folder: Path
@@ -469,21 +470,25 @@ class MainWindow:
             app.iconbitmap(iconpath)
 
         app.protocol("WM_DELETE_WINDOW", self.__on_close)
+        app.minsize(500,600)
+
+        # Scrollable Inner Frame
+        self.scroll = ScrollFrame(app)
 
         self.__input_folder_picker = InputFolderPickerWidget(
-            app, self.__on_update)
-        self.__answer_key_picker = AnswerKeyPickerWidget(app, self.__on_update)
+            self.scroll.viewPort, self.__on_update)
+        self.__answer_key_picker = AnswerKeyPickerWidget(self.scroll.viewPort, self.__on_update)
         self.__arrangement_map_picker = ArrangementMapPickerWidget(
-            app, self.__on_update)
+            self.scroll.viewPort, self.__on_update)
         self.__output_folder_picker = OutputFolderPickerWidget(
-            app, self.__on_update)
+            self.scroll.viewPort, self.__on_update)
 
         self.__status_text = tk.StringVar()
-        status = tk.Label(app, textvariable=self.__status_text)
+        status = tk.Label(self.scroll.viewPort, textvariable=self.__status_text)
         status.pack(fill=tk.X, expand=1, pady=(YPADDING * 2, 0))
         self.__on_update()
 
-        buttons_frame = tk.Frame(app)
+        buttons_frame = tk.Frame(self.scroll.viewPort)
 
         # "Open Help" Button
         pack(ttk.Button(buttons_frame,
@@ -508,6 +513,9 @@ class MainWindow:
                                      pady=YPADDING,
                                      side=tk.RIGHT)
         pack(buttons_frame, fill=tk.X, expand=1)
+
+        # when packing the scrollframe, we pack scrollFrame itself (NOT the viewPort)
+        self.scroll.pack(side="top", fill="both", expand=True)
 
         self.__ready_to_continue = tk.IntVar(name="Ready to Continue")
         app.wait_variable("Ready to Continue")
