@@ -23,6 +23,7 @@ COLUMN_NAMES: tp.Dict[RealOrVirtualField, str] = {
 }
 
 KEY_NOT_FOUND_MESSAGE = "NO KEY FOUND"
+EXTRA_ANSWERS_FOUND_MESSAGE = "Extra answers found"
 
 
 def format_timestamp_for_file(timestamp: tp.Optional[datetime]) -> str:
